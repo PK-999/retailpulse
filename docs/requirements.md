@@ -45,6 +45,7 @@ Status meanings:
 | RP-STR-002 | Preserve immutable Bronze events | Every input is retained with raw payload and ingestion metadata | Verified locally; Delta path built | `src/retailpulse/pipeline.py`, Databricks stream job |
 | RP-STR-003 | Produce trustworthy Silver events | Validate schema/rules, deduplicate on event ID, apply a 30-minute watermark, and checkpoint progress | Verified locally; Delta path built | Pipeline tests and Databricks stream job |
 | RP-STR-004 | Perform an idempotent Delta merge | A micro-batch deduplicates source IDs before `MERGE` and inserts unseen events | Built | `merge_silver` in the Databricks stream job |
+| RP-STR-005 | Develop Spark/Delta locally before Azure | Redpanda can feed a bounded local Structured Streaming job that writes Delta and performs the same Silver MERGE pattern | Built | `spark/local_stream_bronze_silver.py`; live Spark execution remains |
 | RP-DQ-001 | Retain rejected evidence | Quarantine stores event ID when available, raw payload, type, message, and timestamp | Verified | `QuarantineRecord`, SQLite/JSONL quarantine tests |
 | RP-DQ-002 | Record pipeline audits | Each run stores timing, status, read/written/rejected/duplicate/late counts, and duration | Verified | `pipeline_run_log`, CLI status, tests |
 | RP-DQ-003 | Detect material quality degradation | Alert above 5% duplicates, 2% schema rejection, or 5% late events | Verified | `src/retailpulse/monitoring.py` |
@@ -56,8 +57,9 @@ Status meanings:
 | RP-OBS-002 | Provide an operations dashboard | Grafana is provisioned with core ingestion and DQ panels | Built | `monitoring/grafana/`; live visual review remains |
 | RP-AI-001 | Generate incident analysis from facts | Report identifies triggered metrics, likely cause, and next action without inventing telemetry | Verified for deterministic engine | `src/retailpulse/incident.py`, generated demo report |
 | RP-AI-002 | Support a local language model | Ollama can receive run/alert context; failures fall back safely to deterministic analysis | Built | Ollama Compose service and `--ollama` path; model execution remains |
-| RP-INF-001 | Provision core Azure services as code | Terraform defines resource group, ADLS, Event Hubs, ADF, Databricks, and Key Vault | Verified structurally | Terraform validation passed with AzureRM 3.117.1 |
-| RP-CICD-001 | Automate quality gates | CI runs Python lint/tests, demo, dbt build/tests, SQL lint, and Terraform validation | Built | `.github/workflows/ci.yml`; hosted Actions run remains |
+| RP-INF-001 | Provision core Azure services as code | Terraform defines resource group, ADLS, opt-in Event Hubs, ADF, Databricks, Key Vault, and subscription budget | Built | Terraform validates with AzureRM 5.0.1; saved plan/apply remain |
+| RP-CICD-001 | Automate quality gates | CI runs Python lint/tests, demo, dbt build/tests, SQL lint, and Terraform validation | Verified | Hosted push/PR Actions and required checks passed in Stage 2 |
+| RP-COST-001 | Bound paid cloud execution | Event Hubs defaults off; Databricks uses job compute, `AvailableNow`, a 30-minute maximum, and a small Azure profile | Built | `config/azure.yml`, Terraform toggle, streaming widgets; cloud enforcement remains |
 | RP-DOC-001 | Make the platform reproducible | Architecture, requirements, contract, runbooks, status, and demo steps are versioned | Verified | `docs/` and root README |
 
 ## 4. Non-functional requirements
@@ -68,7 +70,7 @@ Status meanings:
 | RP-NFR-002 | Replayability | Bronze is append-only; quarantine records preserve raw payloads. |
 | RP-NFR-003 | Observability | Every processing run emits an audit row and a current metrics snapshot. |
 | RP-NFR-004 | Security | Secrets never enter source control; Azure integrations use Key Vault/managed identity where practical. |
-| RP-NFR-005 | Cost control | Terraform does not create active Databricks clusters or automatically apply infrastructure. |
+| RP-NFR-005 | Cost control | Local-first profiles are versioned; Terraform creates no compute, defaults Event Hubs off, and defines a subscription budget. |
 | RP-NFR-006 | Portability | The core demo runs without Azure credentials; cloud jobs preserve the same event contract and layer boundaries. |
 | RP-NFR-007 | Compatibility | Application target is Python 3.11–3.13; CI and Docker use Python 3.11. |
 | RP-NFR-008 | Testability | Scenario generation is seedable and the core pipeline can use isolated temporary storage. |

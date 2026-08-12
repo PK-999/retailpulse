@@ -1,0 +1,18 @@
+name: dev
+purpose: Local day-to-day Spark, Delta, Kafka, dbt, Grafana, and Ollama development.
+execution:
+  platform: local
+  broker: redpanda
+  processing: pyspark_local
+  storage: delta_local
+  dbt_target: duckdb
+dataset:
+  customers: 10000
+  products: 2000
+  orders: 100000
+  events: 500000
+databricks:
+  compute_mode: disabled
+  trigger_mode: available_now
+  max_runtime_minutes: 0
+  interactive_auto_termination_minutes: 10

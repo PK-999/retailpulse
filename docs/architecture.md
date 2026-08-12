@@ -55,7 +55,8 @@ flowchart LR
     GEN[EventGenerator] --> SINK{Transport setting}
     SINK -->|default| INBOX[data/inbox JSONL]
     SINK -->|Kafka enabled| RP[Redpanda]
-    RP -. target consumer .-> SPARK[Spark streaming job]
+    RP --> SPARK[Local PySpark Structured Streaming]
+    SPARK --> DELTA[(Local Bronze / Silver / Quarantine Delta)]
     INBOX --> PROC[LocalMedallionPipeline]
     PROC --> B[data/bronze JSONL]
     PROC --> Q[data/quarantine JSONL + SQLite]
@@ -68,9 +69,9 @@ flowchart LR
     MET --> INC[Rules / Ollama incident report]
 ```
 
-The file-backed transport is intentionally not presented as Kafka. It is a deterministic local
-test adapter with durable line-number checkpoints. Redpanda exercises Kafka-compatible publishing;
-the production consumer implementation lives in the Databricks streaming job.
+The file-backed transport remains the fast deterministic test adapter with durable line-number
+checkpoints. Redpanda now also feeds a local PySpark/Delta path for development of watermarks,
+checkpointing, and MERGE behavior before a short Azure integration run.
 
 ### Azure target deployment
 
@@ -183,7 +184,10 @@ and `inventory_health` are consumer marts built on the core model.
 | File-backed local adapter | Makes tests deterministic and removes cloud prerequisites | It validates pipeline semantics, not Kafka transport behavior |
 | Event ID as idempotency key | Stable across retries and simple to audit | Producers must reuse the ID when retrying the same event |
 | Thirty-minute watermark | Demonstrates bounded event-time state | Older events require a governed replay path |
-| SQLite/JSONL locally, Delta in Azure | Fast local setup with a realistic cloud target | Performance characteristics are not equivalent |
+| SQLite/JSONL reference plus local Delta | Fast tests and Spark semantics are both available without Azure | Neither reproduces Azure identity or cloud performance |
+| Local Delta development plus bounded Azure proof | Most Spark debugging is free while Azure evidence remains truthful | Local storage cannot prove Event Hubs, ADLS, identity, or Azure recovery |
+| Event Hubs opt-in | Its Standard namespace has an idle hourly charge | Enable only for Stage 7 and disable after evidence capture |
+| `AvailableNow` default | Processes queued data and terminates compute | Continuous mode is reserved for a maximum 30-minute recovery demo |
 | Rules before LLM | Incident detection remains testable and available offline | AI enriches explanations but never defines data validity |
 | No automatic Terraform apply | Avoids accidental Azure spend and destructive changes | Deployment requires an explicit operator action |
 

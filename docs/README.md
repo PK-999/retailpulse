@@ -7,10 +7,12 @@ This directory is the project’s reference set. Read the documents in this orde
 3. [Key features](key-features.md) — implemented capabilities and where their code lives.
 4. [Project status](project-status.md) — what is verified, what is only prepared, and what remains.
 5. [Execution plan](execution-plan.md) — staged path from local verification to the Azure demo.
-6. [Event contract](data-contract.md) — version 1 event fields and topic routing.
-7. [Demo guide](demo-guide.md) — repeatable healthy and failure demonstrations.
-8. [Runbooks](runbooks/) — operator response procedures.
-9. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
+6. [Cost strategy](cost-strategy.md) — local-first profiles and paid-compute guardrails.
+7. [Event contract](data-contract.md) — version 1 event fields and topic routing.
+8. [Demo guide](demo-guide.md) — repeatable healthy and failure demonstrations.
+9. [Runbooks](runbooks/) — operator response procedures.
+10. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
+11. [Decision records](decisions/) — reviewed deployment, identity, cost, and teardown choices.
 
 ## Document ownership
 

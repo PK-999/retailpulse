@@ -42,6 +42,8 @@ time is separate. These are planning estimates, not delivery guarantees.
 - Keep Bronze immutable and preserve quarantine evidence during every failure test.
 - Review the Terraform plan and estimated costs before every apply.
 - Do not leave interactive Databricks compute running after validation.
+- Develop Spark/Delta locally with `dev` or `demo`; use `azure` only for bounded integration proof.
+- Keep Event Hubs disabled outside the Stage 7 streaming window.
 - Update [project status](project-status.md) at every completed stage.
 
 ## Stage 0 — Decisions, budget, and definition of done
@@ -168,24 +170,30 @@ and no secret appears in repository history or Actions logs.
 
 ### Goal
 
-Create the minimum cloud boundary needed for batch and streaming validation.
+Create the minimum cloud boundary needed for later validation without starting streaming charges.
 
 ### Tasks
 
+- [ ] Install `.[spark]` under Python 3.11 with a compatible Java runtime.
+- [ ] Start Redpanda, publish a small `dev` sample, and run the local Spark job with its default
+  `AvailableNow` trigger.
+- [ ] Verify local Bronze, Silver, quarantine, checkpoints, and an idempotent second MERGE before
+  paying for the equivalent Azure run.
 - [ ] Add the selected remote Terraform backend configuration if required by Stage 0.
-- [ ] Add an Azure budget resource or configure an equivalent subscription/resource-group budget.
+- [ ] Add and verify the subscription budget defined by Terraform.
 - [ ] Run formatting, initialization, validation, and a saved plan.
 - [ ] Review every create/change action, globally unique name, SKU, region, and estimated cost.
 - [ ] Apply only the reviewed plan.
-- [ ] Verify the resource group, ADLS-enabled storage, filesystem, three Event Hubs, ADF, Databricks,
-  and Key Vault exist.
+- [ ] Keep `enable_event_hubs=false` for the first apply.
+- [ ] Verify the resource group, ADLS-enabled storage, filesystem, ADF, Databricks workspace, and
+  Key Vault exist; verify that no Databricks compute, SQL warehouse, or Event Hubs namespace exists.
 - [ ] Capture Terraform outputs and resource overview without exposing keys.
 - [ ] Immediately check Azure Cost Management and resource health.
 
 ### Exit gate
 
-Terraform state matches the deployed resources, the budget is active, and no unexpected resource
-or billable compute exists.
+Terraform state matches the deployed resources, the subscription budget is active, and no
+unexpected resource, Event Hubs namespace, or billable compute exists.
 
 ## Stage 4 — Identity, ADLS, directories, and secrets
 
@@ -249,7 +257,9 @@ Run the historical dataset through typed Delta tables with audit and quarantine 
 
 - [ ] Upload the preprocessing and batch notebooks as a Databricks job.
 - [ ] Replace placeholder `ACCOUNT` paths with parameters or catalog/external-location references.
-- [ ] Use job compute with an explicit runtime and an auto-termination policy.
+- [ ] Use job/serverless-job compute; prohibit all-purpose compute unless a reviewed exception sets
+  10-minute automatic termination.
+- [ ] Set a job timeout of no more than 30 minutes and process only the `azure` profile volume.
 - [ ] Pass ADF run ID/source path into the job.
 - [ ] Create named Bronze and Silver Delta tables, not only unmanaged paths, if Unity Catalog is used.
 - [ ] Verify `source_file`, `ingestion_timestamp`, and `pipeline_run_id` in Bronze.
@@ -257,6 +267,7 @@ Run the historical dataset through typed Delta tables with audit and quarantine 
 - [ ] Inject at least one invalid historical row and confirm quarantine behavior.
 - [ ] Run a second incremental delivery and prove existing records are not rebuilt incorrectly.
 - [ ] Record counts read, written, and rejected in the cloud audit table.
+- [ ] Capture input/output bytes, shuffle bytes, duration, and Delta operation metrics.
 
 ### Exit gate
 
@@ -280,10 +291,13 @@ Prove authenticated live events reach Delta, survive restart, and merge idempote
 ### Tasks
 
 - [ ] Add non-secret Event Hubs Kafka configuration fields to application settings.
+- [ ] Review and apply `enable_event_hubs=true` immediately before this stage.
 - [ ] Load credentials from environment/Key Vault and redact them from logs.
 - [ ] Configure the Databricks Kafka source with secret-backed authentication.
 - [ ] Use one checkpoint path per streaming query and environment.
 - [ ] Start the job and produce normal traffic.
+- [ ] Use `AvailableNow` for ingestion/reconciliation runs; use processing-time mode only for the
+  restart demonstration, with a hard 30-minute runtime.
 - [ ] Verify topic, partition, offset, Kafka timestamp, and ingestion timestamp in Bronze Delta.
 - [ ] Verify valid events appear once in Silver after `foreachBatch` MERGE.
 - [ ] Run duplicate, late-data, malformed, and traffic-spike scenarios separately.
@@ -292,6 +306,7 @@ Prove authenticated live events reach Delta, survive restart, and merge idempote
   offsets/counts to prove recovery.
 - [ ] Inspect Delta history and confirm MERGE operations and no multi-match failure.
 - [ ] Record throughput, batch duration, processed rows/sec, and event-time latency.
+- [ ] Apply `enable_event_hubs=false` immediately after evidence capture and verify deletion.
 
 ### Exit gate
 
@@ -310,6 +325,8 @@ Build the tested analytical model from cloud Silver tables.
 - [ ] Parameterize catalog, schema, HTTP path, and environment.
 - [ ] Replace the local JSON staging source with declared Databricks Silver sources.
 - [ ] Preserve the local DuckDB target as a separate profile/target.
+- [ ] Preserve incremental materializations for order items, orders, and daily sales; prove a second
+  run processes changed keys/dates rather than rebuilding the full tables.
 - [ ] Run `dbt debug`, `dbt compile`, and `dbt build` against the dev catalog.
 - [ ] Verify all dimensions, facts, aggregates, and the product SCD2 snapshot.
 - [ ] Run a price change and prove a new SCD2 version is created.
@@ -414,6 +431,7 @@ Leave the project safe, reproducible, and accurately documented after the demo.
 ### Tasks
 
 - [ ] Stop Databricks clusters and SQL warehouses; verify auto-termination settings.
+- [ ] Verify `enable_event_hubs=false` and that the namespace no longer exists.
 - [ ] Review Event Hubs, Log Analytics, storage, and other ongoing charges.
 - [ ] Follow the Stage 0 retain/destroy decision; review any Terraform destroy plan before applying.
 - [ ] Preserve only non-secret evidence and required state backups.

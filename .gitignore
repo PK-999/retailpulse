@@ -15,6 +15,7 @@ dbt_packages/
 .streamlit/secrets.toml
 .databrickscfg
 .azure/
+.tools/
 *.pem
 *.key
 *.pfx
