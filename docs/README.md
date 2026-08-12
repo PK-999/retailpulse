@@ -1,0 +1,27 @@
+# RetailPulse documentation
+
+This directory is the project’s reference set. Read the documents in this order:
+
+1. [Requirements](requirements.md) — scope, acceptance criteria, and traceability.
+2. [Architecture](architecture.md) — system boundaries, flows, storage layers, and decisions.
+3. [Key features](key-features.md) — implemented capabilities and where their code lives.
+4. [Project status](project-status.md) — what is verified, what is only prepared, and what remains.
+5. [Execution plan](execution-plan.md) — staged path from local verification to the Azure demo.
+6. [Event contract](data-contract.md) — version 1 event fields and topic routing.
+7. [Demo guide](demo-guide.md) — repeatable healthy and failure demonstrations.
+8. [Runbooks](runbooks/) — operator response procedures.
+9. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
+
+## Document ownership
+
+The requirements matrix is the source of truth for scope. A feature should not be described as
+complete unless its acceptance criteria pass and the project-status document records the level
+at which it was verified.
+
+When changing the platform:
+
+1. Update the requirement or add a new requirement ID.
+2. Update the architecture if the data flow, trust boundary, or storage contract changes.
+3. Add or update automated tests.
+4. Update project status with the new evidence and validation date.
+5. Update the demo guide if an operator-facing command changes.

@@ -1,0 +1,18 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {"type": "stat", "title": "Records read", "gridPos": {"h": 6, "w": 6, "x": 0, "y": 0}, "targets": [{"expr": "retailpulse_records_total{status=\"read\"}", "refId": "A"}]},
+    {"type": "stat", "title": "Duplicate rate", "gridPos": {"h": 6, "w": 6, "x": 6, "y": 0}, "fieldConfig": {"defaults": {"unit": "percentunit"}}, "targets": [{"expr": "retailpulse_duplicate_rate", "refId": "A"}]},
+    {"type": "stat", "title": "Rejected rate", "gridPos": {"h": 6, "w": 6, "x": 12, "y": 0}, "fieldConfig": {"defaults": {"unit": "percentunit"}}, "targets": [{"expr": "retailpulse_rejection_rate", "refId": "A"}]},
+    {"type": "stat", "title": "Active alerts", "gridPos": {"h": 6, "w": 6, "x": 18, "y": 0}, "targets": [{"expr": "retailpulse_alerts", "refId": "A"}]},
+    {"type": "timeseries", "title": "Pipeline duration", "gridPos": {"h": 8, "w": 24, "x": 0, "y": 6}, "fieldConfig": {"defaults": {"unit": "s"}}, "targets": [{"expr": "retailpulse_pipeline_duration_seconds", "refId": "A"}]}
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["retailpulse", "dataops"],
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "RetailPulse Operations",
+  "uid": "retailpulse-ops",
+  "version": 1
+}

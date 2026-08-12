@@ -1,0 +1,23 @@
+{
+  "name": "pl_ingest_uci_to_adls",
+  "properties": {
+    "parameters": {
+      "sourceUrl": {"type": "String", "defaultValue": "https://archive.ics.uci.edu/static/public/352/online+retail.zip"},
+      "sinkFolder": {"type": "String", "defaultValue": "landing/uci"}
+    },
+    "activities": [
+      {
+        "name": "CopyUciArchive",
+        "type": "Copy",
+        "policy": {"timeout": "0.01:00:00", "retry": 2, "retryIntervalInSeconds": 30},
+        "typeProperties": {
+          "source": {"type": "HttpSource", "httpRequestTimeout": "00:05:00"},
+          "sink": {"type": "BinarySink", "storeSettings": {"type": "AzureBlobFSWriteSettings"}}
+        },
+        "inputs": [{"referenceName": "ds_uci_http_binary", "type": "DatasetReference"}],
+        "outputs": [{"referenceName": "ds_adls_landing_binary", "type": "DatasetReference"}]
+      }
+    ],
+    "annotations": ["RetailPulse", "historical-ingestion"]
+  }
+}
