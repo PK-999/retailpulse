@@ -325,23 +325,31 @@ Prove authenticated live events reach Delta, survive restart, and merge idempote
 
 ### Tasks
 
-- [ ] Add non-secret Event Hubs Kafka configuration fields to application settings.
-- [ ] Review and apply `enable_event_hubs=true` immediately before this stage.
-- [ ] Load credentials from environment/Key Vault and redact them from logs.
-- [ ] Configure the Databricks Kafka source with secret-backed authentication.
-- [ ] Use one checkpoint path per streaming query and environment.
-- [ ] Start the job and produce normal traffic.
-- [ ] Use `AvailableNow` for ingestion/reconciliation runs; use processing-time mode only for the
-  restart demonstration, with a hard 30-minute runtime.
-- [ ] Verify topic, partition, offset, Kafka timestamp, and ingestion timestamp in Bronze Delta.
-- [ ] Verify valid events appear once in Silver after `foreachBatch` MERGE.
-- [ ] Run duplicate, late-data, malformed, and traffic-spike scenarios separately.
-- [ ] Confirm duplicates do not multiply Silver rows and malformed input reaches quarantine.
-- [ ] Stop the streaming job during ingestion, restart it with the same checkpoint, and reconcile
+- [x] Add non-secret Event Hubs Kafka configuration fields to application settings.
+- [x] Review and apply `enable_event_hubs=true` immediately before this stage.
+- [x] Load credentials from environment/Key Vault and redact them from logs.
+- [x] Configure the Databricks Kafka source with secret-backed authentication.
+- [x] Use one checkpoint path per streaming query and environment.
+- [x] Start the job and produce normal traffic.
+- [x] Use `AvailableNow` for all serverless ingestion/reconciliation and restart-proof runs, with a
+  hard 30-minute runtime. Serverless jobs reject processing-time triggers, so simulate interruption
+  by failing after Delta commits but before Spark commits the checkpoint, then resume the same
+  `AvailableNow` checkpoint.
+- [x] Verify topic, partition, offset, Kafka timestamp, and ingestion timestamp in Bronze Delta.
+- [x] Verify valid events appear once in Silver after `foreachBatch` MERGE.
+- [x] Run duplicate, late-data, malformed, and traffic-spike scenarios separately.
+- [x] Confirm duplicates do not multiply Silver rows and malformed input reaches quarantine.
+- [x] Stop the streaming job during ingestion, restart it with the same checkpoint, and reconcile
   offsets/counts to prove recovery.
-- [ ] Inspect Delta history and confirm MERGE operations and no multi-match failure.
-- [ ] Record throughput, batch duration, processed rows/sec, and event-time latency.
-- [ ] Apply `enable_event_hubs=false` immediately after evidence capture and verify deletion.
+- [x] Inspect Delta history and confirm MERGE operations and no multi-match failure.
+- [x] Record throughput, batch duration, processed rows/sec, and event-time latency.
+- [x] Apply `enable_event_hubs=false` immediately after evidence capture and verify deletion.
+
+Current status: complete. An authenticated Event Hubs Kafka session processed all five scenarios,
+then deliberately failed after committing a 40-record recovery micro-batch but before checkpoint
+commit. Restarting the same `AvailableNow` checkpoint reread batch 1 and produced zero-row Bronze
+and Silver MERGEs. Event Hubs and temporary secrets were removed after evidence capture. See
+[Stage 7 evidence](evidence/stage-07-eventhubs-streaming.md).
 
 ### Exit gate
 

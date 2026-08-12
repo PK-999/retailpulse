@@ -17,7 +17,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--count", type=int, help="Override the profile event count.")
     parser.add_argument(
         "--scenario",
-        choices=("normal", "duplicate", "late-data", "malformed", "traffic-spike"),
+        choices=(
+            "normal",
+            "duplicate",
+            "late-data",
+            "malformed",
+            "traffic-spike",
+            "checkpoint-recovery",
+        ),
         default="normal",
     )
     parser.add_argument("--seed", type=int, default=42)

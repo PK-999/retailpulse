@@ -16,9 +16,13 @@
 - Normal, duplicate, late-data, malformed, and traffic-spike scenarios.
 - File-backed deterministic local transport plus idempotent Kafka publishing.
 - Structured Streaming consumer with explicit JSON schema and Kafka coordinates.
+- Event Hubs SASL/SSL producer and consumer configuration with secret-backed credentials and
+  scenario/run lineage headers.
 - Thirty-minute watermark, `event_id` deduplication, independent checkpoints, and Delta MERGE.
 - Local PySpark/Delta consumer with the same bounded Kafka-to-medallion pattern.
 - `AvailableNow` by default and a hard 30-minute limit for continuous demonstration mode.
+- Deterministic checkpoint recovery by replaying a post-Delta/pre-checkpoint failure with the same
+  `AvailableNow` checkpoint; no classic cluster is required.
 
 ## Data quality and governance
 
@@ -71,6 +75,7 @@
 | Run local Spark/Delta | `python spark/local_stream_bronze_silver.py` |
 | Run bounded Azure historical ingestion | `./scripts/run_stage05_historical_ingestion.sh` |
 | Run bounded Azure Bronze/Silver batch | `./scripts/run_stage06_databricks_batch.sh` |
+| Run temporary Azure Event Hubs proof | `./scripts/run_stage07_eventhubs_streaming.sh` |
 | Process incrementally | `retailpulse process` |
 | Use Ollama when processing | `retailpulse process --ollama` |
 | Inspect recent runs | `retailpulse status` |

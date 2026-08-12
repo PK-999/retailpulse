@@ -11,7 +11,14 @@ from uuid import uuid4
 
 from retailpulse.contracts import TOPIC_BY_EVENT, RetailEvent
 
-Scenario = Literal["normal", "duplicate", "late-data", "malformed", "traffic-spike"]
+Scenario = Literal[
+    "normal",
+    "duplicate",
+    "late-data",
+    "malformed",
+    "traffic-spike",
+    "checkpoint-recovery",
+]
 
 PRODUCTS = [
     ("85123A", "Cream Hanging Heart", Decimal("2.55")),
@@ -36,6 +43,7 @@ EVENT_TYPES = [
 class GeneratedMessage:
     topic: str
     payload: str
+    scenario: str = "normal"
 
 
 class EventGenerator:
@@ -113,14 +121,18 @@ class EventGenerator:
         previous: GeneratedMessage | None = None
         for index in range(count * multiplier):
             if scenario == "malformed" and index % 4 == 0:
-                yield GeneratedMessage("order-events", '{"event_id": "broken", "event_type":')
+                yield GeneratedMessage(
+                    "order-events",
+                    '{"event_id": "broken", "event_type":',
+                    scenario,
+                )
                 continue
             if scenario == "duplicate" and previous and index % 3 == 0:
                 yield previous
                 continue
             event = self._event(late=scenario == "late-data" and index % 3 == 0)
             payload = event.model_dump_json()
-            previous = GeneratedMessage(TOPIC_BY_EVENT[event.event_type], payload)
+            previous = GeneratedMessage(TOPIC_BY_EVENT[event.event_type], payload, scenario)
             yield previous
 
 

@@ -51,12 +51,14 @@ The ordered implementation and verification backlog is maintained in the
   matching four-dataset Databricks normalization outputs.
 - Live bounded Databricks historical Bronze/Silver processing with 10 named external Unity Catalog
   Delta tables, source-quality quarantine, audit rows, and a zero-write incremental Silver proof.
+- Authenticated Event Hubs Kafka streaming with all five scenarios, named external Delta tables,
+  a real watermark, deterministic checkpoint replay, and zero-write recovery MERGEs.
 
 Validation evidence from the latest implementation pass:
 
 | Check | Result |
 |---|---|
-| Python tests | 25 passed |
+| Python tests | 33 passed |
 | Ruff | Passed, including local and Databricks Spark jobs |
 | SQLFluff | Passed |
 | dbt build | 29/29 nodes passed on initial and incremental reruns |
@@ -69,12 +71,12 @@ Validation evidence from the latest implementation pass:
 | Stage 4 identity/storage | Positive ADF/Databricks and negative operator access tests passed |
 | Stage 5 historical ingestion | Two ADF deliveries and two normalized four-dataset outputs passed |
 | Stage 6 Databricks batch | Two deliveries passed; 56 source rejections + 1 injected rejection; Silver rerun wrote 0 rows |
+| Stage 7 Event Hubs streaming | 460 Bronze, 411 unique Silver, 30 quarantine; 40-row replay wrote 0 Bronze/Silver rows |
 
 ## Built but requiring external integration
 
 These components exist, but their later-stage production paths still require target-service runs:
 
-- Databricks Structured Streaming consumer against Kafka or Event Hubs.
 - Refreshed Streamlit desktop and narrow visual screenshots; functional, empty-state, section, and
   single-day revenue-bar checks are automated and passing.
 
@@ -82,12 +84,10 @@ These components exist, but their later-stage production paths still require tar
 
 ### Required
 
-1. Temporarily enable Event Hubs, verify offsets/checkpoint recovery/watermarking/Delta MERGE on a
-  bounded job run, then disable Event Hubs.
-2. Configure dbt for the Databricks adapter and build Gold tables in the target catalog.
-3. Connect Databricks SQL or Power BI and validate dashboard queries.
-4. Configure Azure Monitor/log forwarding and verify alert delivery.
-5. Run the complete clean-state demonstration and capture screenshots/video.
+1. Configure dbt for the Databricks adapter and build Gold tables in the target catalog.
+2. Connect Databricks SQL or Power BI and validate dashboard queries.
+3. Configure Azure Monitor/log forwarding and verify alert delivery.
+4. Run the complete clean-state demonstration and capture screenshots/video.
 
 ### Recommended portfolio polish
 

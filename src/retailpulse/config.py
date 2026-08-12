@@ -13,6 +13,11 @@ class Settings:
     ollama_url: str
     ollama_model: str
     ollama_timeout_seconds: float = 180.0
+    kafka_security_protocol: str = "PLAINTEXT"
+    kafka_sasl_mechanism: str = "PLAIN"
+    kafka_sasl_username: str = "$ConnectionString"
+    kafka_sasl_password: str | None = None
+    kafka_run_id: str = "local"
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -23,6 +28,11 @@ class Settings:
             ollama_url=os.getenv("OLLAMA_URL", "http://localhost:11434"),
             ollama_model=os.getenv("OLLAMA_MODEL", "llama3.2:3b"),
             ollama_timeout_seconds=float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180")),
+            kafka_security_protocol=os.getenv("KAFKA_SECURITY_PROTOCOL", "PLAINTEXT"),
+            kafka_sasl_mechanism=os.getenv("KAFKA_SASL_MECHANISM", "PLAIN"),
+            kafka_sasl_username=os.getenv("KAFKA_SASL_USERNAME", "$ConnectionString"),
+            kafka_sasl_password=os.getenv("KAFKA_SASL_PASSWORD"),
+            kafka_run_id=os.getenv("KAFKA_RUN_ID", "local"),
         )
 
     def ensure_directories(self) -> None:
