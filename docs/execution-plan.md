@@ -145,19 +145,19 @@ Make the validated baseline reviewable and reproducible outside the development 
 
 - [x] Review `git status`; ensure `.env`, generated `data/`, state, caches, and credentials are ignored.
 - [x] Create a logical initial commit or a small sequence of milestone commits.
-- [ ] Create the GitHub repository and push `main`.
-- [ ] Protect `main` and require the CI workflow before merge.
+- [x] Create the public `PK-999/retailpulse` GitHub repository and push `main`.
+- [x] Protect `main` and require the `python` and `terraform` CI checks before merge.
 - [ ] Open a test pull request so the pull-request trigger is exercised.
 - [x] Verify Python lint/tests, demo, dbt build/tests, SQLFluff, Terraform format, and Terraform
   validate locally in the same Python/Terraform versions as hosted CI.
-- [ ] Verify both jobs pass in GitHub-hosted CI.
-- [ ] Add a CI status badge only after the hosted workflow is green.
+- [x] Verify both jobs pass in GitHub-hosted CI.
+- [x] Add a CI status badge only after the hosted workflow is green.
 - [ ] Configure GitHub OIDC for Azure later; do not store a long-lived Azure client secret if OIDC is
   available for the selected account.
 
-Current status: local CI preflight passed, the initial commit exists, and GitHub authentication is
-active. GitHub creation/push is waiting only for the remote visibility decision. See
-[Stage 2 preflight evidence](evidence/stage-02-ci-preflight.md).
+Current status: the public repository, hosted CI, required checks, branch protection, and badge are
+complete. A test pull request is in progress to exercise the pull-request trigger and protected
+merge. See [Stage 2 preflight evidence](evidence/stage-02-ci-preflight.md).
 
 ### Exit gate
 
