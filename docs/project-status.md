@@ -50,7 +50,7 @@ Validation evidence from the latest implementation pass:
 | Terraform | Valid against AzureRM 3.117.1 |
 | Failure demo | 31.7% duplicate rate detected and explained |
 | Stage 1 local services | Functional checks and Grafana visual QA passed; Streamlit refresh pending |
-| Stage 2 GitHub/CI | Local checks and two hosted push runs passed; protected-branch test PR pending |
+| Stage 2 GitHub/CI | Passed locally and in hosted push/PR runs; protected main requires both jobs |
 
 ## Built but requiring external integration
 

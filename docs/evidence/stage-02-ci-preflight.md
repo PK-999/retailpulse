@@ -4,9 +4,8 @@ Verification date: 2026-08-12
 
 ## Result
 
-The baseline is published at [PK-999/retailpulse](https://github.com/PK-999/retailpulse), and both
-local workflow-equivalent checks and GitHub-hosted push runs passed. The final test pull request is
-in progress.
+The baseline is published at [PK-999/retailpulse](https://github.com/PK-999/retailpulse). Local
+workflow-equivalent checks, GitHub-hosted push runs, and the protected test pull request passed.
 
 Initial commit: `3c4a315` (`feat: build RetailPulse data platform baseline`).
 
@@ -68,4 +67,10 @@ checkouts use the verified provider selections.
   successfully with `python` and `terraform` jobs.
 - `main` requires a pull request, strict successful `python` and `terraform` checks, and resolved
   conversations. The rule applies to administrators and blocks force pushes and deletion.
-- The README CI badge links to the workflow. A test pull request remains before the exit gate.
+- [Pull request #1](https://github.com/PK-999/retailpulse/pull/1) exercised the `pull_request`
+  trigger. Hosted run
+  [31570074826](https://github.com/PK-999/retailpulse/actions/runs/31570074826) passed `terraform`
+  in 10 seconds and `python` in 48 seconds.
+- The README CI badge links to the workflow.
+
+Result: Stage 2 exit gate passed.

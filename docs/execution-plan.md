@@ -147,7 +147,7 @@ Make the validated baseline reviewable and reproducible outside the development 
 - [x] Create a logical initial commit or a small sequence of milestone commits.
 - [x] Create the public `PK-999/retailpulse` GitHub repository and push `main`.
 - [x] Protect `main` and require the `python` and `terraform` CI checks before merge.
-- [ ] Open a test pull request so the pull-request trigger is exercised.
+- [x] Open pull request #1 and pass both required jobs through the `pull_request` trigger.
 - [x] Verify Python lint/tests, demo, dbt build/tests, SQLFluff, Terraform format, and Terraform
   validate locally in the same Python/Terraform versions as hosted CI.
 - [x] Verify both jobs pass in GitHub-hosted CI.
@@ -155,9 +155,9 @@ Make the validated baseline reviewable and reproducible outside the development 
 - [ ] Configure GitHub OIDC for Azure later; do not store a long-lived Azure client secret if OIDC is
   available for the selected account.
 
-Current status: the public repository, hosted CI, required checks, branch protection, and badge are
-complete. A test pull request is in progress to exercise the pull-request trigger and protected
-merge. See [Stage 2 preflight evidence](evidence/stage-02-ci-preflight.md).
+Current status: complete. The public repository, hosted push and pull-request runs, required checks,
+branch protection, test pull request, and badge passed the exit gate. See
+[Stage 2 preflight evidence](evidence/stage-02-ci-preflight.md).
 
 ### Exit gate
 
