@@ -1,0 +1,31 @@
+{
+  "parameters": {
+    "baseUrl": {
+      "type": "String"
+    },
+    "relativeUrl": {
+      "type": "String"
+    }
+  },
+  "type": "Binary",
+  "linkedServiceName": {
+    "referenceName": "ls_uci_http_parameterized",
+    "type": "LinkedServiceReference",
+    "parameters": {
+      "baseUrl": {
+        "type": "Expression",
+        "value": "@dataset().baseUrl"
+      }
+    }
+  },
+  "typeProperties": {
+    "location": {
+      "type": "HttpServerLocation",
+      "relativeUrl": {
+        "type": "Expression",
+        "value": "@dataset().relativeUrl"
+      }
+    }
+  },
+  "annotations": ["RetailPulse", "stage-05-historical-ingestion"]
+}

@@ -78,7 +78,9 @@ checkpointing, and MERGE behavior before a short Azure integration run.
 ```mermaid
 flowchart TB
     UCI[UCI source archive] --> ADF[Azure Data Factory]
-    ADF --> ADLSL[ADLS Gen2 / landing]
+    ADF --> RAW[ADLS Landing / raw / ADF run ID]
+    RAW --> PRE[Bounded Databricks preprocessing]
+    PRE --> ADLSL[ADLS Landing / normalized / ADF run ID]
     GEN[Python simulator] --> EH[Event Hubs Kafka endpoint]
 
     ADLSL --> DBB[Databricks batch job]
@@ -194,8 +196,14 @@ and `inventory_health` are consumer marts built on the core model.
 ## 8. Security and operational boundaries
 
 - `.env`, Terraform state/variables, tokens, keys, and connection strings are ignored by Git.
-- Key Vault exists as the target secret boundary, but role assignments require deployment-specific
-  principals and are not guessed by the template.
+- Key Vault is the target secret boundary; Terraform manages roles and names but never secret
+  values.
+- ADF uses its system identity; Databricks uses a dedicated Access Connector managed identity.
+  Both receive data access only at the RetailPulse filesystem scope.
+- The Access Connector additionally receives Storage Blob Delegator at the storage-account scope;
+  this permits Unity Catalog to request short-lived delegation keys without granting data access to
+  other containers.
+- Unity Catalog storage credentials and external locations govern Databricks access to ADLS.
 - The demo uses local generated retail behavior and does not require customer PII.
 - Automatic remediation is prohibited in the first release.
 - Generated local state under `data/` is disposable; Azure state is not touched by the reset CLI.

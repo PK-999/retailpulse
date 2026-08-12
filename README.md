@@ -17,6 +17,7 @@ Delta MERGE pattern, dbt models, and operational controls are represented in the
 - [Built vs. remaining status](docs/project-status.md)
 - [Stage-wise completion plan](docs/execution-plan.md)
 - [Cost and execution strategy](docs/cost-strategy.md)
+- [Azure identity access matrix](docs/security/access-matrix.md)
 - [Repeatable demo guide](docs/demo-guide.md)
 - [Documentation index](docs/README.md)
 
@@ -119,10 +120,13 @@ export the workbook as CSV, then normalize it:
 python scripts/prepare_uci.py Online_Retail.csv --output data/landing/uci
 ```
 
-This creates `customers`, `products`, `orders`, and `order_items` JSONL files. The ADF template
-in [`azure/adf/uci_to_adls.pipeline.json`](azure/adf/uci_to_adls.pipeline.json) lands the source;
-[`databricks/batch_bronze_silver.py`](databricks/batch_bronze_silver.py) performs typed Bronze and
-Silver processing. ADLS uses:
+This creates `customers`, `products`, `orders`, and `order_items` JSONL files. The parameterized
+Stage 5 ADF assets in [`azure/adf/stage05`](azure/adf/stage05) land each source archive under its
+ADF run ID; [`databricks/preprocess_uci.py`](databricks/preprocess_uci.py) validates and normalizes
+that immutable delivery. [`databricks/batch_bronze_silver.py`](databricks/batch_bronze_silver.py)
+performs the subsequent typed Bronze and Silver processing as a bounded, unscheduled serverless
+job. It registers external Unity Catalog Delta tables, quarantines invalid items, and records a
+cloud audit row keyed by the ADF run ID. ADLS uses:
 
 ```text
 landing/  bronze/  silver/  gold/  checkpoints/  quarantine/

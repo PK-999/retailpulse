@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import time
 from pathlib import Path
@@ -155,7 +156,15 @@ def main() -> None:
             "kafka_timestamp",
         ]
         deduplicated = batch_df.select(*columns).dropDuplicates(["event_id"])
-        if DeltaTable.isDeltaTable(spark, target_path):
+        batch_rows = deduplicated.count()
+        target_exists = DeltaTable.isDeltaTable(spark, target_path)
+        print(
+            "STAGE3_SILVER_BATCH "
+            f"batch_id={_batch_id} rows={batch_rows} target_exists={target_exists}"
+        )
+        if batch_rows == 0:
+            return
+        if target_exists:
             (
                 DeltaTable.forPath(spark, target_path)
                 .alias("target")
@@ -187,6 +196,41 @@ def main() -> None:
                 remaining = max(0.0, deadline - time.monotonic())
                 active = next(query for query in queries if query.isActive)
                 active.awaitTermination(min(10.0, remaining))
+
+        silver_path = f"{base_path}/silver/events"
+        history = [
+            {
+                "version": row["version"],
+                "operation": row["operation"],
+                "operation_metrics": dict(row["operationMetrics"] or {}),
+            }
+            for row in (
+                DeltaTable.forPath(spark, silver_path)
+                .history(5)
+                .select("version", "operation", "operationMetrics")
+                .collect()
+            )
+        ]
+        summary = {
+            "trigger_mode": args.trigger_mode,
+            "checkpoint_namespace": args.checkpoint_namespace,
+            "bronze_rows": spark.read.format("delta").load(f"{base_path}/bronze/events").count(),
+            "silver_rows": spark.read.format("delta").load(silver_path).count(),
+            "quarantine_rows": (
+                spark.read.format("delta").load(f"{base_path}/quarantine/events").count()
+            ),
+            "checkpoints_present": all(
+                (
+                    args.base_path.resolve()
+                    / "checkpoints"
+                    / args.checkpoint_namespace
+                    / name
+                ).exists()
+                for name in ("bronze_events", "quarantine_events", "silver_events")
+            ),
+            "silver_history": history,
+        }
+        print(f"STAGE3_LOCAL_SPARK_OK {json.dumps(summary, sort_keys=True)}")
     finally:
         for query in queries:
             if query.isActive:

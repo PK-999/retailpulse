@@ -56,6 +56,12 @@ variable "enable_event_hubs" {
   default     = false
 }
 
+variable "enable_databricks_workspace" {
+  description = "Create the Databricks workspace and its billable managed networking only for bounded Azure demo sessions."
+  type        = bool
+  default     = false
+}
+
 variable "teardown_after" {
   description = "ISO date recorded in tags for the planned demo teardown."
   type        = string

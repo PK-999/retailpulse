@@ -64,5 +64,19 @@ services:
       - ./data:/app/data
     ports: ["8501:8501"]
 
+  spark-runner:
+    profiles: ["spark"]
+    build:
+      context: .
+      dockerfile: tools/Dockerfile.spark
+    working_dir: /work
+    volumes:
+      - .:/work
+      - spark-ivy:/root/.ivy2.5.2
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
 volumes:
   ollama:
+  spark-ivy:

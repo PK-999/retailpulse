@@ -13,6 +13,7 @@ This directory is the project’s reference set. Read the documents in this orde
 9. [Runbooks](runbooks/) — operator response procedures.
 10. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
 11. [Decision records](decisions/) — reviewed deployment, identity, cost, and teardown choices.
+12. [Security access matrix](security/access-matrix.md) — Azure identities, roles, and scopes.
 
 ## Document ownership
 

@@ -28,7 +28,7 @@ The explicit suffix replaces apply-time randomness so every name is visible in t
 
 ## Budget and cost policy
 
-- Monthly subscription budget: USD 100, covering the application, state, and Databricks-managed
+- Monthly subscription budget: USD 10, covering the application, state, and Databricks-managed
   resource groups.
 - Notifications: actual spend above 50% and 80%, plus forecast spend above 100%.
 - Recipients: identities holding the Owner role at the budget scope.
@@ -40,8 +40,13 @@ The explicit suffix replaces apply-time randomness so every name is visible in t
 - Databricks compute is not created by Stage 3 Terraform. Later job compute must auto-terminate and
   be stopped after each validation.
 - Azure jobs use the `azure` profile, default to `AvailableNow`, and have a 30-minute maximum.
+- The workspace uses the Premium tier because Unity Catalog requires it. Terraform still creates
+  no compute; later job DBUs follow Premium pricing and the same bounded runtime rules.
 - Day-to-day and performance work uses local Spark/Delta. Free Edition is optional for
   non-commercial experiments and is not accepted as Azure integration evidence.
+- Literal zero-cost mode stops after local validation. Any real apply is treated as a minimal-cost,
+  time-bounded deployment and is normally destroyed after evidence capture. The current workspace
+  has an explicit free-credit exception through its tagged teardown date; see `docs/cost-strategy.md`.
 
 ## State and identity
 
@@ -51,8 +56,11 @@ The explicit suffix replaces apply-time randomness so every name is visible in t
 - Application resource providers are explicitly registered; AzureRM automatic bulk registration
   is disabled.
 - ADF uses its system-assigned managed identity.
-- Databricks lake access will use an Access Connector or other reviewed managed-identity path in
-  Stage 4.
+- Databricks lake access uses a dedicated system-assigned Access Connector and Unity Catalog
+  storage credential/external location.
+- ADF and the Access Connector receive Storage Blob Data Contributor only at the RetailPulse
+  filesystem scope. ADF additionally receives Key Vault Secrets User.
+- Secret values are inserted after deployment and never managed by Terraform.
 - GitHub deployments will use OIDC federation later; no long-lived Azure client secret will be
   stored in GitHub.
 

@@ -3,9 +3,11 @@
 ## Batch engineering
 
 - UCI Online Retail CSV normalization into customers, products, orders, and order items.
-- ADF copy-pipeline template for historical source landing.
-- Typed Databricks batch ingestion with Bronze audit metadata.
-- Silver duplicate removal, type conversion, business validation, and item quarantine.
+- Parameterized ADF historical ingestion with one immutable raw path per pipeline run ID.
+- SHA-256/size/member validation and Databricks normalization into four run-scoped JSONL datasets.
+- Typed Databricks batch ingestion into named external Bronze and Silver Unity Catalog tables.
+- Silver duplicate removal, type conversion, business validation, and item quarantine, verified by
+  a second delivery with one injected invalid row and zero-write Silver MERGEs.
 
 ## Streaming engineering
 
@@ -52,6 +54,8 @@
 - Terraform for the core Azure resource boundary.
 - Validated `dev`, `demo`, and `azure` scale/execution profiles with large-run confirmation.
 - Subscription budget plus default-off Event Hubs to prevent idle streaming charges.
+- Managed identities for ADF and Databricks, filesystem-scoped lake RBAC, and Key Vault roles.
+- Versioned ADLS directory resources and Unity Catalog connection/verification templates.
 - GitHub Actions quality gates for Python, dbt, SQL, and Terraform.
 - Python CLI for initialization, production, processing, status, and protected reset.
 - Repeatable end-to-end demo and deterministic automated tests.
@@ -65,6 +69,8 @@
 | Generate a failure | `retailpulse produce --count 60 --scenario duplicate --seed 7` |
 | Inspect a scale profile | `python scripts/generate_data.py --scale dev --dry-run` |
 | Run local Spark/Delta | `python spark/local_stream_bronze_silver.py` |
+| Run bounded Azure historical ingestion | `./scripts/run_stage05_historical_ingestion.sh` |
+| Run bounded Azure Bronze/Silver batch | `./scripts/run_stage06_databricks_batch.sh` |
 | Process incrementally | `retailpulse process` |
 | Use Ollama when processing | `retailpulse process --ollama` |
 | Inspect recent runs | `retailpulse status` |

@@ -8,9 +8,12 @@ The local vertical slice is built and verified. It generates events, performs in
 Bronze/Silver processing, handles duplicates/late/malformed inputs, builds Gold outputs, emits
 metrics and alerts, and generates an incident report.
 
-The Azure target is prepared as Terraform, ADF, and Databricks source assets. It has not been
-deployed into an Azure subscription, so cloud connectivity, permissions, job orchestration,
-performance, and screenshots remain deployment work rather than completed capabilities.
+The minimum-cost Azure foundation is deployed and drift-free. ADLS, ADF, Azure Databricks, Key
+Vault, the Databricks Access Connector, scoped identity roles, lake directories, and the
+subscription budget are live. ADF managed-identity write access, Unity Catalog external-location
+access, a bounded Delta MERGE, and an unauthorized-access denial have all passed. Event Hubs and
+classic compute remain intentionally absent, and the platform-created starter SQL warehouse is
+stopped.
 
 The ordered implementation and verification backlog is maintained in the
 [stage-wise execution plan](execution-plan.md).
@@ -37,12 +40,23 @@ The ordered implementation and verification backlog is maintained in the
 - Ollama-backed incident generation plus deterministic fallback during service unavailability.
 - Clean Linux/Python 3.11 CI-equivalent execution for Ruff, pytest, demo, dbt, and SQLFluff.
 - Hosted GitHub Actions execution with protected required checks.
+- Reproducible Python 3.11/Java 17 local Spark runner with bounded Kafka ingestion, Delta MERGE,
+  quarantine, checkpoints, and replay-idempotency evidence.
+- Azure remote Terraform state, drift-free core deployment, subscription budget, and explicit
+  cost controls.
+- Least-privilege ADF and Databricks identities at the filesystem boundary.
+- Live ADF managed-identity write, Databricks external Delta read/write/MERGE, and negative access
+  tests.
+- Two live ADF UCI archive deliveries with immutable run-ID paths, archive integrity gates, and
+  matching four-dataset Databricks normalization outputs.
+- Live bounded Databricks historical Bronze/Silver processing with 10 named external Unity Catalog
+  Delta tables, source-quality quarantine, audit rows, and a zero-write incremental Silver proof.
 
 Validation evidence from the latest implementation pass:
 
 | Check | Result |
 |---|---|
-| Python tests | 16 passed |
+| Python tests | 25 passed |
 | Ruff | Passed, including local and Databricks Spark jobs |
 | SQLFluff | Passed |
 | dbt build | 29/29 nodes passed on initial and incremental reruns |
@@ -51,33 +65,29 @@ Validation evidence from the latest implementation pass:
 | Failure demo | 31.7% duplicate rate detected and explained |
 | Stage 1 local services | Functional checks and Grafana visual QA passed; Streamlit refresh pending |
 | Stage 2 GitHub/CI | Passed locally and in hosted push/PR runs; protected main requires both jobs |
+| Stage 3 Azure foundation | Applied and drift-free; Event Hubs/classic compute absent |
+| Stage 4 identity/storage | Positive ADF/Databricks and negative operator access tests passed |
+| Stage 5 historical ingestion | Two ADF deliveries and two normalized four-dataset outputs passed |
+| Stage 6 Databricks batch | Two deliveries passed; 56 source rejections + 1 injected rejection; Silver rerun wrote 0 rows |
 
 ## Built but requiring external integration
 
-These components exist, but “complete” requires running them against their target services:
+These components exist, but their later-stage production paths still require target-service runs:
 
-- Databricks batch notebook against ADLS Delta storage.
 - Databricks Structured Streaming consumer against Kafka or Event Hubs.
-- ADF historical ingestion against configured HTTP and ADLS datasets.
-- Streamlit refreshed desktop and narrow visual review; behavior and data sections are verified.
-- Terraform plan/apply against an authenticated Azure subscription.
-- Local PySpark/Delta Structured Streaming against Redpanda (implementation added; live run remains).
+- Refreshed Streamlit desktop and narrow visual screenshots; functional, empty-state, section, and
+  single-day revenue-bar checks are automated and passing.
 
 ## Remaining for the full Azure demo
 
 ### Required
 
-1. Approve provider registration and the remote-state bootstrap selected in Stage 3 readiness.
-2. Run `terraform plan` with Event Hubs disabled, review projected costs, and explicitly apply.
-3. Create the ADLS directory hierarchy and least-privilege role assignments.
-4. Add/import ADF linked services and datasets, then execute the historical ingestion pipeline.
-5. Upload the Databricks jobs, configure account paths/secrets, and create job compute.
-6. Temporarily enable Event Hubs, verify offsets/checkpoint recovery/watermarking/Delta MERGE on a
-   bounded job run, then disable Event Hubs.
-7. Configure dbt for the Databricks adapter and build Gold tables in the target catalog.
-8. Connect Databricks SQL or Power BI and validate dashboard queries.
-9. Configure Azure Monitor/log forwarding and verify alert delivery.
-10. Run the complete clean-state demonstration and capture screenshots/video.
+1. Temporarily enable Event Hubs, verify offsets/checkpoint recovery/watermarking/Delta MERGE on a
+  bounded job run, then disable Event Hubs.
+2. Configure dbt for the Databricks adapter and build Gold tables in the target catalog.
+3. Connect Databricks SQL or Power BI and validate dashboard queries.
+4. Configure Azure Monitor/log forwarding and verify alert delivery.
+5. Run the complete clean-state demonstration and capture screenshots/video.
 
 ### Recommended portfolio polish
 
@@ -96,7 +106,8 @@ These components exist, but “complete” requires running them against their t
 - A `dim_promotion` source and model when promotion data becomes available.
 - Incremental dbt models for larger volumes.
 - Load/performance testing, autoscaling policy, and SLOs.
-- Unity Catalog permissions and data-lineage configuration.
+- Fine-grained Unity Catalog grants, workspace binding, and lineage configuration beyond the
+  verified Stage 4 storage credential/external location.
 - Multi-environment Terraform modules and remote state.
 
 ## Known limitations
@@ -106,9 +117,11 @@ These components exist, but “complete” requires running them against their t
   atomic transaction; abrupt process-loss fault injection remains before an exactly-once claim.
 - Local Spark/Delta can reproduce transaction and streaming logic but not Event Hubs, ADLS,
   managed identity, or Azure performance.
-- The ADF JSON references datasets that must be configured for the target subscription.
-- Terraform intentionally omits Databricks compute and identity role assignments.
-- The dashboard has functional QA but not yet screenshot-based desktop/narrow visual QA.
+- Stage 5 normalizes the full 541,909-row workbook with pandas on bounded serverless compute; this
+  is an integration proof, not a preferred large-scale Excel ingestion benchmark.
+- Terraform intentionally omits Databricks compute; identity role assignments are now applied.
+- The dashboard has functional QA and a live healthy server; refreshed desktop/narrow screenshots
+  remain because the browser surface was unavailable during the closure run.
 - Ollama model and fallback paths are verified; local CPU inference is slow and model quality still
   depends on the selected model.
 - Python 3.14 is excluded because the pinned dbt 1.9 dependency stack is not compatible with it.

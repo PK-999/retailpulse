@@ -1,0 +1,30 @@
+{
+  "parameters": {
+    "folderPath": {
+      "type": "String"
+    },
+    "fileName": {
+      "type": "String"
+    }
+  },
+  "type": "Binary",
+  "linkedServiceName": {
+    "referenceName": "ls_adls_managed_identity",
+    "type": "LinkedServiceReference"
+  },
+  "typeProperties": {
+    "location": {
+      "type": "AzureBlobFSLocation",
+      "fileSystem": "retailpulse",
+      "folderPath": {
+        "type": "Expression",
+        "value": "@dataset().folderPath"
+      },
+      "fileName": {
+        "type": "Expression",
+        "value": "@dataset().fileName"
+      }
+    }
+  },
+  "annotations": ["RetailPulse", "stage-05-historical-ingestion"]
+}
