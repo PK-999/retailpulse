@@ -16,6 +16,7 @@ Delta MERGE pattern, dbt models, and operational controls are represented in the
 - [Key features](docs/key-features.md)
 - [Built vs. remaining status](docs/project-status.md)
 - [Stage-wise completion plan](docs/execution-plan.md)
+- [Cost and execution strategy](docs/cost-strategy.md)
 - [Repeatable demo guide](docs/demo-guide.md)
 - [Documentation index](docs/README.md)
 
@@ -58,8 +59,8 @@ Kafka offsets, quarantine, and `MERGE`.
 |---|---|---|
 | Ingestion | Python, file-backed stream | ADF, Event Hubs Kafka endpoint |
 | Stream broker | Redpanda (Kafka API) | Azure Event Hubs |
-| Processing | Python reference implementation | Databricks PySpark / Structured Streaming |
-| Storage | JSONL + SQLite + DuckDB | ADLS Gen2 + Delta Lake |
+| Processing | Python reference + local PySpark Structured Streaming | Databricks job compute |
+| Storage | JSONL + SQLite + DuckDB + local Delta | ADLS Gen2 + Delta Lake |
 | Transformation | dbt Core / DuckDB | dbt + Databricks SQL |
 | Monitoring | Prometheus + Grafana | Azure Monitor + audit Delta tables |
 | Incident analysis | Rules, optional Ollama | Ollama or an approved hosted model |
@@ -95,6 +96,19 @@ retailpulse status
 Other scenarios are `late-data`, `malformed`, and `traffic-spike`. File-backed streaming is the
 default. To publish to Kafka, install `.[kafka]`, start Redpanda, and set
 `KAFKA_ENABLED=true`. Kafka publishing enables idempotence.
+
+Validated execution/scale profiles live in `config/`. Inspect before generating a large dataset:
+
+```bash
+python scripts/generate_data.py --scale dev --dry-run
+python scripts/generate_data.py --scale dev --yes
+```
+
+For local Spark/Delta development, install `.[spark]`, start Redpanda, publish events, and run:
+
+```bash
+python spark/local_stream_bronze_silver.py
+```
 
 ## 5. Dataset and batch path
 
@@ -207,9 +221,10 @@ terraform plan -var-file=example.tfvars
 terraform apply -var-file=example.tfvars
 ```
 
-Terraform provisions a resource group, hierarchical-namespace storage, three Event Hubs, Data
-Factory, Databricks, and Key Vault. It does **not** deploy compute clusters or run pipelines,
-avoiding surprise compute spend. After provisioning:
+Terraform provisions a resource group, hierarchical-namespace storage, Data Factory, Databricks,
+Key Vault, and a subscription budget. It creates no compute and defaults Event Hubs off. Enable
+Event Hubs only for the bounded streaming stage, then disable it immediately afterward. After the
+base deployment:
 
 1. Create ADLS directories and grant the ADF/Databricks managed identities least-privilege roles.
 2. Import the ADF pipeline and configure its HTTP and ADLS linked datasets.

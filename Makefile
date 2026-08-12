@@ -7,7 +7,7 @@ test:
 	pytest
 
 lint:
-	ruff check src tests scripts dashboard databricks
+	ruff check src tests scripts dashboard databricks spark
 
 demo:
 	python scripts/run_demo.py

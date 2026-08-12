@@ -38,7 +38,13 @@ class KafkaSink:
             raise RuntimeError(f"Kafka delivery timed out for {remaining} event(s)")
 
 
-def produce(settings: Settings, count: int, scenario: Scenario, seed: int | None = None) -> int:
+def produce(
+    settings: Settings,
+    count: int,
+    scenario: Scenario,
+    seed: int | None = None,
+    generator: EventGenerator | None = None,
+) -> int:
     settings.ensure_directories()
     sink = (
         KafkaSink(settings.kafka_bootstrap_servers)
@@ -47,7 +53,8 @@ def produce(settings: Settings, count: int, scenario: Scenario, seed: int | None
     )
     produced = 0
     try:
-        for message in EventGenerator(seed=seed).generate(count, scenario):
+        event_generator = generator or EventGenerator(seed=seed)
+        for message in event_generator.generate(count, scenario):
             sink.send(message)
             produced += 1
     finally:

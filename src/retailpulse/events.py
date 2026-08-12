@@ -39,20 +39,55 @@ class GeneratedMessage:
 
 
 class EventGenerator:
-    def __init__(self, seed: int | None = None) -> None:
+    def __init__(
+        self,
+        seed: int | None = None,
+        *,
+        customer_count: int | None = None,
+        product_count: int | None = None,
+        order_count: int | None = None,
+    ) -> None:
+        for label, value in (
+            ("customer_count", customer_count),
+            ("product_count", product_count),
+            ("order_count", order_count),
+        ):
+            if value is not None and value < 1:
+                raise ValueError(f"{label} must be positive")
         self.random = random.Random(seed)
+        self.customer_count = customer_count
+        self.product_count = product_count
+        self.order_count = order_count
+
+    def _customer_id(self) -> str:
+        if self.customer_count is None:
+            return str(self.random.randint(12346, 18287))
+        return f"CUST-{self.random.randrange(self.customer_count):08d}"
+
+    def _product(self) -> tuple[str, Decimal]:
+        if self.product_count is None:
+            product_id, _, price = self.random.choice(PRODUCTS)
+            return product_id, price
+        index = self.random.randrange(self.product_count)
+        price = Decimal((index % 10000) + 100) / Decimal("100")
+        return f"PROD-{index:08d}", price
+
+    def _order_id(self) -> str:
+        if self.order_count is None:
+            return f"ORD-{self.random.randint(100000, 999999)}"
+        return f"ORD-{self.random.randrange(self.order_count):09d}"
 
     def _event(self, late: bool = False) -> RetailEvent:
         event_type = self.random.choices(EVENT_TYPES, weights=[30, 12, 20, 8, 12, 10, 8])[0]
-        product_id, _, price = self.random.choice(PRODUCTS)
+        product_id, price = self._product()
         timestamp = datetime.now(UTC)
         if late:
             timestamp -= timedelta(minutes=self.random.randint(31, 180))
-        order_id = f"ORD-{self.random.randint(100000, 999999)}"
+        order_id = self._order_id()
         values = {
             "event_id": uuid4(),
             "event_type": event_type,
-            "customer_id": str(self.random.randint(12346, 18287)),
+            "customer_id": self._customer_id(),
             "product_id": product_id if event_type != "search" else None,
             "order_id": order_id if event_type in {"checkout", "purchase", "payment"} else None,
             "quantity": self.random.randint(1, 5)

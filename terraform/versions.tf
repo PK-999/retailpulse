@@ -1,17 +1,29 @@
 terraform {
-  required_version = ">= 1.6.0"
+  required_version = "= 1.15.8"
+
+  backend "azurerm" {}
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.110"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.6"
+      version = "= 5.0.1"
     }
   }
 }
 
 provider "azurerm" {
-  features {}
+  subscription_id                 = var.subscription_id
+  resource_provider_registrations = "none"
+
+  features {
+    enhanced_validation {
+      locations          = true
+      resource_providers = true
+    }
+
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
+    }
+  }
 }

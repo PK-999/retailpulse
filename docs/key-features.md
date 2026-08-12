@@ -15,6 +15,8 @@
 - File-backed deterministic local transport plus idempotent Kafka publishing.
 - Structured Streaming consumer with explicit JSON schema and Kafka coordinates.
 - Thirty-minute watermark, `event_id` deduplication, independent checkpoints, and Delta MERGE.
+- Local PySpark/Delta consumer with the same bounded Kafka-to-medallion pattern.
+- `AvailableNow` by default and a hard 30-minute limit for continuous demonstration mode.
 
 ## Data quality and governance
 
@@ -31,6 +33,7 @@
 - Customer, product, and date dimensions.
 - Order and order-item facts.
 - Daily sales, customer 360, and inventory health marts.
+- Incremental order-item, order, and daily-sales models keyed at their natural update grains.
 - SCD Type 2 product price history.
 - Unique, non-null, accepted-value, relationship, and custom business tests.
 - Streamlit dashboard for business KPIs and pipeline operations.
@@ -47,6 +50,8 @@
 
 - Docker image and Compose services for Redpanda, Prometheus, Grafana, Ollama, and dashboard.
 - Terraform for the core Azure resource boundary.
+- Validated `dev`, `demo`, and `azure` scale/execution profiles with large-run confirmation.
+- Subscription budget plus default-off Event Hubs to prevent idle streaming charges.
 - GitHub Actions quality gates for Python, dbt, SQL, and Terraform.
 - Python CLI for initialization, production, processing, status, and protected reset.
 - Repeatable end-to-end demo and deterministic automated tests.
@@ -58,6 +63,8 @@
 | Run full demo | `python scripts/run_demo.py` |
 | Generate healthy traffic | `retailpulse produce --count 100 --scenario normal --seed 42` |
 | Generate a failure | `retailpulse produce --count 60 --scenario duplicate --seed 7` |
+| Inspect a scale profile | `python scripts/generate_data.py --scale dev --dry-run` |
+| Run local Spark/Delta | `python spark/local_stream_bronze_silver.py` |
 | Process incrementally | `retailpulse process` |
 | Use Ollama when processing | `retailpulse process --ollama` |
 | Inspect recent runs | `retailpulse status` |
