@@ -144,7 +144,7 @@ Make the validated baseline reviewable and reproducible outside the development 
 ### Tasks
 
 - [x] Review `git status`; ensure `.env`, generated `data/`, state, caches, and credentials are ignored.
-- [ ] Create a logical initial commit or a small sequence of milestone commits.
+- [x] Create a logical initial commit or a small sequence of milestone commits.
 - [ ] Create the GitHub repository and push `main`.
 - [ ] Protect `main` and require the CI workflow before merge.
 - [ ] Open a test pull request so the pull-request trigger is exercised.
@@ -155,8 +155,8 @@ Make the validated baseline reviewable and reproducible outside the development 
 - [ ] Configure GitHub OIDC for Azure later; do not store a long-lived Azure client secret if OIDC is
   available for the selected account.
 
-Current status: local CI preflight passed and GitHub authentication is active. Initial commit is
-ready; GitHub creation/push is waiting only for the remote visibility decision. See
+Current status: local CI preflight passed, the initial commit exists, and GitHub authentication is
+active. GitHub creation/push is waiting only for the remote visibility decision. See
 [Stage 2 preflight evidence](evidence/stage-02-ci-preflight.md).
 
 ### Exit gate
