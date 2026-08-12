@@ -1,5 +1,7 @@
 # RetailPulse
 
+[![CI](https://github.com/PK-999/retailpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/PK-999/retailpulse/actions/workflows/ci.yml)
+
 **A real-time Azure retail data platform for batch and streaming analytics, data quality,
 observability, and AI-assisted incident response.**
 

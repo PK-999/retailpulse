@@ -4,9 +4,8 @@ Verification date: 2026-08-12
 
 ## Result
 
-The initial commit and GitHub-hosted CI baseline are ready from a technical standpoint. All
-workflow-equivalent checks passed in clean, isolated Linux containers. GitHub authentication is
-active; publication is pending the remote visibility decision.
+The baseline is published at [PK-999/retailpulse](https://github.com/PK-999/retailpulse). Local
+workflow-equivalent checks, GitHub-hosted push runs, and the protected test pull request passed.
 
 Initial commit: `3c4a315` (`feat: build RetailPulse data platform baseline`).
 
@@ -57,12 +56,21 @@ Terraform 1.9.8 release.
 The generated `terraform/.terraform.lock.hcl` is now part of the repository source set so clean
 checkouts use the verified provider selections.
 
-## GitHub readiness
+## GitHub verification
 
 - GitHub CLI is authenticated as `PK-999` with `repo` and `workflow` scopes.
 - The repository-local author is `PK-999 <85334564+PK-999@users.noreply.github.com>`; no global
   Git identity was changed.
-- `PK-999/retailpulse` does not currently exist and is available for creation.
-- Repository owner/name and public/private visibility must be confirmed before creation.
-- Hosted workflow execution, branch protection, test pull request, and status badge remain pending
-  until the repository exists.
+- The repository is public and `main` tracks `origin/main`.
+- Push runs [31568995025](https://github.com/PK-999/retailpulse/actions/runs/31568995025)
+  and [31569357737](https://github.com/PK-999/retailpulse/actions/runs/31569357737) both completed
+  successfully with `python` and `terraform` jobs.
+- `main` requires a pull request, strict successful `python` and `terraform` checks, and resolved
+  conversations. The rule applies to administrators and blocks force pushes and deletion.
+- [Pull request #1](https://github.com/PK-999/retailpulse/pull/1) exercised the `pull_request`
+  trigger. Hosted run
+  [31570074826](https://github.com/PK-999/retailpulse/actions/runs/31570074826) passed `terraform`
+  in 10 seconds and `python` in 48 seconds.
+- The README CI badge links to the workflow.
+
+Result: Stage 2 exit gate passed.

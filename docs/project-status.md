@@ -50,7 +50,7 @@ Validation evidence from the latest implementation pass:
 | Terraform | Valid against AzureRM 3.117.1 |
 | Failure demo | 31.7% duplicate rate detected and explained |
 | Stage 1 local services | Functional checks and Grafana visual QA passed; Streamlit refresh pending |
-| Stage 2 local preflight | Passed; GitHub authentication and hosted runs pending |
+| Stage 2 GitHub/CI | Passed locally and in hosted push/PR runs; protected main requires both jobs |
 
 ## Built but requiring external integration
 
@@ -60,7 +60,6 @@ These components exist, but “complete” requires running them against their t
 - Databricks Structured Streaming consumer against Kafka or Event Hubs.
 - ADF historical ingestion against configured HTTP and ADLS datasets.
 - Streamlit refreshed desktop and narrow visual review; behavior and data sections are verified.
-- GitHub Actions workflow in a GitHub-hosted repository.
 - Terraform plan/apply against an authenticated Azure subscription.
 
 ## Remaining for the full Azure demo
@@ -81,8 +80,7 @@ These components exist, but “complete” requires running them against their t
 
 ### Recommended portfolio polish
 
-- Push the initialized local repository to GitHub and create milestone commits/tags.
-- Run the hosted GitHub Actions workflow and add its status badge.
+- Create milestone tags after the first Azure-backed release.
 - Add screenshots of ADF, Databricks, dbt lineage, dashboard, Grafana, AI analysis, and CI.
 - Record the planned 5–10 minute demo video.
 - Add representative cost estimates and teardown instructions after the first Azure deployment.
