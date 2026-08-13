@@ -252,7 +252,7 @@ job_settings="$(
           depends_on:[{task_key:"silver_freshness_gate"}],
           dbt_task:{
             project_directory:"dbt",
-            commands:["dbt build --target databricks_job"],
+            commands:["dbt build"],
             warehouse_id:$warehouse_id,
             profiles_directory:"dbt",
             catalog:$catalog,

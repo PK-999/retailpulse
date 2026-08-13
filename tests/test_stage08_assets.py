@@ -54,4 +54,5 @@ def test_stage08_gate_and_runner_enforce_cost_and_quality_controls() -> None:
     assert "stop_warehouse" in runner
     assert "DATABRICKS_TOKEN" in runner
     assert "dbt build" in runner
+    assert 'commands:["dbt build"]' in runner
     assert '"${dbt_bin}" docs generate' in runner
