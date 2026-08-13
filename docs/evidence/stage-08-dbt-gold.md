@@ -44,6 +44,10 @@ and matching source/current-snapshot price `0.00`.
 - Paused workflow `retailpulse-stage08-dbt-gold`, job ID `611598520636749`.
 - The first task is a serverless Silver readiness gate; the dbt task runs only after it succeeds.
 - The weekly Monday 09:00 Asia/Kolkata schedule is deliberately `PAUSED` to avoid unattended cost.
+- End-to-end hosted run `340343000382551` used pushed commit `da47fe5` and ended `SUCCESS`:
+  - Silver gate task `585047218327289`: 231 seconds setup, 269 seconds execution.
+  - dbt task `396167384741898`: 2 seconds setup, 188 seconds execution, 37/37 nodes passed.
+  - Hosted dbt artifacts were archived and the logs were not truncated.
 
 ## Operational closure
 
@@ -57,3 +61,8 @@ The initial live attempt exposed a Databricks SQL dialect difference: this wareh
 `STRING` rather than an unbounded `VARCHAR` cast. The cloud branch now uses `STRING`; the local
 DuckDB branch retains `VARCHAR`. The failed attempt did not reach the SCD2 mutation, and its cleanup
 trap stopped the warehouse.
+
+The first hosted workflow run then exposed a separate managed-task convention: standard
+Databricks dbt tasks inject a temporary target named `databricks_cluster`. The repository command
+now uses plain `dbt build` so the task selects that short-lived managed target. Its Silver gate
+passed, while dbt failed before model execution; the corrected hosted run above passed end to end.

@@ -56,7 +56,7 @@ The ordered implementation and verification backlog is maintained in the
 - Live dbt-on-Databricks Gold build with declared Silver sources, 37 passing nodes, exact count and
   revenue reconciliation, zero-source incremental MERGEs, and an SCD2 price-change proof.
 - A paused, freshness-gated Stage 8 Databricks workflow using the public Git repository and
-  runtime-injected credentials.
+  runtime-injected credentials; its first corrected end-to-end run passed all 37 dbt nodes.
 
 Validation evidence from the latest implementation pass:
 

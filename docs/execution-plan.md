@@ -380,7 +380,8 @@ Current status: complete. Both the initial and no-change builds passed all 37 db
 counts and revenue reconcile exactly to Silver, all three incremental models recorded zero-source
 Delta MERGEs on the second run, and product `10002` recorded a second SCD2 version before its
 source price was restored. A freshness-gated weekly job is deployed in `PAUSED` state. See
-[Stage 8 evidence](evidence/stage-08-dbt-gold.md).
+[Stage 8 evidence](evidence/stage-08-dbt-gold.md). Its manually triggered hosted verification run
+passed the Silver gate and all 37 dbt nodes from the pushed Git commit.
 
 ### Exit gate
 
