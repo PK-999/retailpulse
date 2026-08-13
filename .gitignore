@@ -12,6 +12,7 @@ data/
 logs/
 target/
 dbt_packages/
+dbt/.user.yml
 .streamlit/secrets.toml
 .databrickscfg
 .azure/

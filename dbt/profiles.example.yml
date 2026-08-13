@@ -1,7 +1,23 @@
 retailpulse:
-  target: local
+  target: "{{ env_var('RETAILPULSE_DBT_TARGET', 'local') }}"
   outputs:
     local:
       type: duckdb
       path: "{{ env_var('RETAILPULSE_DBT_PATH', 'data/retailpulse.duckdb') }}"
       threads: 4
+    databricks:
+      type: databricks
+      host: "{{ env_var('RETAILPULSE_DATABRICKS_HOST', 'adb-7405605234206971.11.azuredatabricks.net') }}"
+      http_path: "{{ env_var('RETAILPULSE_DATABRICKS_HTTP_PATH', '/sql/1.0/warehouses/74d4ebde2c184d68') }}"
+      token: "{{ env_var('DATABRICKS_TOKEN', 'unused-outside-databricks-target') }}"
+      catalog: "{{ env_var('RETAILPULSE_DBT_CATALOG', 'dbw_retailpulse_dev_rp999') }}"
+      schema: "{{ env_var('RETAILPULSE_DBT_SCHEMA', 'retailpulse_gold') }}"
+      threads: "{{ env_var('RETAILPULSE_DBT_THREADS', '2') | int }}"
+    databricks_job:
+      type: databricks
+      host: "{{ env_var('RETAILPULSE_DATABRICKS_HOST', 'adb-7405605234206971.11.azuredatabricks.net') }}"
+      http_path: "{{ env_var('RETAILPULSE_DATABRICKS_HTTP_PATH', '/sql/1.0/warehouses/74d4ebde2c184d68') }}"
+      token: "{{ env_var('DBT_ACCESS_TOKEN', 'unused-outside-databricks-job') }}"
+      catalog: "{{ env_var('RETAILPULSE_DBT_CATALOG', 'dbw_retailpulse_dev_rp999') }}"
+      schema: "{{ env_var('RETAILPULSE_DBT_SCHEMA', 'retailpulse_gold') }}"
+      threads: "{{ env_var('RETAILPULSE_DBT_THREADS', '2') | int }}"

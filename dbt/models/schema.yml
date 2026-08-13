@@ -18,6 +18,12 @@ models:
     columns:
       - name: product_id
         tests: [unique, not_null]
+      - name: average_price
+        tests: [not_null]
+  - name: dim_date
+    columns:
+      - name: date_key
+        tests: [unique, not_null]
   - name: fact_orders
     columns:
       - name: order_id
@@ -38,3 +44,16 @@ models:
           - relationships:
               to: ref('dim_product')
               field: product_id
+      - name: order_id
+        tests:
+          - relationships:
+              to: ref('fact_orders')
+              field: order_id
+      - name: quantity
+        tests: [not_null]
+      - name: unit_price
+        tests: [not_null]
+  - name: daily_sales
+    columns:
+      - name: order_date
+        tests: [unique, not_null]

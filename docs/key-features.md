@@ -35,13 +35,15 @@
 
 ## Analytics
 
-- dbt staging, intermediate, mart, and snapshot layers.
+- dbt staging, intermediate, mart, and snapshot layers on both local DuckDB and Azure Databricks.
+- Declared Unity Catalog Silver sources and external Delta Gold tables under ADLS `gold/dbt`.
 - Customer, product, and date dimensions.
 - Order and order-item facts.
 - Daily sales, customer 360, and inventory health marts.
 - Incremental order-item, order, and daily-sales models keyed at their natural update grains.
 - SCD Type 2 product price history.
 - Unique, non-null, accepted-value, relationship, and custom business tests.
+- A paused Databricks workflow gates Gold builds on historical and streaming Silver readiness.
 - Streamlit dashboard for business KPIs and pipeline operations.
 
 ## Observability and incident response
@@ -76,6 +78,7 @@
 | Run bounded Azure historical ingestion | `./scripts/run_stage05_historical_ingestion.sh` |
 | Run bounded Azure Bronze/Silver batch | `./scripts/run_stage06_databricks_batch.sh` |
 | Run temporary Azure Event Hubs proof | `./scripts/run_stage07_eventhubs_streaming.sh` |
+| Build and verify Azure dbt Gold | `./scripts/run_stage08_dbt_gold.sh` |
 | Process incrementally | `retailpulse process` |
 | Use Ollama when processing | `retailpulse process --ollama` |
 | Inspect recent runs | `retailpulse status` |

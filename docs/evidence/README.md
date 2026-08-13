@@ -10,6 +10,7 @@
 - [Stage 5 historical ingestion](stage-05-historical-ingestion.md)
 - [Stage 6 Databricks historical batch](stage-06-databricks-batch.md)
 - [Stage 7 Event Hubs streaming and checkpoint recovery](stage-07-eventhubs-streaming.md)
+- [Stage 8 dbt-on-Databricks Gold](stage-08-dbt-gold.md)
 - [Stage 3/4 minimal-cost plan review](stage-03-04-plan-review.md)
 
 Add later stage evidence here using stable filenames and without secrets or generated cloud

@@ -50,9 +50,9 @@ Status meanings:
 | RP-DQ-001 | Retain rejected evidence | Quarantine stores event ID when available, raw payload, type, message, and timestamp | Verified | `QuarantineRecord`, SQLite/JSONL quarantine tests |
 | RP-DQ-002 | Record pipeline audits | Each run stores timing, status, read/written/rejected/duplicate/late counts, and duration | Verified | `pipeline_run_log`, CLI status, tests |
 | RP-DQ-003 | Detect material quality degradation | Alert above 5% duplicates, 2% schema rejection, or 5% late events | Verified | `src/retailpulse/monitoring.py` |
-| RP-GOLD-001 | Build dimensional and analytical marts | dbt builds customer/product/date dimensions, order facts, daily sales, customer 360, and inventory health | Verified on Python 3.11/dbt 1.9 | `dbt/models/`; 29-node dbt build passed |
-| RP-GOLD-002 | Demonstrate SCD Type 2 | Product price changes create versioned snapshot rows | Verified by dbt build | `dbt/snapshots/product_snapshot.sql` |
-| RP-GOLD-003 | Enforce analytics tests | Unique, not-null, accepted-value, relationship, quantity, price, and total tests pass | Verified | 18 dbt data tests passed |
+| RP-GOLD-001 | Build dimensional and analytical marts | dbt builds customer/product/date dimensions, order facts, daily sales, customer 360, and inventory health | Verified locally and on Azure Databricks | `dbt/models/`; 37-node Azure dbt build passed |
+| RP-GOLD-002 | Demonstrate SCD Type 2 | Product price changes create versioned snapshot rows | Verified on Azure Databricks | Product `10002` created a second version; source was restored |
+| RP-GOLD-003 | Enforce analytics tests | Unique, not-null, accepted-value, relationship, quantity, price, and total tests pass | Verified | 26 Azure dbt data tests passed |
 | RP-ANA-001 | Present business and operational metrics | Dashboard shows revenue, orders, AOV, conversion, countries, products, customers, inventory freshness, event rate, runs, and alerts | Verified | Populated/empty AppTest, all sections, single-day bar behavior, and live health passed; refreshed responsive screenshot evidence remains |
 | RP-OBS-001 | Expose operational metrics | Prometheus can scrape record counts, DQ rates, duration, and alert count | Built | Prometheus textfile output and provisioned config |
 | RP-OBS-002 | Provide an operations dashboard | Grafana is provisioned with core ingestion and DQ panels | Verified | Live degraded-data visual review passed in Stage 1 |

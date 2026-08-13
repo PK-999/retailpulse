@@ -1,4 +1,14 @@
 {{ config(materialized='incremental', unique_key='order_date') }}
+{% if target.type == 'databricks' %}
+{{ config(
+    incremental_strategy='merge',
+    file_format='delta',
+    location_root=env_var(
+        'RETAILPULSE_DBT_GOLD_LOCATION',
+        'abfss://retailpulse@stretailpulsedevrp999.dfs.core.windows.net/gold/dbt'
+    )
+) }}
+{% endif %}
 
 with changed_dates as (
     select distinct cast(order_timestamp as date) as order_date

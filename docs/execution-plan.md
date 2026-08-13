@@ -364,17 +364,23 @@ Build the tested analytical model from cloud Silver tables.
 
 ### Tasks
 
-- [ ] Add the `dbt-databricks` dependency and a secret-free example profile.
-- [ ] Parameterize catalog, schema, HTTP path, and environment.
-- [ ] Replace the local JSON staging source with declared Databricks Silver sources.
-- [ ] Preserve the local DuckDB target as a separate profile/target.
-- [ ] Preserve incremental materializations for order items, orders, and daily sales; prove a second
+- [x] Add the `dbt-databricks` dependency and a secret-free example profile.
+- [x] Parameterize catalog, schema, HTTP path, and environment.
+- [x] Replace the local JSON staging source with declared Databricks Silver sources.
+- [x] Preserve the local DuckDB target as a separate profile/target.
+- [x] Preserve incremental materializations for order items, orders, and daily sales; prove a second
   run processes changed keys/dates rather than rebuilding the full tables.
-- [ ] Run `dbt debug`, `dbt compile`, and `dbt build` against the dev catalog.
-- [ ] Verify all dimensions, facts, aggregates, and the product SCD2 snapshot.
-- [ ] Run a price change and prove a new SCD2 version is created.
-- [ ] Generate dbt documentation and capture the lineage graph.
-- [ ] Schedule the Gold build after batch/streaming freshness conditions are met.
+- [x] Run `dbt debug`, `dbt compile`, and `dbt build` against the dev catalog.
+- [x] Verify all dimensions, facts, aggregates, and the product SCD2 snapshot.
+- [x] Run a price change and prove a new SCD2 version is created.
+- [x] Generate dbt documentation and capture the lineage graph.
+- [x] Schedule the Gold build after batch/streaming freshness conditions are met.
+
+Current status: complete. Both the initial and no-change builds passed all 37 dbt nodes. Gold
+counts and revenue reconcile exactly to Silver, all three incremental models recorded zero-source
+Delta MERGEs on the second run, and product `10002` recorded a second SCD2 version before its
+source price was restored. A freshness-gated weekly job is deployed in `PAUSED` state. See
+[Stage 8 evidence](evidence/stage-08-dbt-gold.md).
 
 ### Exit gate
 

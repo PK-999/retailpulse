@@ -235,7 +235,8 @@ base deployment:
 3. Upload the two Databricks jobs, replace the `ACCOUNT` widget default, and use Key Vault-backed
    secrets for Event Hubs SAS or managed identity where supported.
 4. Set the streaming job checkpoint location once and never share it between queries.
-5. Point dbt's Databricks adapter at the Silver catalog and schedule Gold builds after Silver.
+5. Run `./scripts/run_stage08_dbt_gold.sh` to build Azure Gold and deploy the paused,
+   freshness-gated dbt workflow.
 
 Never commit `.tfvars`, connection strings, SAS keys, or Databricks tokens.
 

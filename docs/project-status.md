@@ -1,6 +1,6 @@
 # RetailPulse project status
 
-Status date: 2026-08-12
+Status date: 2026-08-13
 
 ## Executive summary
 
@@ -11,9 +11,9 @@ metrics and alerts, and generates an incident report.
 The minimum-cost Azure foundation is deployed and drift-free. ADLS, ADF, Azure Databricks, Key
 Vault, the Databricks Access Connector, scoped identity roles, lake directories, and the
 subscription budget are live. ADF managed-identity write access, Unity Catalog external-location
-access, a bounded Delta MERGE, and an unauthorized-access denial have all passed. Event Hubs and
-classic compute remain intentionally absent, and the platform-created starter SQL warehouse is
-stopped.
+access, bounded Delta MERGEs, and an unauthorized-access denial have all passed. Azure Gold now
+contains tested dbt dimensions, facts, aggregates, and SCD2 history. Event Hubs and classic compute
+remain intentionally absent, and the platform-created starter SQL warehouse is stopped.
 
 The ordered implementation and verification backlog is maintained in the
 [stage-wise execution plan](execution-plan.md).
@@ -27,7 +27,7 @@ The ordered implementation and verification backlog is maintained in the
 - Duplicate detection, 30-minute late-event handling, and malformed-record quarantine.
 - Pipeline audit table and JSONL audit history.
 - Gold order summary and local dashboard data.
-- dbt project with 10 models, one SCD2 snapshot, and 18 data tests.
+- dbt project with 10 models, one SCD2 snapshot, and 26 data tests.
 - Prometheus metrics generation and threshold alerts.
 - Deterministic incident analysis and report persistence.
 - UCI CSV normalization.
@@ -53,15 +53,19 @@ The ordered implementation and verification backlog is maintained in the
   Delta tables, source-quality quarantine, audit rows, and a zero-write incremental Silver proof.
 - Authenticated Event Hubs Kafka streaming with all five scenarios, named external Delta tables,
   a real watermark, deterministic checkpoint replay, and zero-write recovery MERGEs.
+- Live dbt-on-Databricks Gold build with declared Silver sources, 37 passing nodes, exact count and
+  revenue reconciliation, zero-source incremental MERGEs, and an SCD2 price-change proof.
+- A paused, freshness-gated Stage 8 Databricks workflow using the public Git repository and
+  runtime-injected credentials.
 
 Validation evidence from the latest implementation pass:
 
 | Check | Result |
 |---|---|
-| Python tests | 33 passed |
+| Python tests | 36 passed |
 | Ruff | Passed, including local and Databricks Spark jobs |
 | SQLFluff | Passed |
-| dbt build | 29/29 nodes passed on initial and incremental reruns |
+| dbt build | 37/37 local and Azure nodes passed |
 | Docker Compose config | Valid |
 | Terraform | Formatted and valid against Terraform 1.15.8 / AzureRM 5.0.1 |
 | Failure demo | 31.7% duplicate rate detected and explained |
@@ -72,6 +76,7 @@ Validation evidence from the latest implementation pass:
 | Stage 5 historical ingestion | Two ADF deliveries and two normalized four-dataset outputs passed |
 | Stage 6 Databricks batch | Two deliveries passed; 56 source rejections + 1 injected rejection; Silver rerun wrote 0 rows |
 | Stage 7 Event Hubs streaming | 460 Bronze, 411 unique Silver, 30 quarantine; 40-row replay wrote 0 Bronze/Silver rows |
+| Stage 8 dbt Gold | 637 customers, 199 products, 4,518 items, £91,970.02 revenue reconciled; 3 no-op incremental MERGEs; SCD2 proved |
 
 ## Built but requiring external integration
 
@@ -84,10 +89,9 @@ These components exist, but their later-stage production paths still require tar
 
 ### Required
 
-1. Configure dbt for the Databricks adapter and build Gold tables in the target catalog.
-2. Connect Databricks SQL or Power BI and validate dashboard queries.
-3. Configure Azure Monitor/log forwarding and verify alert delivery.
-4. Run the complete clean-state demonstration and capture screenshots/video.
+1. Connect Databricks SQL or Power BI and validate dashboard queries.
+2. Configure Azure Monitor/log forwarding and verify alert delivery.
+3. Run the complete clean-state demonstration and capture screenshots/video.
 
 ### Recommended portfolio polish
 
