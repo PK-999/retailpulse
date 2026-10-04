@@ -17,3 +17,9 @@ output "adf_principal_id" { value = azurerm_data_factory.this.identity[0].princi
 output "key_vault_name" { value = azurerm_key_vault.this.name }
 output "eventhubs_secret_name" { value = "eventhubs-kafka-connection-string" }
 output "budget_name" { value = azurerm_consumption_budget_subscription.this.name }
+output "adf_failed_runs_alert_name" {
+  value = try(azurerm_monitor_metric_alert.adf_failed_runs[0].name, null)
+}
+output "adf_log_archive_enabled" {
+  value = var.enable_cloud_monitoring && var.enable_adf_log_archive
+}

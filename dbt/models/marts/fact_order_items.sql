@@ -1,14 +1,5 @@
 {{ config(materialized='incremental', unique_key='order_item_id') }}
-{% if target.type == 'databricks' %}
-{{ config(
-    incremental_strategy='merge',
-    file_format='delta',
-    location_root=env_var(
-        'RETAILPULSE_DBT_GOLD_LOCATION',
-        'abfss://retailpulse@stretailpulsedevrp999.dfs.core.windows.net/gold/dbt'
-    )
-) }}
-{% endif %}
+{{ configure_gold() }}
 
 {% if target.type == 'databricks' %}
 select
@@ -25,7 +16,7 @@ select
 from {{ source('silver', 'order_items') }} as items
 inner join {{ source('silver', 'orders') }} as orders on items.order_id = orders.order_id
 {% if is_incremental() %}
-    where greatest(items.ingestion_timestamp, orders.ingestion_timestamp) > (
+    where greatest(items.ingestion_timestamp, orders.ingestion_timestamp) >= (
         select coalesce(max(target.ingestion_timestamp), cast('1900-01-01' as timestamp))
         from {{ this }} as target
     )
@@ -44,9 +35,26 @@ inner join {{ source('silver', 'orders') }} as orders on items.order_id = orders
         purchases.ingestion_timestamp
     from {{ ref('int_purchases') }} as purchases
     {% if is_incremental() %}
-        where purchases.ingestion_timestamp > (
+        where purchases.ingestion_timestamp >= (
             select coalesce(max(target.ingestion_timestamp), cast('1900-01-01' as timestamp))
             from {{ this }} as target
         )
     {% endif %}
+{% endif %}
+
+{% if is_incremental() %}
+    -- Re-read the boundary for tied arrivals; matching rows produce no merge input.
+    except
+    select
+        order_item_id,
+        order_id,
+        customer_id,
+        product_id,
+        quantity,
+        unit_price,
+        line_total,
+        country,
+        event_timestamp,
+        ingestion_timestamp
+    from {{ this }}
 {% endif %}

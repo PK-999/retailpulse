@@ -1,6 +1,13 @@
 # RetailPulse external verification and Azure completion plan
 
-Last reviewed: 2026-08-12
+Last reviewed: 2026-08-13
+
+October 2026 release update: local contracts/recovery/Spark/dbt/browser/monitoring proofs are
+captured in the [release checklist](release-checklist.md) and [current status](project-status.md).
+Stages 3–9 retain August Azure evidence. Stage 10 implementation/preflight is complete, but live
+cloud verification and Stage 11's fresh Azure recording wait for disabled ADF/state storage to
+be restored. The recorded local portfolio walkthrough has its own scope; it does not satisfy
+an unperformed fresh Azure run. Review the expired free-credit exception before any new apply.
 
 ## 1. Objective
 
@@ -25,7 +32,7 @@ passed and the listed evidence has been saved.
 | 6 | Databricks batch produces Bronze and Silver Delta | Stage 5 | 4–6 hours |
 | 7 | Event Hubs streaming, recovery, and Delta MERGE verified | Stages 4 and 6 | 6–10 hours |
 | 8 | dbt builds and tests Azure Gold models | Stages 6 and 7 | 3–6 hours |
-| 9 | A live SQL/BI dashboard reads Gold | Stage 8 | 2–5 hours |
+| 9 | A lightweight web BI dashboard publishes a validated Azure Gold snapshot | Stage 8 | 3–6 hours |
 | 10 | Azure monitoring and alert delivery verified | Stages 5–9 | 3–6 hours |
 | 11 | Clean-state end-to-end demo and evidence captured | All prior stages | 4–6 hours |
 | 12 | Costs controlled and release closed | Stage 11 | 1–2 hours |
@@ -66,8 +73,9 @@ Remove choices that would otherwise interrupt deployment or cause accidental spe
   - managed identity or Databricks Access Connector for lake access;
   - ADF managed identity for landing writes;
   - GitHub Actions OIDC identity for future CI deployments.
-- [x] Decide whether the first BI target is Databricks SQL or Power BI. Databricks SQL is the
-  recommended first target because it removes a desktop/gateway dependency.
+- [x] Select the first BI delivery path. RetailPulse BI Lite uses Databricks SQL as its query
+  engine, a React/TypeScript static dashboard, and GitHub Pages instead of Power BI or a persistent
+  BI server.
 - [x] Create an evidence directory outside generated `data/`, with filenames such as
   `stage-05-adf-success.png` and `stage-07-checkpoint-recovery.png`.
 - [x] Record teardown expectations: retain, stop, or destroy resources after the demo.
@@ -392,23 +400,41 @@ demonstrated with two versions of one product.
 
 ### Goal
 
-Show business value using live Azure Gold data.
+Show business value from Azure Gold through a public, polished dashboard without exposing
+credentials or keeping a BI server running.
 
-### Recommended first path: Databricks SQL
+### Selected path: RetailPulse BI Lite
 
-- [ ] Create or select a small SQL warehouse with auto-stop enabled.
-- [ ] Build queries for revenue, orders, AOV, top products/customers, country sales, conversion,
-  inventory health, and events per minute.
-- [ ] Add data freshness and last-successful-run indicators.
-- [ ] Validate dashboard totals directly against Gold SQL.
+- [x] Record the dashboard architecture and security/cost decision.
+- [x] Preserve the stopped serverless SQL warehouse with bounded auto-stop behavior.
+- [x] Build version-controlled SQL extraction for revenue, orders, AOV, top products/customers,
+  country sales, conversion, inventory health, and events per minute.
+- [x] Validate Silver/Gold counts and revenue before publishing any snapshot.
+- [x] Write a timestamped, non-sensitive JSON snapshot through an atomic export.
+- [x] Build the React/TypeScript dashboard with native SVG/CSS charts, responsive layouts, and
+  interactive Overview, Commerce, and Freshness views.
+- [x] Add data freshness, last-successful-run, source-window, and reconciliation indicators.
+- [x] Add a GitHub Pages build/deploy workflow that publishes only the checked-in snapshot.
+- [x] Run the extractor against Azure Gold, reconcile the known window, and save Stage 9 evidence.
+- [ ] Verify the deployed public URL and desktop/narrow layouts.
 
-If Power BI is selected, additionally configure the Databricks connector, use a non-personal
-authentication strategy where practical, and document refresh behavior.
+Refresh is deliberately push-based rather than page-load live. An attended command obtains a
+short-lived Azure Databricks token, queries Gold, validates the results, replaces the public JSON,
+and stops the warehouse. The public browser receives no Databricks hostname, token, or query
+capability. GitHub Pages serves the resulting static assets at no hosting cost for the public
+repository.
 
 ### Exit gate
 
-The dashboard uses Azure Gold—not local SQLite—and its displayed values reconcile to saved SQL
-queries for one known time window.
+The deployed dashboard displays a timestamped snapshot extracted from Azure Gold—not local
+SQLite—and its values reconcile to saved SQL for one known window. No secret is present in the
+built site, the SQL warehouse is stopped after refresh, and the public URL renders correctly at
+desktop and narrow widths.
+
+Current status: implementation and live Azure extraction are verified. The first snapshot passed
+all five reconciliation checks and the SQL warehouse returned to `STOPPED`. Hosted Pages
+deployment and responsive public visual evidence remain before the exit gate is complete. See
+[Stage 9 evidence](evidence/stage-09-bi-dashboard.md).
 
 ## Stage 10 — Azure Monitor and alerting
 
@@ -510,7 +536,7 @@ documented definition of done.
 | Deploy Databricks batch jobs and compute | 6 |
 | Connect Event Hubs, Structured Streaming, recovery, and MERGE | 7 |
 | Configure dbt with Databricks | 8 |
-| Connect Power BI or Databricks SQL | 9 |
+| Connect a BI dashboard to Databricks SQL | 9 |
 | Add Azure Monitor alerting | 10 |
 | Capture screenshots and record demo video | 11 |
 

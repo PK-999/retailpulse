@@ -9,8 +9,8 @@ prove incremental and SCD2 behavior, and deploy a disabled-by-default production
 
 - Stages 3–7 are complete and the Terraform state is reachable.
 - Docker Desktop is running for the pinned Azure CLI/Terraform wrappers.
-- A Python 3.11–3.13 environment contains the `analytics` extra. The default runner path is
-  `.venv313/bin/dbt`; override it with `RETAILPULSE_DBT_BIN` if needed.
+- A Python 3.11–3.13 environment contains the `analytics` and `databricks` extras. The default
+  runner path is `.venv/bin/dbt`; override it with `RETAILPULSE_DBT_BIN` if needed.
 - The current Git branch exists in the public GitHub repository before enabling the deployed job.
 
 If tenant security blocks Azure CLI device-code flow with `AADSTS530035`, use the supported local

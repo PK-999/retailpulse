@@ -1,18 +1,13 @@
 # Databricks notebook source
+# RETAILPULSE_SHARED_CONTRACT
+# The Stage 7 upload helper replaces the marker above with the current shared
+# validator and Python model source. Upload through that helper, not this template.
 import json
 import re
 import time
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
-from pyspark.sql.types import (
-    DecimalType,
-    IntegerType,
-    StringType,
-    StructField,
-    StructType,
-    TimestampType,
-)
 
 dbutils.widgets.text("kafka_bootstrap_servers", "")
 dbutils.widgets.text("base_path", "")
@@ -36,9 +31,7 @@ trigger_mode = dbutils.widgets.get("trigger_mode")
 max_runtime_minutes = int(dbutils.widgets.get("max_runtime_minutes"))
 max_offsets_per_trigger = int(dbutils.widgets.get("max_offsets_per_trigger"))
 checkpoint_namespace = dbutils.widgets.get("checkpoint_namespace")
-fail_after_committed_batch = (
-    dbutils.widgets.get("fail_after_committed_batch").lower() == "true"
-)
+fail_after_committed_batch = dbutils.widgets.get("fail_after_committed_batch").lower() == "true"
 starting_offsets = dbutils.widgets.get("starting_offsets")
 stream_run_id = dbutils.widgets.get("stream_run_id")
 
@@ -68,7 +61,7 @@ if not connection_string.startswith("Endpoint=sb://"):
     raise ValueError("the Event Hubs secret is not a namespace connection string")
 escaped_connection_string = connection_string.replace("\\", "\\\\").replace('"', '\\"')
 sasl_jaas = (
-    'kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule required '
+    "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule required "
     f'username="$ConnectionString" password="{escaped_connection_string}";'
 )
 
@@ -88,21 +81,7 @@ quarantine_path = f"{base_path}/quarantine/streaming/events"
 audit_path = f"{base_path}/bronze/_audit/streaming_batch_runs"
 checkpoint_path = f"{base_path}/checkpoints/stage07/{checkpoint_namespace}/events"
 
-event_schema = StructType(
-    [
-        StructField("event_id", StringType()),
-        StructField("event_type", StringType()),
-        StructField("customer_id", StringType()),
-        StructField("product_id", StringType()),
-        StructField("order_id", StringType()),
-        StructField("quantity", IntegerType()),
-        StructField("price", DecimalType(12, 2)),
-        StructField("country", StringType()),
-        StructField("query", StringType()),
-        StructField("event_timestamp", TimestampType()),
-        StructField("schema_version", IntegerType()),
-    ]
-)
+spark.conf.set("spark.sql.session.timeZone", "UTC")
 
 
 def ensure_external_table(frame: DataFrame, table_name: str, path: str) -> None:
@@ -128,13 +107,33 @@ def merge_frame(
     )
     frame.createOrReplaceTempView(view_name)
     matched_clause = "WHEN MATCHED THEN UPDATE SET * " if update_matched else ""
-    spark.sql(
+    # foreachBatch may provide a separate SparkSession. The source view and
+    # MERGE must use that same session or the view is invisible to the query.
+    batch_spark = frame.sparkSession
+    previous_version = int(
+        batch_spark.sql(f"DESCRIBE HISTORY {table_name} LIMIT 1").select("version").first()[
+            "version"
+        ]
+    )
+    batch_spark.sql(
         f"MERGE INTO {table_name} AS target USING {view_name} AS source ON {condition} "
         f"{matched_clause}WHEN NOT MATCHED THEN INSERT *"
     )
-    history = spark.sql(f"DESCRIBE HISTORY {table_name} LIMIT 1").select(
-        "version", "operation", "operationMetrics"
-    ).first()
+    history = (
+        batch_spark.sql(f"DESCRIBE HISTORY {table_name} LIMIT 1")
+        .select("version", "operation", "operationMetrics")
+        .first()
+    )
+    if int(history["version"]) == previous_version:
+        # Delta can skip committing a MERGE that changes no rows. The latest
+        # history then belongs to a prior batch and must not inflate replay counts.
+        return {
+            "version": previous_version,
+            "operation": "MERGE_NO_OP",
+            "numTargetRowsInserted": 0,
+            "numTargetRowsUpdated": 0,
+            "numTargetRowsDeleted": 0,
+        }
     return {
         "version": int(history["version"]),
         "operation": history["operation"],
@@ -171,48 +170,21 @@ def process_batch(batch_df: DataFrame, batch_id: int) -> None:
         "target.partition = source.partition AND target.offset = source.offset",
     )
 
-    parsed = bronze.withColumn("event", F.from_json("raw_payload", event_schema)).select(
-        "source_topic",
-        "partition",
-        "offset",
-        "kafka_timestamp",
-        "ingestion_timestamp",
-        "raw_payload",
-        "scenario",
-        "stream_run_id",
-        "checkpoint_namespace",
-        "event.*",
+    # Existing DECIMAL(12,2) tables remain readable and receive only exactly
+    # representable prices. New tables retain the contract's full Decimal text.
+    existing_price_type = (
+        spark.table(silver_table).schema["price"].dataType
+        if spark.catalog.tableExists(silver_table.replace("`", ""))
+        else None
     )
-    schema_valid = (
-        F.col("event_id").isNotNull()
-        & F.col("event_type").isin(
-            "product_view",
-            "search",
-            "add_to_cart",
-            "checkout",
-            "purchase",
-            "payment",
-            "inventory_update",
-        )
-        & F.col("event_timestamp").isNotNull()
-        & (F.col("schema_version") == 1)
+    parsed = classify_events(
+        bronze,
+        RETAILPULSE_CONTRACT_SOURCE,
+        topic_column="source_topic",
+        price_type=existing_price_type,
     )
-    product_valid = ~F.col("event_type").isin(
-        "product_view", "add_to_cart", "purchase", "inventory_update"
-    ) | F.col("product_id").isNotNull()
-    quantity_valid = ~F.col("event_type").isin("purchase", "inventory_update") | (
-        F.col("quantity").isNotNull() & (F.col("quantity") > 0)
-    )
-    price_valid = F.col("price").isNull() | (F.col("price") >= 0)
-    is_valid = F.coalesce(
-        schema_valid & product_valid & quantity_valid & price_valid,
-        F.lit(False),
-    )
-    is_late = is_valid & (
-        F.col("event_timestamp") < F.current_timestamp() - F.expr("INTERVAL 30 MINUTES")
-    )
-    accepted = parsed.filter(is_valid & ~is_late)
-    rejected = parsed.filter(~is_valid | is_late).select(
+    accepted = parsed.filter(F.col("error_type").isNull())
+    rejected = parsed.filter(F.col("error_type").isNotNull()).select(
         "event_id",
         "raw_payload",
         "source_topic",
@@ -223,12 +195,8 @@ def process_batch(batch_df: DataFrame, batch_id: int) -> None:
         "scenario",
         "stream_run_id",
         "checkpoint_namespace",
-        F.when(is_late, F.lit("LATE_EVENT"))
-        .otherwise(F.lit("SCHEMA_OR_BUSINESS_RULE"))
-        .alias("error_type"),
-        F.when(is_late, F.lit("event_timestamp is older than the 30-minute watermark"))
-        .otherwise(F.lit("payload does not satisfy the version 1 event contract"))
-        .alias("error_message"),
+        "error_type",
+        "error_message",
     )
     quarantine_history = merge_frame(
         rejected,
@@ -268,14 +236,18 @@ def process_batch(batch_df: DataFrame, batch_id: int) -> None:
     )
 
     duplicate_rows = accepted.count() - silver_source.count()
-    latency = accepted.select(
-        (
-            F.unix_millis("ingestion_timestamp") - F.unix_millis("event_timestamp")
-        ).alias("latency_ms")
-    ).agg(
-        F.avg("latency_ms").alias("average_latency_ms"),
-        F.max("latency_ms").alias("maximum_latency_ms"),
-    ).first()
+    latency = (
+        accepted.select(
+            (F.unix_millis("ingestion_timestamp") - F.unix_millis("event_timestamp")).alias(
+                "latency_ms"
+            )
+        )
+        .agg(
+            F.avg("latency_ms").alias("average_latency_ms"),
+            F.max("latency_ms").alias("maximum_latency_ms"),
+        )
+        .first()
+    )
     duration_seconds = round(time.monotonic() - started_at, 3)
     audit = spark.createDataFrame(
         [
@@ -338,16 +310,9 @@ raw = (
         "AS STRING) AS stream_run_id",
     )
     .filter(F.col("stream_run_id") == F.lit(stream_run_id))
-    .withColumn(
-        "watermark_event_timestamp",
-        F.from_json("raw_payload", event_schema).getField("event_timestamp"),
-    )
-    .withWatermark("watermark_event_timestamp", "30 minutes")
 )
 
-writer = raw.writeStream.foreachBatch(process_batch).option(
-    "checkpointLocation", checkpoint_path
-)
+writer = raw.writeStream.foreachBatch(process_batch).option("checkpointLocation", checkpoint_path)
 writer = writer.trigger(availableNow=True)
 query = writer.queryName(f"retailpulse_stage07_{checkpoint_namespace}").start()
 query.awaitTermination(max_runtime_minutes * 60)
@@ -355,6 +320,7 @@ if query.isActive:
     query.stop()
     query.awaitTermination()
     raise TimeoutError("Stage 7 stream exceeded max_runtime_minutes")
+
 
 def counts_by_scenario(table_name: str) -> dict[str, int]:
     return {

@@ -45,6 +45,10 @@
 - Unique, non-null, accepted-value, relationship, and custom business tests.
 - A paused Databricks workflow gates Gold builds on historical and streaming Silver readiness.
 - Streamlit dashboard for business KPIs and pipeline operations.
+- RetailPulse BI Lite: a responsive React/TypeScript dashboard with native SVG/CSS charts and
+  separate Overview, Commerce, and Freshness views, built from a validated Azure Gold snapshot.
+- Static GitHub Pages delivery with no database credentials or query endpoint in the browser.
+- Attended, bounded refresh that reconciles Silver/Gold values and stops the SQL warehouse on exit.
 
 ## Observability and incident response
 
@@ -79,6 +83,7 @@
 | Run bounded Azure Bronze/Silver batch | `./scripts/run_stage06_databricks_batch.sh` |
 | Run temporary Azure Event Hubs proof | `./scripts/run_stage07_eventhubs_streaming.sh` |
 | Build and verify Azure dbt Gold | `./scripts/run_stage08_dbt_gold.sh` |
+| Refresh and build RetailPulse BI Lite | `./scripts/run_stage09_bi_dashboard.sh` |
 | Process incrementally | `retailpulse process` |
 | Use Ollama when processing | `retailpulse process --ollama` |
 | Inspect recent runs | `retailpulse status` |

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-04T18:49:48.914728+00:00",
+  "scope": "single bounded local file/SQLite run; excludes Spark, Kafka, dbt and cloud",
+  "data_isolation": "new temporary directory removed after verification",
+  "runtime": {
+    "python": "3.13.15",
+    "pydantic": "2.12.5",
+    "os": "Darwin",
+    "architecture": "arm64",
+    "peak_process_rss_bytes": 91537408
+  },
+  "input": {
+    "scenario": "normal",
+    "seed": 42,
+    "produced": 50000,
+    "source_bytes": 13515927
+  },
+  "initial": {
+    "records_read": 50000,
+    "records_written": 50000,
+    "records_rejected": 0,
+    "records_duplicate": 0,
+    "records_late": 0
+  },
+  "noop": {
+    "records_read": 0,
+    "records_written": 0,
+    "records_rejected": 0,
+    "records_duplicate": 0,
+    "records_late": 0
+  },
+  "counts": {
+    "bronze_events": 50000,
+    "silver_events": 50000,
+    "quarantine": 0
+  },
+  "gold": {
+    "orders": 5887,
+    "units": 17706,
+    "revenue": 69870.28,
+    "average_order_value": 11.87
+  },
+  "timings": {
+    "generation_seconds": 3.42327,
+    "initial_process_seconds": 1.550201,
+    "initial_gold_seconds": 0.043382,
+    "initial_metrics_seconds": 0.000544,
+    "noop_process_seconds": 0.670049,
+    "noop_gold_seconds": 0.04423,
+    "noop_metrics_seconds": 0.000648
+  },
+  "materialization": {
+    "snapshot_bytes": 44561390,
+    "classification_exports_identical_after_noop": true,
+    "gold_unchanged_after_noop": true
+  },
+  "interpretation": "A no-op process still scans and hashes all committed inbox lines and rewrites complete Bronze, Silver and quarantine snapshots. Zero records_read does not mean constant-time execution. One local observation is not a throughput SLA.",
+  "elapsed_seconds": 5.797514
+}

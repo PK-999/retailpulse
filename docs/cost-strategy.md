@@ -2,6 +2,13 @@
 
 Last reviewed: 2026-08-12
 
+October 2026 operational update: the exception below expired 2026-08-19. A read-only review
+sees disabled ADF and `AccountIsDisabled` on Terraform state storage; it did not execute paid
+jobs or apply changes. Restore service access and review a new bounded plan before cloud work.
+Optional monitoring now defaults off and adds one metric alert, with existing-storage log
+archive and explicitly authorized receivers only when selected; see
+[Stage 10](runbooks/stage-10-cloud-monitoring.md). No Log Analytics workspace is introduced.
+
 ## Decision
 
 Develop and rehearse the data logic locally. Use Databricks Free Edition only as an optional,

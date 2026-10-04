@@ -4,7 +4,7 @@ set -euo pipefail
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 az_cli="${project_root}/scripts/azure_cli.sh"
 tf_cli="${project_root}/scripts/terraform_azure.sh"
-dbt_bin="${RETAILPULSE_DBT_BIN:-${project_root}/.venv313/bin/dbt}"
+dbt_bin="${RETAILPULSE_DBT_BIN:-${project_root}/.venv/bin/dbt}"
 databricks_resource="2ff814a6-3304-4ab8-85cb-cd0e6f879c1d"
 catalog_name="${RETAILPULSE_DBT_CATALOG:-dbw_retailpulse_dev_rp999}"
 gold_schema="${RETAILPULSE_DBT_SCHEMA:-retailpulse_gold}"
@@ -18,7 +18,7 @@ lake_abfss="${RETAILPULSE_LAKE_ABFSS:-$("${tf_cli}" output -raw lake_abfss_url)}
 workspace_url="https://${databricks_host}"
 
 if [[ ! -x "${dbt_bin}" ]]; then
-  echo "dbt is missing at ${dbt_bin}; create a Python 3.11-3.13 environment with the analytics extra." >&2
+  echo "dbt is missing at ${dbt_bin}; install the analytics and databricks extras." >&2
   exit 2
 fi
 if [[ ! "${databricks_host}" =~ ^adb-[0-9]+\.[0-9]+\.azuredatabricks\.net$ ]]; then

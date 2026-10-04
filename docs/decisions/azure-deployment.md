@@ -66,7 +66,9 @@ The explicit suffix replaces apply-time randomness so every name is visible in t
 
 ## Consumption and teardown
 
-- First BI target: Databricks SQL.
+- First BI target: RetailPulse BI Lite, with Databricks SQL as the bounded query engine and a
+  validated static snapshot published through GitHub Pages. See
+  [the BI dashboard decision](bi-dashboard.md).
 - Resource teardown date tag: `2026-08-19`.
 - Stop all Databricks compute immediately after each test.
 - Run `terraform destroy` after the final recorded demonstration unless further testing is

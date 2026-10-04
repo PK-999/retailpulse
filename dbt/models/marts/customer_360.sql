@@ -1,12 +1,4 @@
-{% if target.type == 'databricks' %}
-{{ config(
-    file_format='delta',
-    location_root=env_var(
-        'RETAILPULSE_DBT_GOLD_LOCATION',
-        'abfss://retailpulse@stretailpulsedevrp999.dfs.core.windows.net/gold/dbt'
-    )
-) }}
-{% endif %}
+{{ configure_gold() }}
 
 select
     c.customer_id,

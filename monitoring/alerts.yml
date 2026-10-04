@@ -1,0 +1,29 @@
+groups:
+  - name: retailpulse
+    rules:
+      - alert: RetailPulsePipelineFailed
+        expr: retailpulse_pipeline_failed == 1
+        labels:
+          severity: critical
+        annotations:
+          summary: Latest RetailPulse pipeline run failed
+          runbook: https://github.com/PK-999/retailpulse/blob/main/docs/runbooks/pipeline-failure.md
+      - alert: RetailPulseDuplicateRate
+        expr: retailpulse_duplicate_rate > 0.05
+        labels:
+          severity: warning
+        annotations:
+          summary: Duplicate event rate exceeds 5 percent
+          runbook: https://github.com/PK-999/retailpulse/blob/main/docs/runbooks/duplicate-events.md
+      - alert: RetailPulseRejectionRate
+        expr: retailpulse_rejection_rate > 0.02
+        labels:
+          severity: warning
+        annotations:
+          summary: Rejected event rate exceeds 2 percent
+      - alert: RetailPulseLateEventRate
+        expr: retailpulse_late_event_rate > 0.05
+        labels:
+          severity: warning
+        annotations:
+          summary: Late event rate exceeds 5 percent

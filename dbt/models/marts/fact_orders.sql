@@ -1,21 +1,23 @@
 {{ config(materialized='incremental', unique_key='order_id') }}
-{% if target.type == 'databricks' %}
-{{ config(
-    incremental_strategy='merge',
-    file_format='delta',
-    location_root=env_var(
-        'RETAILPULSE_DBT_GOLD_LOCATION',
-        'abfss://retailpulse@stretailpulsedevrp999.dfs.core.windows.net/gold/dbt'
-    )
-) }}
-{% endif %}
+{{ configure_gold() }}
 
 {% if target.type == 'databricks' %}
 with changed_orders as (
     select orders.order_id
     from {{ source('silver', 'orders') }} as orders
     {% if is_incremental() %}
-        where orders.ingestion_timestamp > (
+        where orders.ingestion_timestamp >= (
+            select coalesce(max(target.ingestion_timestamp), cast('1900-01-01' as timestamp))
+            from {{ this }} as target
+        )
+    {% endif %}
+
+    union
+
+    select items.order_id
+    from {{ source('silver', 'order_items') }} as items
+    {% if is_incremental() %}
+        where items.ingestion_timestamp >= (
             select coalesce(max(target.ingestion_timestamp), cast('1900-01-01' as timestamp))
             from {{ this }} as target
         )
@@ -44,7 +46,7 @@ group by
         select distinct order_id
         from {{ ref('int_purchases') }}
         {% if is_incremental() %}
-            where ingestion_timestamp > (
+            where ingestion_timestamp >= (
                 select coalesce(max(target.ingestion_timestamp), cast('1900-01-01' as timestamp))
                 from {{ this }} as target
             )
@@ -62,4 +64,17 @@ group by
     from {{ ref('int_purchases') }} as purchases
     inner join changed_orders on purchases.order_id = changed_orders.order_id
     group by purchases.order_id
+{% endif %}
+
+{% if is_incremental() %}
+    except
+    select
+        order_id,
+        customer_id,
+        order_timestamp,
+        country,
+        units,
+        order_total,
+        ingestion_timestamp
+    from {{ this }}
 {% endif %}

@@ -21,8 +21,20 @@ select
 {% if target.type == 'databricks' %}
 from {{ source('silver', 'streaming_events') }}
 {% else %}
-    from read_json_auto(
+    from read_json(
         '{{ env_var("RETAILPULSE_DBT_DATA_DIR", "data") }}/silver/events.jsonl',
-        format = 'newline_delimited'
+        format = 'newline_delimited',
+        columns = {
+            'event_id': 'VARCHAR',
+            'event_type': 'VARCHAR',
+            'customer_id': 'VARCHAR',
+            'product_id': 'VARCHAR',
+            'order_id': 'VARCHAR',
+            'country': 'VARCHAR',
+            'quantity': 'INTEGER',
+            'price': 'DECIMAL(12, 2)',
+            'event_timestamp': 'TIMESTAMP',
+            'ingestion_timestamp': 'TIMESTAMP'
+        }
     )
 {% endif %}

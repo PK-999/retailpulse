@@ -178,7 +178,10 @@ databricks_post "/api/2.0/secrets/put" \
     '{scope:$scope,key:$key,string_value:$value}')" >/dev/null
 unset connection_string
 
-content="$(base64 <"${project_root}/databricks/stream_bronze_silver.py" | tr -d '\n')"
+content="$(
+  "${python_cli}" -m retailpulse.spark_contract \
+    --notebook "${project_root}/databricks/stream_bronze_silver.py" | base64 | tr -d '\n'
+)"
 databricks_post "/api/2.0/workspace/mkdirs" \
   "$(jq -cn --arg path "$(dirname "${notebook_path}")" '{path:$path}')" >/dev/null
 databricks_post "/api/2.0/workspace/import" \
@@ -204,7 +207,9 @@ job_settings="$(
       retry_on_timeout:false,
       disable_auto_optimization:true
     }],
-    environments:[{environment_key:"serverless",spec:{environment_version:"4",dependencies:[]}}]
+    environments:[{environment_key:"serverless",spec:{
+      environment_version:"4",dependencies:["pydantic==2.13.4"]
+    }}]
   }'
 )"
 jobs="$(databricks_get "/api/2.2/jobs/list?name=${job_name}&limit=20")"

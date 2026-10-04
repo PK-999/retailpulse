@@ -1,6 +1,7 @@
 # RetailPulse documentation
 
-This directory is the project’s reference set. Read the documents in this order:
+Start with [project status](project-status.md) for current verification and prioritized portfolio
+improvements. This directory is the project’s reference set:
 
 1. [Requirements](requirements.md) — scope, acceptance criteria, and traceability.
 2. [Architecture](architecture.md) — system boundaries, flows, storage layers, and decisions.
@@ -14,6 +15,13 @@ This directory is the project’s reference set. Read the documents in this orde
 10. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
 11. [Decision records](decisions/) — reviewed deployment, identity, cost, and teardown choices.
 12. [Security access matrix](security/access-matrix.md) — Azure identities, roles, and scopes.
+
+The accepted BI delivery choice is recorded in
+[the RetailPulse BI Lite decision](decisions/bi-dashboard.md).
+
+For this release, start with the [completion checklist](release-checklist.md),
+[aggregate local proof](evidence/local-e2e.json), and
+[cloud monitoring preflight](evidence/cloud-monitor-preflight.json).
 
 ## Document ownership
 

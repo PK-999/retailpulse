@@ -1,0 +1,56 @@
+name: Deploy BI Lite
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "bi-dashboard/**"
+      - ".github/workflows/bi-dashboard-pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: bi-dashboard/package-lock.json
+      - run: npm ci
+        working-directory: bi-dashboard
+      - run: npm run lint
+        working-directory: bi-dashboard
+      - run: npm run build
+        working-directory: bi-dashboard
+      - run: npx playwright install --with-deps chromium
+        working-directory: bi-dashboard
+      - run: npm test
+        working-directory: bi-dashboard
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: bi-dashboard/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 5
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

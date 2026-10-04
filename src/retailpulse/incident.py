@@ -10,14 +10,13 @@ import httpx
 from retailpulse.config import Settings
 from retailpulse.monitoring import Alert
 from retailpulse.pipeline import RunStats
+from retailpulse.storage import write_text
 
 
 def normalize_ollama_report(response: str) -> str:
     """Remove model chatter while preserving the required four-section report."""
     lines = [
-        line.strip().replace("**", "")
-        for line in response.strip().splitlines()
-        if line.strip()
+        line.strip().replace("**", "") for line in response.strip().splitlines() if line.strip()
     ]
     required = ("Incident", "Evidence", "Likely cause", "Action")
     sections: list[str] = []
@@ -41,6 +40,12 @@ def deterministic_report(stats: RunStats, alerts: list[Alert]) -> str:
         )
     causes: list[str] = []
     actions: list[str] = []
+    if any(alert.metric == "pipeline_failure" for alert in alerts):
+        causes.append("the run failed; its metrics alone do not identify the exception")
+        actions.append(
+            "inspect the exception and audit, restore storage access, and rerun "
+            "from committed input offsets"
+        )
     if any(alert.metric == "duplicate_rate" for alert in alerts):
         causes.append("events were likely replayed by a producer or consumer retry")
         actions.append("verify producer idempotency and retain event_id deduplication before MERGE")
@@ -50,7 +55,10 @@ def deterministic_report(stats: RunStats, alerts: list[Alert]) -> str:
     if any(alert.metric == "late_event_rate" for alert in alerts):
         causes.append("upstream delivery exceeded the 30-minute watermark")
         actions.append("check producer clocks and transport backlog before adjusting the watermark")
-    metrics = ", ".join(f"{a.metric}={a.value:.1%}" for a in alerts)
+    metrics = ", ".join(
+        "pipeline_failure=failed" if a.metric == "pipeline_failure" else f"{a.metric}={a.value:.1%}"
+        for a in alerts
+    )
     return (
         f"Incident: {stats.pipeline_name}\n\n"
         f"Detected anomalous data quality in run {stats.run_id}: {metrics}.\n\n"
@@ -93,5 +101,5 @@ def generate_report(
         except (httpx.HTTPError, KeyError, ValueError):
             source = "rules-fallback"
     output: Path = settings.data_dir / "incidents" / f"{stats.run_id}.md"
-    output.write_text(report + "\n", encoding="utf-8")
+    write_text(output, report + "\n")
     return report, source

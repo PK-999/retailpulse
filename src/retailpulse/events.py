@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import random
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from hashlib import sha256
 from typing import Literal
 from uuid import uuid4
 
@@ -85,6 +85,12 @@ class EventGenerator:
             return f"ORD-{self.random.randint(100000, 999999)}"
         return f"ORD-{self.random.randrange(self.order_count):09d}"
 
+    def _order_customer(self, order_id: str) -> str:
+        identity = int.from_bytes(sha256(order_id.encode()).digest()[:8], "big")
+        if self.customer_count is not None:
+            return f"CUST-{identity % self.customer_count:08d}"
+        return str(12346 + identity % (18287 - 12346 + 1))
+
     def _event(self, late: bool = False) -> RetailEvent:
         event_type = self.random.choices(EVENT_TYPES, weights=[30, 12, 20, 8, 12, 10, 8])[0]
         product_id, price = self._product()
@@ -102,18 +108,23 @@ class EventGenerator:
             if event_type in {"purchase", "inventory_update"}
             else None,
             "price": (
-                price
-                if event_type in {"add_to_cart", "checkout", "purchase", "payment"}
-                else None
+                price if event_type in {"add_to_cart", "checkout", "purchase", "payment"} else None
             ),
             "country": self.random.choice(COUNTRIES),
             "query": "gift" if event_type == "search" else None,
             "event_timestamp": timestamp,
+            "schema_version": 1,
         }
         if event_type == "checkout":
             values["product_id"] = None
         if event_type == "payment":
             values["product_id"] = None
+        customer = str(values["customer_id"])
+        if values["order_id"] is not None:
+            customer = self._order_customer(order_id)
+        values["customer_id"] = customer
+        country_index = int.from_bytes(sha256(customer.encode()).digest()[:8], "big")
+        values["country"] = COUNTRIES[country_index % len(COUNTRIES)]
         return RetailEvent.model_validate(values)
 
     def generate(self, count: int, scenario: Scenario = "normal") -> Iterator[GeneratedMessage]:
@@ -134,7 +145,3 @@ class EventGenerator:
             payload = event.model_dump_json()
             previous = GeneratedMessage(TOPIC_BY_EVENT[event.event_type], payload, scenario)
             yield previous
-
-
-def payload_as_dict(payload: str) -> dict[str, object]:
-    return json.loads(payload)

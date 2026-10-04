@@ -1,0 +1,20 @@
+{
+  "verified_at": "2026-10-04T18:46:14Z",
+  "targets": [
+    {
+      "job": "redpanda",
+      "health": "up"
+    },
+    {
+      "job": "retailpulse",
+      "health": "up"
+    }
+  ],
+  "firing_alerts": [
+    "RetailPulseDuplicateRate"
+  ],
+  "grafana_health": "ok",
+  "grafana_dashboard": "RetailPulse Operations",
+  "resolved_after_recovery": true,
+  "resolved_at": "2026-10-04T18:49:40Z"
+}

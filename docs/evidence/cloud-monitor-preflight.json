@@ -1,0 +1,41 @@
+{
+  "alert_state": {
+    "fired": 0,
+    "inventory_complete": true,
+    "observed_count": 0,
+    "resolved": 0,
+    "window": "1d"
+  },
+  "checked_at": "2026-10-04T18:29:01.379604+00:00",
+  "definition_verified": false,
+  "diagnostics": {
+    "archive_delivery_status": "unverified",
+    "status": "not_requested"
+  },
+  "end_to_end_test": "unverified",
+  "inventory_errors": {},
+  "metric": {
+    "name": "PipelineFailedRuns",
+    "total_at_one_minute_available": true
+  },
+  "mode": "preflight",
+  "notifications": {
+    "configuration_status": "not_configured",
+    "delivery_status": "unverified",
+    "email_receiver_count": 0
+  },
+  "preflight_ready": false,
+  "rule": {
+    "issues": [
+      "not_deployed"
+    ],
+    "name": "alert-retailpulse-dev-rp999-adf-failed-runs",
+    "status": "missing"
+  },
+  "schema_version": 1,
+  "source": "azure_read_only",
+  "target": {
+    "factory": "adf-retailpulse-dev-rp999",
+    "provisioning_state": "Disabled"
+  }
+}

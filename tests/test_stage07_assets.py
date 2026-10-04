@@ -16,9 +16,12 @@ def test_stage07_notebook_uses_secret_backed_event_hubs_authentication() -> None
     assert 'option("kafka.sasl.jaas.config", sasl_jaas)' in notebook
     assert "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule" in notebook
     assert "SharedAccess" + "Key=" not in notebook
-    assert "connection_string" not in RUNNER.read_text(encoding="utf-8").split(
-        'notebook_params:{', maxsplit=1
-    )[1].split("}", maxsplit=1)[0]
+    assert (
+        "connection_string"
+        not in RUNNER.read_text(encoding="utf-8")
+        .split("notebook_params:{", maxsplit=1)[1]
+        .split("}", maxsplit=1)[0]
+    )
 
 
 def test_stage07_notebook_has_idempotent_delta_quality_and_metrics() -> None:
@@ -31,7 +34,7 @@ def test_stage07_notebook_has_idempotent_delta_quality_and_metrics() -> None:
     assert "target.stream_run_id = source.stream_run_id" in notebook
     assert "target.event_id = source.event_id" in notebook
     assert "WHEN NOT MATCHED THEN INSERT *" in notebook
-    assert '.withWatermark("watermark_event_timestamp", "30 minutes")' in notebook
+    assert "classify_events(" in notebook
     assert "average_latency_ms" in notebook
     assert "processed_rows_per_second" in notebook
     assert "DESCRIBE HISTORY" in notebook
@@ -45,11 +48,11 @@ def test_stage07_recovery_fault_occurs_after_merges_and_reuses_checkpoint() -> N
     assert notebook.index("bronze_history = merge_frame") < fault_index
     assert notebook.index("silver_history = merge_frame") < fault_index
     assert notebook.index("audit_table,\n        audit_path") < fault_index
-    assert 'run_stream available_now true earliest INTENTIONAL_FAILURE' in runner
-    assert 'run_stream available_now false earliest SUCCESS' in runner
+    assert "run_stream available_now true earliest INTENTIONAL_FAILURE" in runner
+    assert "run_stream available_now false earliest SUCCESS" in runner
     assert "checkpoint_namespace" in runner
     assert "numTargetRowsInserted" in runner
-    assert 'trigger(processingTime=' not in notebook
+    assert "trigger(processingTime=" not in notebook
     assert '"audit_results": audit_results' in notebook
     assert '.filter(F.col("checkpoint_namespace") == checkpoint_namespace)' in notebook
 
