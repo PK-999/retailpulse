@@ -139,5 +139,15 @@
     "view_states_passed": 6,
     "snapshot_sha256": "0986183d63a1c691d63645cdd950083c07ebb82a17276ea05a89100e10ddaa3e",
     "schema_rejection_controls_passed": 2
+  },
+  "merged_main_ci": {
+    "url": "https://github.com/PK-999/retailpulse/actions/runs/37253548270",
+    "conclusion": "success",
+    "jobs": [
+      "python",
+      "bi",
+      "spark",
+      "terraform"
+    ]
   }
 }

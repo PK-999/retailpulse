@@ -84,8 +84,10 @@ Result: passed.
 - Single-day revenue visualization: Vega-Lite bar mark asserted.
 - Live Streamlit health endpoint: `ok`.
 
-## Open evidence item
+## Visual evidence follow-up
 
-`STG1-VIS-001`: Grafana visual QA is complete. Capture refreshed Streamlit screenshots at desktop
-and narrow widths after the single-day revenue fix. Close the item after confirming the revenue
-bar renders and the narrow layout has no clipping, unreadable labels, or misleading formats.
+`STG1-VIS-001` was open when this evidence was captured. It is resolved in the October release:
+desktop and narrow Streamlit browser checks pass, screenshots are retained, and the same cases
+pass against the non-root Docker image with read-only data. See
+[current dashboard evidence](stage-09-bi-dashboard.md) and
+[release verification](release-verification.json).

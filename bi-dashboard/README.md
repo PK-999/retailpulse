@@ -49,5 +49,5 @@ Snapshots older than 24 hours are visibly archived. The historical sales window 
 export age and pipeline processing timestamps. Purchase/view ratio is an independently sampled
 event ratio, not customer conversion. Invalid snapshots fail closed with a retryable error state.
 
-See the [eight-minute portfolio walkthrough](../docs/portfolio-walkthrough.md) and
+See the [five-minute recorded walkthrough](../docs/portfolio-walkthrough.md) and
 [verification evidence](../docs/evidence/stage-09-bi-dashboard.md).

@@ -1,7 +1,7 @@
 # Stage 9 RetailPulse BI Lite evidence
 
 Verification date: 2026-10-05 (Asia/Kolkata)
-Status: local production build and desktop/mobile browser verification complete; hosted verification pending
+Status: local build/browser checks, hosted CI, GitHub Pages deployment, and public desktop/mobile verification complete
 
 ## Architecture and publication boundary
 
