@@ -1,7 +1,7 @@
 # Stage 10 cloud monitoring evidence
 
 Recorded: 2026-10-05 Asia/Kolkata.
-Live preflight timestamp: `2026-10-04T18:29:01.379604+00:00`.
+Latest read-only preflight: `2026-10-05T01:58:45.691458+00:00`; ADF remains `Disabled`.
 Status: local implementation verified; Azure deployment and delivery unverified.
 
 ## Current live observations

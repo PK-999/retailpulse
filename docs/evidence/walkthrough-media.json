@@ -12,7 +12,7 @@
   "phases": 11,
   "ffmpeg_full_decode": "passed",
   "browser_metadata": "readyState 4, 311.5 seconds, no media error",
-  "browser_playback": "play started; time advanced",
+  "browser_playback": "Play started; time advanced; seek to 295 seconds succeeded; playback reached 311.5-second end without error",
   "chapter_frames_reviewed": [
     "overview",
     "commerce",

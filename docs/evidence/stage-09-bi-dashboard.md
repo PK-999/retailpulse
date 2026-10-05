@@ -1,7 +1,7 @@
 # Stage 9 RetailPulse BI Lite evidence
 
 Verification date: 2026-10-05 (Asia/Kolkata)
-Status: local production build and desktop/mobile browser verification complete; hosted verification pending
+Status: local build/browser checks, hosted CI, GitHub Pages deployment, and public desktop/mobile verification complete
 
 ## Architecture and publication boundary
 
@@ -102,8 +102,14 @@ operational tables are included.
 - The next attended exporter uses query version `stage09-v2`; the archived v1 asset is retained.
 
 See the [Stage 9 runbook](../runbooks/stage-09-bi-dashboard.md) for reproducible commands and the
-[recorded 5:11 walkthrough](../portfolio-walkthrough.md) for an eight-minute presentation.
-Hosted/public verification must be recorded separately when a deployment URL exists.
+[recorded 5:11 walkthrough](../portfolio-walkthrough.md) for chapter notes and reproduction instructions.
+Public verification completed on 5 October 2026 at
+[https://pk-999.github.io/retailpulse/](https://pk-999.github.io/retailpulse/).
+[Deployment](https://github.com/PK-999/retailpulse/actions/runs/37253548285) passed both jobs.
+[Public evidence](public-bi-dashboard.json) proves HTTP 200, byte-identical archived snapshot
+data, all six desktop/mobile views, keyboard controls, no runtime/request errors or overflow,
+and two malformed-snapshot rejection controls against the deployed bundle. Public desktop and
+mobile screenshots are retained under `docs/assets/bi-dashboard/public-*`.
 
 The silent captioned [MP4](../assets/retailpulse-walkthrough.mp4) is 1280 × 720 H.264 at 8 fps,
 1,842,404 bytes, and 311.5 seconds long. Full FFmpeg decode passed; Chromium loaded metadata,

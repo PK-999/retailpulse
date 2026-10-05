@@ -1,5 +1,13 @@
 # Verification evidence
 
+- [Current clean-checkout release verification](release-verification.json)
+- [Deployed GitHub Pages snapshot and browser verification](public-bi-dashboard.json)
+- [Complete local pipeline and dbt reconciliation](local-e2e.json)
+- [Current Spark/Delta/Kafka contract and recovery](local-spark-contract.md)
+- [Current Prometheus/Grafana alert and recovery](local-monitoring.json)
+- [Bounded 50,000-event observation](local-scale-benchmark.json)
+- [BI and Streamlit browser verification](stage-09-bi-dashboard.md)
+- [Walkthrough decode and playback verification](walkthrough-media.json)
 - [Stage 1 local external-service verification](stage-01-local-verification.md)
 - [Stage 1 Ollama-backed incident report](stage-01-ollama-report.md)
 - [Stage 1 rules-fallback incident report](stage-01-rules-fallback-report.md)

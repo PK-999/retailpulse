@@ -1,6 +1,6 @@
 # RetailPulse external verification and Azure completion plan
 
-Last reviewed: 2026-08-13
+Last reviewed: 2026-10-05
 
 October 2026 release update: local contracts/recovery/Spark/dbt/browser/monitoring proofs are
 captured in the [release checklist](release-checklist.md) and [current status](project-status.md).
@@ -121,11 +121,11 @@ Evidence: Prometheus target page and healthy/degraded Grafana screenshots.
 ### 1C. Streamlit visual QA
 
 - [x] Start `streamlit run dashboard/app.py`.
-- [ ] Inspect desktop and narrow-width layouts.
-- [x] Verify revenue, orders, AOV, conversion, countries, products, customers, event rate, inventory,
+- [x] Inspect desktop and narrow-width layouts.
+- [x] Verify revenue, orders, AOV, purchase/view ratio, countries, products, customers, event rate, inventory,
   pipeline runs, and alerts against SQLite queries.
 - [x] Confirm empty-state behavior after pointing `RETAILPULSE_DATA_DIR` at a clean directory.
-- [ ] Fix any clipping, unreadable labels, empty charts, or misleading formats found during visual
+- [x] Fix any clipping, unreadable labels, empty charts, or misleading formats found during visual
   inspection. No functional rendering exceptions remain.
 
 Evidence: annotated dashboard screenshots plus a short QA checklist.
@@ -144,10 +144,12 @@ Evidence: one model-generated report and one fallback report for the same class 
 
 All four integrations have live evidence. Any failure is captured as a tracked issue before Stage 2.
 
-Current status: functionally passed and Grafana visual QA passed. Automated Streamlit checks cover
-populated state, empty state, all required sections, and the single-day revenue bar. Refreshed
-desktop and narrow Streamlit evidence remains open as `STG1-VIS-001`; see
-[Stage 1 evidence](evidence/stage-01-local-verification.md).
+Current status: complete. Prometheus/Grafana alert firing and recovery, real Kafka checkpoint
+replay, Ollama analysis, and desktop/narrow Streamlit browser QA have current local evidence.
+Both Streamlit browser cases also pass against the non-root Docker image with read-only data.
+See [current release evidence](evidence/release-verification.json),
+[local operations](evidence/local-monitoring.json), and
+[dashboard screenshots](evidence/stage-09-bi-dashboard.md). `STG1-VIS-001` is resolved.
 
 ## Stage 2 — GitHub repository and hosted CI
 
@@ -416,7 +418,7 @@ credentials or keeping a BI server running.
 - [x] Add data freshness, last-successful-run, source-window, and reconciliation indicators.
 - [x] Add a GitHub Pages build/deploy workflow that publishes only the checked-in snapshot.
 - [x] Run the extractor against Azure Gold, reconcile the known window, and save Stage 9 evidence.
-- [ ] Verify the deployed public URL and desktop/narrow layouts.
+- [x] Verify the deployed public URL and desktop/narrow layouts.
 
 Refresh is deliberately push-based rather than page-load live. An attended command obtains a
 short-lived Azure Databricks token, queries Gold, validates the results, replaces the public JSON,
@@ -431,10 +433,12 @@ SQLite—and its values reconcile to saved SQL for one known window. No secret i
 built site, the SQL warehouse is stopped after refresh, and the public URL renders correctly at
 desktop and narrow widths.
 
-Current status: implementation and live Azure extraction are verified. The first snapshot passed
-all five reconciliation checks and the SQL warehouse returned to `STOPPED`. Hosted Pages
-deployment and responsive public visual evidence remain before the exit gate is complete. See
-[Stage 9 evidence](evidence/stage-09-bi-dashboard.md).
+Current status: complete. The August Azure export passed all five reconciliation checks and
+returned the SQL warehouse to `STOPPED`. October hosted CI and GitHub Pages deployment passed;
+all six public desktop/mobile view states, keyboard controls, and snapshot byte identity passed.
+The public dashboard preserves the archived export timestamp. See
+[Stage 9 evidence](evidence/stage-09-bi-dashboard.md) and
+[public verification](evidence/public-bi-dashboard.json).
 
 ## Stage 10 — Azure Monitor and alerting
 
@@ -444,27 +448,33 @@ Detect pipeline, freshness, quality, and streaming failures outside the notebook
 
 ### Tasks
 
-- [ ] Add a Log Analytics workspace and diagnostic settings to Terraform.
-- [ ] Route ADF pipeline diagnostics, Event Hubs metrics, storage diagnostics as appropriate, and
-  Databricks job/audit signals to the chosen monitoring destination.
-- [ ] Publish or query pipeline audit and DQ metrics.
-- [ ] Create alerts for failed pipeline/job, no fresh Silver data, high duplicate/rejection rate,
-  Event Hubs backlog/throttling, and excessive processing latency.
-- [ ] Configure one low-risk notification destination.
-- [ ] Trigger a duplicate incident and one actual stopped/failed job condition.
-- [ ] Confirm alert creation, delivery, timestamps, and links to evidence/runbooks.
-- [ ] Record alert noise controls and recovery/closure behavior.
+- [x] Define the default-off ADF failure metric alert and optional storage diagnostics archive.
+  The accepted minimum-cost scope does not provision Log Analytics.
+- [x] Add a read-only verifier for target health, definitions, metric availability, optional
+  receiver configuration, and paginated Fired/Resolved state; all 14 fixture tests pass.
+- [x] Prove local DQ detection and Prometheus duplicate alert firing/recovery with runbooks.
+- [x] Document a bounded cloud failure test, cost review, notification consent, evidence, and cleanup.
+- [ ] Restore disabled ADF and state storage and pass the live preflight.
+- [ ] Review and apply the bounded monitoring plan; add notification receivers only when authorized.
+- [ ] Run the attended ADF failure test and capture matching cloud Fired/Resolved evidence.
+- [ ] Verify any configured notification/archive delivery separately and complete reviewed cleanup.
 
 ### Exit gate
 
-At least one platform failure and one data-quality failure produce delivered alerts with enough
-context to locate the run and follow a runbook.
+The local data-quality failure is verified. The remaining cloud gate is one bounded platform
+failure with matching Fired/Resolved evidence and separately verified delivery for any configured
+receiver or archive. Current preflight remains false because ADF is `Disabled` and remote state
+access returned `AccountIsDisabled`. Follow the [Stage 10 runbook](runbooks/stage-10-cloud-monitoring.md).
 
-## Stage 11 — Clean-state full demonstration
+## Stage 11 — Fresh Azure demonstration
 
 ### Goal
 
 Prove the complete story without undocumented fixes and capture portfolio evidence.
+
+The local release already has a clean-checkout command, reconciliation evidence, and a verified
+5:11.5 [recorded walkthrough](portfolio-walkthrough.md). This stage describes a fresh Azure
+session after service restoration; the remaining cloud checks stay pending.
 
 ### Run order
 
@@ -486,12 +496,14 @@ Prove the complete story without undocumented fixes and capture portfolio eviden
 - [ ] Bronze, Silver, quarantine, audit, and Delta history views.
 - [ ] Checkpoint restart evidence.
 - [ ] dbt build result and lineage.
-- [ ] SQL/BI business dashboard.
-- [ ] Grafana and Azure Monitor alerts.
-- [ ] Ollama incident analysis.
-- [ ] GitHub Actions result.
+- [x] SQL/BI business dashboard, published from the labeled archived Azure snapshot.
+- [x] Current local Grafana/Prometheus alert evidence.
+- [ ] Fresh Azure Monitor alert evidence.
+- [x] Current local Ollama incident analysis.
+- [x] Current GitHub Actions result.
 - [ ] Terraform outputs with sensitive values excluded.
-- [ ] Five-to-ten-minute edited demo video and README thumbnails/links.
+- [x] Five-minute local demo video and README thumbnails/links.
+- [ ] Fresh Azure-session recording after the cloud gates pass.
 
 ### Exit gate
 
@@ -510,9 +522,9 @@ Leave the project safe, reproducible, and accurately documented after the demo.
 - [ ] Verify `enable_event_hubs=false` and that the namespace no longer exists.
 - [ ] Review Event Hubs, Log Analytics, storage, and other ongoing charges.
 - [ ] Follow the Stage 0 retain/destroy decision; review any Terraform destroy plan before applying.
-- [ ] Preserve only non-secret evidence and required state backups.
-- [ ] Update requirements statuses from Built to Verified where evidence exists.
-- [ ] Update known limitations, exact deployment instructions, cost notes, and teardown steps.
+- [x] Preserve non-secret release evidence; retain existing state for future restoration.
+- [x] Update requirements statuses from Built to Verified where evidence exists.
+- [x] Update known limitations, deployment instructions, cost notes, and teardown steps.
 - [ ] Tag the release and record the final CI run and demo link.
 
 ### Exit gate
