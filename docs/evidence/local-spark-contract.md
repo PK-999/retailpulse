@@ -41,6 +41,19 @@ retains four Bronze rows, one Silver event, and two quarantine rows, and reports
 zero new inserts. The test caught and fixed a batch-session temporary-view
 mismatch and stale audit metrics when Delta does not commit a no-op MERGE.
 
+The final review regression also proves classification counts against actual
+MERGE insertions, including IDs already present in Silver. All 46 Spark tests
+passed after this correction in 25.18 seconds.
+
+| Attempt | Read | Written | Duplicate | Rejected |
+| --- | ---: | ---: | ---: | ---: |
+| Initial batch, before intentional failure | 4 | 1 | 1 | 2 |
+| Same-checkpoint recovery | 4 | 0 | 2 | 2 |
+| Subsequent batch with one old and one new ID | 2 | 1 | 1 | 0 |
+
+Every row reconciles `read = written + duplicate + rejected`. After the last
+batch, Delta contains six Bronze rows, two Silver IDs, and two quarantine rows.
+
 ## Actual Kafka entrypoint and checkpoint resume
 
 A private Docker network and a cached Redpanda v24.1.12 broker were used, with

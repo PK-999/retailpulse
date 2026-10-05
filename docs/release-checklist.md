@@ -19,9 +19,9 @@ The prior cleanup and uncommitted BI implementation are retained.
   schema errors, export reconciliation, and public-data boundaries are verified.
 - [x] Cloud monitoring definitions, alert verification runner, deployment preflight, and bounded
   orchestration are complete, with cost scope recorded before any paid execution.
-- [ ] Full tests, lint, SQL checks, frontend build/browser tests, offline Terraform validation,
+- [x] Full tests, lint, SQL checks, frontend build/browser tests, offline Terraform validation,
   local Kafka/Spark/Delta/monitoring checks, and clean-checkout verification pass.
-- [ ] Final code review is addressed, runbooks/evidence are current, hosted CI and GitHub Pages
+- [x] Final code review is addressed, runbooks/evidence are current, hosted CI and GitHub Pages
   are verified, or the exact external-access step is identified without claiming it passed.
 
 ## Ownership and scope
@@ -36,20 +36,28 @@ outside this release. Saved August cloud proofs are historical; current runs nee
 
 ## Progress and decisions
 
-- Final local Python suite:168 passed,4 Spark-dependent skips; those4 tests run in Docker,
-  where all 46 Spark/Delta tests pass. Independent final review reran44 affected cases and approved.
+- Release [PR #4](https://github.com/PK-999/retailpulse/pull/4) is merged; all 4 hosted CI jobs
+  passed. [GitHub Pages](https://pk-999.github.io/retailpulse/) build/deployment passed and actual
+  public browser QA verified all 6 desktop/mobile views, keyboard controls, byte-identical
+  snapshot data, and malformed-data rejection. See [release evidence](evidence/release-verification.json).
+- The 5:11.5 [walkthrough](portfolio-walkthrough.md) has full decode and browser playback proof.
+  Owned local test services were stopped after verification.
+- Final local Python suite: 169 passed, 4 Spark-dependent skips; those 4 tests run in Docker,
+  where all 46 Spark/Delta tests pass. Coverage is 92%. Independent review reran 44 affected
+  cases; subsequent automated-review regressions cover managed dbt profiles and duplicate audits.
 - All 37 dbt nodes pass each clean/incremental/full-refresh build. Seven integration scenarios
   cover SCD2, timestamp ties, item-only changes, sparse input, and corrected order dates.
-- BI:15 browser tests; Streamlit:2 actual browser tests; desktop/narrow screenshots retained.
-- Real Redpanda16/1/14 replay counts unchanged. Prometheus/Grafana healthy; duplicate alert
+- BI: 15 browser tests; Streamlit: 2 actual browser tests, also passing against the new non-root
+  Docker image with read-only data; desktop/narrow screenshots retained.
+- Real Redpanda 16/1/14 replay counts unchanged. Prometheus/Grafana healthy; duplicate alert
   fired and resolved. Cached Ollama model produced the captured incident report.
--50k local processing observation is documented with snapshot/hash rescan limits.
-- Cloud readiness is explicitly false:ADF Disabled, remote state403 AccountIsDisabled;
+- 50k local processing observation is documented with snapshot/hash rescan limits.
+- Cloud readiness is explicitly false: ADF Disabled, remote state 403 AccountIsDisabled;
   no live monitoring rule, paid execution, or delivered notification. Stage 10 runbook records
   the future bounded plan and separate receipt/state evidence required after restoration.
 
-- Baseline: 60 Python tests,94% coverage;37 local dbt nodes clean+incremental;BI lint/build;
-  Terraform offline validation;local Kafka/Prometheus/Grafana passed in prior cleanup.
+- Baseline: 60 Python tests, 94% coverage; 37 local dbt nodes clean+incremental; BI lint/build;
+  Terraform offline validation; local Kafka/Prometheus/Grafana passed in prior cleanup.
 - Spark: exact shared contract source is bundled into the standalone cloud notebook; late records
   stay in quarantine. Decimal price text is preserved rather than silently rounded in Silver.
 - dbt: timestamps at the current boundary are reread; row comparison removes unchanged merge

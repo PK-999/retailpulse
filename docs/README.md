@@ -15,6 +15,7 @@ improvements. This directory is the project’s reference set:
 10. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
 11. [Decision records](decisions/) — reviewed deployment, identity, cost, and teardown choices.
 12. [Security access matrix](security/access-matrix.md) — Azure identities, roles, and scopes.
+13. [Portfolio walkthrough](portfolio-walkthrough.md) — recorded demo, chapters, and reproduction.
 
 The accepted BI delivery choice is recorded in
 [the RetailPulse BI Lite decision](decisions/bi-dashboard.md).

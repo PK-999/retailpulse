@@ -1,0 +1,127 @@
+{
+  "checked_at": "2026-10-05T02:01:30.582Z",
+  "url": "https://PK-999.github.io/retailpulse/",
+  "browser": "Chromium",
+  "snapshot": {
+    "http_status": 200,
+    "sha256": "0986183d63a1c691d63645cdd950083c07ebb82a17276ea05a89100e10ddaa3e",
+    "matches_local_archive": true,
+    "query_version": "stage09-v1",
+    "generated_at": "2026-08-15T05:21:32.911506+00:00",
+    "business_window": {
+      "start": "2010-12-01",
+      "end": "2011-12-09",
+      "label": "2010-12-01 — 2011-12-09"
+    },
+    "checks_passed": 5,
+    "checks_total": 5,
+    "revenue": 91970.02,
+    "orders": 1796,
+    "purchase_view_ratio": 0.5089
+  },
+  "views": [
+    {
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "view": "Overview",
+      "heading": "Commerce, without the noise.",
+      "selected": true,
+      "horizontal_overflow": false,
+      "document_width": 1440,
+      "screenshot": "docs/assets/bi-dashboard/public-desktop-overview.png"
+    },
+    {
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "view": "Commerce",
+      "heading": "Sales and customer performance.",
+      "selected": true,
+      "horizontal_overflow": false,
+      "document_width": 1440
+    },
+    {
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "view": "Freshness",
+      "heading": "Pipeline health at a glance.",
+      "selected": true,
+      "horizontal_overflow": false,
+      "document_width": 1440
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "view": "Overview",
+      "heading": "Commerce, without the noise.",
+      "selected": true,
+      "horizontal_overflow": false,
+      "document_width": 390
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "view": "Commerce",
+      "heading": "Sales and customer performance.",
+      "selected": true,
+      "horizontal_overflow": false,
+      "document_width": 390,
+      "screenshot": "docs/assets/bi-dashboard/public-mobile-commerce.png"
+    },
+    {
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "view": "Freshness",
+      "heading": "Pipeline health at a glance.",
+      "selected": true,
+      "horizontal_overflow": false,
+      "document_width": 390
+    }
+  ],
+  "keyboard": {
+    "desktop": {
+      "arrow_navigation": true,
+      "home_end": true,
+      "focus_tracks_selection": true
+    },
+    "mobile": {
+      "arrow_navigation": true,
+      "home_end": true,
+      "focus_tracks_selection": true
+    }
+  },
+  "negative_schema_controls": [
+    {
+      "case": "missing KPI",
+      "published_bundle_rejected": true,
+      "no_metrics_rendered": true
+    },
+    {
+      "case": "failed reconciliation",
+      "published_bundle_rejected": true,
+      "no_metrics_rendered": true
+    }
+  ],
+  "errors": [
+    {
+      "viewport": "desktop",
+      "console_errors": [],
+      "page_errors": [],
+      "failed_requests": [],
+      "http_errors": []
+    },
+    {
+      "viewport": "mobile",
+      "console_errors": [],
+      "page_errors": [],
+      "failed_requests": [],
+      "http_errors": []
+    }
+  ],
+  "result": "passed"
+}

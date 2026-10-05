@@ -1,6 +1,6 @@
 # RetailPulse requirements
 
-Last reviewed: 2026-10-04
+Last reviewed: 2026-10-05
 
 ## 1. Product objective
 
@@ -59,7 +59,7 @@ read-only preflight reports ADF disabled and Terraform state storage unavailable
 | RP-GOLD-002 | Demonstrate SCD Type 2 | Product price changes create versioned snapshot rows | Verified on Azure Databricks | Product `10002` created a second version; source was restored |
 | RP-GOLD-003 | Enforce analytics tests | Unique, not-null, accepted-value, relationship, quantity, price, and total tests pass | Verified | 26 Azure dbt data tests passed |
 | RP-ANA-001 | Present business and operational metrics | Dashboard shows revenue, orders, AOV, purchase/view ratio, countries, products, customers, inventory freshness, event rate, runs, and alerts | Verified locally | AppTest and actual desktop/narrow browser QA; `docs/assets/local-dashboard/` |
-| RP-ANA-002 | Publish Azure Gold business metrics safely | Public dashboard is built from a timestamped Azure Gold snapshot; totals reconcile before publish; no warehouse credential reaches the browser; desktop and narrow layouts render correctly | Built; Azure data verified | Live snapshot passed 5/5 reconciliation checks and warehouse cleanup; GitHub Pages deployment and responsive public QA remain |
+| RP-ANA-002 | Publish Azure Gold business metrics safely | Public dashboard is built from a timestamped Azure Gold snapshot; totals reconcile before publish; no warehouse credential reaches the browser; desktop and narrow layouts render correctly | Published and verified | August snapshot retains its timestamp and 5/5 reconciliation checks; current GitHub Pages deployment and six desktop/mobile view states pass; `docs/evidence/public-bi-dashboard.json` |
 | RP-OBS-001 | Expose operational metrics | Prometheus can scrape record counts, DQ rates, duration, and alert count | Verified locally | Both targets healthy, duplicate alert Fired then Resolved; `docs/evidence/local-monitoring.json` |
 | RP-OBS-003 | Prepare bounded cloud monitoring | Optional ADF failed-run alert, optional storage archive, read-only definition/state preflight, explicit notification receivers | Built; live proof blocked | Offline Terraform validation and14 behavioral fixtures; `docs/evidence/cloud-monitor-preflight.json` |
 | RP-OBS-002 | Provide an operations dashboard | Grafana is provisioned with core ingestion and DQ panels | Verified | Live degraded-data visual review passed in Stage 1 |

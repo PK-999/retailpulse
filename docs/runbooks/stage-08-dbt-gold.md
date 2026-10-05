@@ -39,6 +39,13 @@ The runner:
 7. reruns all tests and generates dbt documentation artifacts; and
 8. creates or resets the freshness-gated weekly job in `PAUSED` state.
 
+The scheduled task uses the standard warehouse configuration and Databricks'
+temporary managed profile. It deliberately omits `profiles_directory`, so the
+repository's `local` default cannot override that profile. Keep plain `dbt build`
+for this task: the saved cloud execution used the generated `databricks_cluster`
+target. The attended runner separately selects the repository's `databricks`
+target. See [Databricks' standard and custom-profile modes](https://docs.databricks.com/aws/en/jobs/how-to/use-dbt-in-workflows).
+
 An exit trap restores the price if needed, clears the token, and stops the SQL warehouse on both
 success and failure.
 
