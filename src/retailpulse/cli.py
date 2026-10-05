@@ -50,8 +50,18 @@ def process(
     """Incrementally process file-backed local streams through Bronze and Silver."""
     settings = Settings.from_env()
     pipeline = LocalMedallionPipeline(settings)
-    stats = pipeline.process()
-    metrics = pipeline.build_gold()
+    try:
+        stats = pipeline.process()
+        metrics = pipeline.build_gold()
+    except Exception:
+        if pipeline.last_stats is not None:
+            if pipeline.last_stats.status == "SUCCESS":
+                pipeline.record_downstream_failure()
+            try:
+                publish(settings, pipeline.last_stats, evaluate(pipeline.last_stats))
+            except OSError as error:
+                console.print(f"Failed-run metrics could not be published: {error}")
+        raise
     alerts = evaluate(stats)
     publish(settings, stats, alerts)
     table = Table(title=f"Pipeline run {stats.run_id}")

@@ -1,0 +1,14 @@
+{
+  "type": "Binary",
+  "linkedServiceName": {
+    "referenceName": "ls_github_http",
+    "type": "LinkedServiceReference"
+  },
+  "typeProperties": {
+    "location": {
+      "type": "HttpServerLocation",
+      "relativeUrl": "README.md"
+    }
+  },
+  "annotations": ["RetailPulse", "stage-04-access-test"]
+}

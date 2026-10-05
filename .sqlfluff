@@ -9,3 +9,7 @@ tab_space_size = 4
 
 [sqlfluff:templater:jinja:macros]
 env_var = {% macro env_var(name, default) %}{{ default }}{% endmacro %}
+configure_gold = {% macro configure_gold() %}{% endmacro %}
+
+[sqlfluff:templater:jinja:context]
+target = {"type": "duckdb", "schema": "main"}

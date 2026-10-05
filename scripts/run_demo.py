@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
+import argparse
+from collections.abc import Sequence
+from dataclasses import replace
 
 from retailpulse.config import Settings
 from retailpulse.incident import generate_report
@@ -10,10 +11,12 @@ from retailpulse.pipeline import LocalMedallionPipeline
 from retailpulse.producer import produce
 
 
-def main() -> None:
-    if "RETAILPULSE_DATA_DIR" not in os.environ:
-        os.environ["RETAILPULSE_DATA_DIR"] = str(Path("data").resolve())
-    settings = Settings.from_env()
+def main(argv: Sequence[str] | None = ()) -> None:
+    parser = argparse.ArgumentParser(
+        description="Run the four-step local RetailPulse demonstration."
+    )
+    parser.parse_args(argv)
+    settings = replace(Settings.from_env(), kafka_enabled=False)
     settings.ensure_directories()
     pipeline = LocalMedallionPipeline(settings)
 
@@ -30,9 +33,11 @@ def main() -> None:
     print("3/4 Injecting duplicate traffic")
     produce(settings, count=60, scenario="duplicate", seed=7)
     degraded = pipeline.process()
+    gold = pipeline.build_gold()
     alerts = evaluate(degraded)
     publish(settings, degraded, alerts)
     print(f"    duplicate_rate={degraded.duplicate_rate:.1%}, alerts={len(alerts)}")
+    print(f"    final orders={gold['orders']} revenue={gold['revenue']}")
 
     print("4/4 Generating incident analysis")
     report, source = generate_report(settings, degraded, alerts)
@@ -40,4 +45,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(None)

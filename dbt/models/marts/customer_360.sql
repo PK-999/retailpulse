@@ -1,3 +1,5 @@
+{{ configure_gold() }}
+
 select
     c.customer_id,
     c.country,

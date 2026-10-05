@@ -1,0 +1,160 @@
+{
+  "parameters": {
+    "sourceBaseUrl": {
+      "type": "String",
+      "defaultValue": "https://archive.ics.uci.edu/"
+    },
+    "sourceRelativeUrl": {
+      "type": "String",
+      "defaultValue": "static/public/352/online+retail.zip"
+    },
+    "sourceFileName": {
+      "type": "String",
+      "defaultValue": "online-retail.zip"
+    },
+    "rawRoot": {
+      "type": "String",
+      "defaultValue": "landing/uci/raw"
+    }
+  },
+  "variables": {
+    "archiveSizeBytes": {
+      "type": "String"
+    }
+  },
+  "activities": [
+    {
+      "name": "CopyUciArchive",
+      "type": "Copy",
+      "policy": {
+        "timeout": "0.00:20:00",
+        "retry": 2,
+        "retryIntervalInSeconds": 30
+      },
+      "typeProperties": {
+        "source": {
+          "type": "BinarySource",
+          "storeSettings": {
+            "type": "HttpReadSettings",
+            "requestMethod": "GET",
+            "requestTimeout": "00:10:00"
+          }
+        },
+        "sink": {
+          "type": "BinarySink",
+          "storeSettings": {
+            "type": "AzureBlobFSWriteSettings",
+            "copyBehavior": "PreserveHierarchy"
+          }
+        }
+      },
+      "inputs": [
+        {
+          "referenceName": "ds_uci_http_archive",
+          "type": "DatasetReference",
+          "parameters": {
+            "baseUrl": {
+              "type": "Expression",
+              "value": "@pipeline().parameters.sourceBaseUrl"
+            },
+            "relativeUrl": {
+              "type": "Expression",
+              "value": "@pipeline().parameters.sourceRelativeUrl"
+            }
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "referenceName": "ds_adls_uci_raw_archive",
+          "type": "DatasetReference",
+          "parameters": {
+            "folderPath": {
+              "type": "Expression",
+              "value": "@concat(pipeline().parameters.rawRoot, '/', pipeline().RunId)"
+            },
+            "fileName": {
+              "type": "Expression",
+              "value": "@pipeline().parameters.sourceFileName"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "InspectLandedArchive",
+      "type": "GetMetadata",
+      "dependsOn": [
+        {
+          "activity": "CopyUciArchive",
+          "dependencyConditions": ["Succeeded"]
+        }
+      ],
+      "policy": {
+        "timeout": "0.00:05:00",
+        "retry": 1,
+        "retryIntervalInSeconds": 15
+      },
+      "typeProperties": {
+        "dataset": {
+          "referenceName": "ds_adls_uci_raw_archive",
+          "type": "DatasetReference",
+          "parameters": {
+            "folderPath": {
+              "type": "Expression",
+              "value": "@concat(pipeline().parameters.rawRoot, '/', pipeline().RunId)"
+            },
+            "fileName": {
+              "type": "Expression",
+              "value": "@pipeline().parameters.sourceFileName"
+            }
+          }
+        },
+        "fieldList": ["size"]
+      }
+    },
+    {
+      "name": "ValidateLandedArchive",
+      "type": "IfCondition",
+      "dependsOn": [
+        {
+          "activity": "InspectLandedArchive",
+          "dependencyConditions": ["Succeeded"]
+        }
+      ],
+      "typeProperties": {
+        "expression": {
+          "type": "Expression",
+          "value": "@and(greater(int(activity('InspectLandedArchive').output.size), 0), endswith(toLower(pipeline().parameters.sourceFileName), '.zip'))"
+        },
+        "ifTrueActivities": [
+          {
+            "name": "RecordArchiveSize",
+            "type": "SetVariable",
+            "typeProperties": {
+              "variableName": "archiveSizeBytes",
+              "value": {
+                "type": "Expression",
+                "value": "@string(activity('InspectLandedArchive').output.size)"
+              }
+            }
+          }
+        ],
+        "ifFalseActivities": [
+          {
+            "name": "RejectInvalidArchive",
+            "type": "Fail",
+            "typeProperties": {
+              "errorCode": "INVALID_UCI_ARCHIVE",
+              "message": {
+                "type": "Expression",
+                "value": "@concat('Expected a non-empty .zip archive; received ', pipeline().parameters.sourceFileName, ' with ', string(activity('InspectLandedArchive').output.size), ' bytes.')"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "annotations": ["RetailPulse", "stage-05-historical-ingestion", "immutable-run-path"]
+}

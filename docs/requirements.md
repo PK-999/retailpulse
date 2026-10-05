@@ -1,6 +1,6 @@
 # RetailPulse requirements
 
-Last reviewed: 2026-08-12
+Last reviewed: 2026-10-04
 
 ## 1. Product objective
 
@@ -8,8 +8,9 @@ RetailPulse must demonstrate a credible retail data-engineering platform that co
 batch ingestion and near-real-time events, applies medallion transformations, produces analytics
 marts, detects data incidents, and gives an operator evidence-based remediation guidance.
 
-The seven-day constraint is part of the requirement. The first release favors a reliable,
-explainable vertical slice over broad feature coverage.
+The portfolio favors a reliable, explainable vertical slice across the DE lifecycle.
+The original staged build history is retained in evidence; current gaps and verification
+scope are maintained in [project status](project-status.md).
 
 ## 2. Success criteria
 
@@ -33,40 +34,50 @@ Status meanings:
 - **Partial** — a useful subset exists; listed acceptance criteria remain.
 - **Deferred** — intentionally outside the first release.
 
+Azure verification below records the August 2026 demonstrations. The October release's
+read-only preflight reports ADF disabled and Terraform state storage unavailable; saved
+"Verified in Azure" results do not claim those integrations are currently operating.
+
 | ID | Requirement | Acceptance criteria | Status | Evidence |
 |---|---|---|---|---|
 | RP-BAT-001 | Normalize historical UCI retail data | One CSV command creates customers, products, orders, and order-items JSONL files | Verified | `src/retailpulse/batch.py`, `tests/test_prepare_uci.py` |
-| RP-BAT-002 | Land the historical source through ADF | Triggered ADF run copies the source archive into ADLS Landing | Built | `azure/adf/uci_to_adls.pipeline.json`; Azure execution remains |
-| RP-BAT-003 | Transform historical data into Bronze and Silver Delta | Typed ingestion adds source file, ingestion timestamp, and run ID; invalid items are quarantined | Built | `databricks/batch_bronze_silver.py`; Databricks execution remains |
+| RP-BAT-002 | Land the historical source through ADF | Triggered ADF run copies the source archive into ADLS Landing | Verified | Two successful ADF runs landed distinct immutable paths; `docs/evidence/stage-05-historical-ingestion.md` |
+| RP-BAT-004 | Normalize each landed UCI delivery | A bounded task validates size/hash/archive member and writes customers, products, orders, and order-items JSONL under the ADF run ID | Verified | Two serverless job runs produced matching counts and manifests; `docs/evidence/stage-05-historical-ingestion.md` |
+| RP-BAT-003 | Transform historical data into Bronze and Silver Delta | Typed ingestion adds source file, ingestion timestamp, and run ID; invalid items are quarantined | Verified | Two bounded serverless deliveries, named external Delta tables, baseline-plus-injected quarantine, zero-write incremental Silver MERGEs, and cloud audit evidence; `docs/evidence/stage-06-databricks-batch.md` |
 | RP-EVT-001 | Generate seven retail event types | Valid v1 JSON is produced for product view, search, cart, checkout, purchase, payment, and inventory update | Verified | `src/retailpulse/events.py`, `tests/test_events.py` |
 | RP-EVT-002 | Use three bounded topics | Events route to customer-events, order-events, or inventory-events | Verified | `src/retailpulse/contracts.py` |
-| RP-EVT-003 | Publish to a Kafka-compatible broker | Producer can use file-backed local transport or idempotent Kafka publishing | Verified locally; Kafka path built | `src/retailpulse/producer.py`, `compose.yaml` |
-| RP-STR-001 | Consume Kafka events with Structured Streaming | Spark reads three topics with an explicit schema and retains topic/partition/offset | Built | `databricks/stream_bronze_silver.py`; live cluster execution remains |
-| RP-STR-002 | Preserve immutable Bronze events | Every input is retained with raw payload and ingestion metadata | Verified locally; Delta path built | `src/retailpulse/pipeline.py`, Databricks stream job |
-| RP-STR-003 | Produce trustworthy Silver events | Validate schema/rules, deduplicate on event ID, apply a 30-minute watermark, and checkpoint progress | Verified locally; Delta path built | Pipeline tests and Databricks stream job |
-| RP-STR-004 | Perform an idempotent Delta merge | A micro-batch deduplicates source IDs before `MERGE` and inserts unseen events | Built | `merge_silver` in the Databricks stream job |
-| RP-STR-005 | Develop Spark/Delta locally before Azure | Redpanda can feed a bounded local Structured Streaming job that writes Delta and performs the same Silver MERGE pattern | Built | `spark/local_stream_bronze_silver.py`; live Spark execution remains |
+| RP-EVT-003 | Publish to a Kafka-compatible broker | Producer can use file-backed local transport or idempotent Kafka publishing | Verified locally | Live Redpanda/Kafka-to-Delta fixture and checkpoint replay; `docs/evidence/local-spark-contract.md` |
+| RP-STR-001 | Consume Kafka events with Structured Streaming | Spark reads three topics with an explicit schema and retains topic/partition/offset | Verified in Azure | Authenticated Event Hubs Kafka session processed 460 events; `docs/evidence/stage-07-eventhubs-streaming.md` |
+| RP-STR-002 | Preserve immutable Bronze events | Every input is retained with raw payload and ingestion metadata | Verified in Azure | 460 coordinate-keyed Bronze rows with topic, partition, offset, Kafka timestamp, ingestion timestamp, scenario, and session lineage |
+| RP-STR-003 | Produce trustworthy Silver events | Validate schema/rules, deduplicate on event ID, apply a 30-minute watermark, and checkpoint progress | Verified in Azure | 411 unique Silver event IDs, 30 quarantined records, five reconciled scenarios, watermark and checkpoint recovery evidence |
+| RP-STR-004 | Perform an idempotent Delta merge | A micro-batch deduplicates source IDs before `MERGE` and inserts unseen events | Verified in Azure | Recovery batch reread 40 events; version-3 Bronze and Silver MERGEs each inserted 0 rows |
+| RP-STR-005 | Develop Spark/Delta locally before Azure | Redpanda can feed a bounded local Structured Streaming job that writes Delta and performs the same Silver MERGE pattern | Verified | Python 3.11/Java 17 runner; `AvailableNow`, checkpoints, quarantine, MERGE, and replay evidence passed |
 | RP-DQ-001 | Retain rejected evidence | Quarantine stores event ID when available, raw payload, type, message, and timestamp | Verified | `QuarantineRecord`, SQLite/JSONL quarantine tests |
 | RP-DQ-002 | Record pipeline audits | Each run stores timing, status, read/written/rejected/duplicate/late counts, and duration | Verified | `pipeline_run_log`, CLI status, tests |
 | RP-DQ-003 | Detect material quality degradation | Alert above 5% duplicates, 2% schema rejection, or 5% late events | Verified | `src/retailpulse/monitoring.py` |
-| RP-GOLD-001 | Build dimensional and analytical marts | dbt builds customer/product/date dimensions, order facts, daily sales, customer 360, and inventory health | Verified on Python 3.11/dbt 1.9 | `dbt/models/`; 29-node dbt build passed |
-| RP-GOLD-002 | Demonstrate SCD Type 2 | Product price changes create versioned snapshot rows | Verified by dbt build | `dbt/snapshots/product_snapshot.sql` |
-| RP-GOLD-003 | Enforce analytics tests | Unique, not-null, accepted-value, relationship, quantity, price, and total tests pass | Verified | 18 dbt data tests passed |
-| RP-ANA-001 | Present business and operational metrics | Dashboard shows revenue, orders, AOV, conversion, countries, products, customers, inventory freshness, event rate, runs, and alerts | Built | `dashboard/app.py`; visual review remains |
-| RP-OBS-001 | Expose operational metrics | Prometheus can scrape record counts, DQ rates, duration, and alert count | Built | Prometheus textfile output and provisioned config |
-| RP-OBS-002 | Provide an operations dashboard | Grafana is provisioned with core ingestion and DQ panels | Built | `monitoring/grafana/`; live visual review remains |
+| RP-GOLD-001 | Build dimensional and analytical marts | dbt builds customer/product/date dimensions, order facts, daily sales, customer 360, and inventory health | Verified locally and on Azure Databricks | `dbt/models/`; 37-node Azure dbt build passed |
+| RP-GOLD-002 | Demonstrate SCD Type 2 | Product price changes create versioned snapshot rows | Verified on Azure Databricks | Product `10002` created a second version; source was restored |
+| RP-GOLD-003 | Enforce analytics tests | Unique, not-null, accepted-value, relationship, quantity, price, and total tests pass | Verified | 26 Azure dbt data tests passed |
+| RP-ANA-001 | Present business and operational metrics | Dashboard shows revenue, orders, AOV, purchase/view ratio, countries, products, customers, inventory freshness, event rate, runs, and alerts | Verified locally | AppTest and actual desktop/narrow browser QA; `docs/assets/local-dashboard/` |
+| RP-ANA-002 | Publish Azure Gold business metrics safely | Public dashboard is built from a timestamped Azure Gold snapshot; totals reconcile before publish; no warehouse credential reaches the browser; desktop and narrow layouts render correctly | Built; Azure data verified | Live snapshot passed 5/5 reconciliation checks and warehouse cleanup; GitHub Pages deployment and responsive public QA remain |
+| RP-OBS-001 | Expose operational metrics | Prometheus can scrape record counts, DQ rates, duration, and alert count | Verified locally | Both targets healthy, duplicate alert Fired then Resolved; `docs/evidence/local-monitoring.json` |
+| RP-OBS-003 | Prepare bounded cloud monitoring | Optional ADF failed-run alert, optional storage archive, read-only definition/state preflight, explicit notification receivers | Built; live proof blocked | Offline Terraform validation and14 behavioral fixtures; `docs/evidence/cloud-monitor-preflight.json` |
+| RP-OBS-002 | Provide an operations dashboard | Grafana is provisioned with core ingestion and DQ panels | Verified | Live degraded-data visual review passed in Stage 1 |
 | RP-AI-001 | Generate incident analysis from facts | Report identifies triggered metrics, likely cause, and next action without inventing telemetry | Verified for deterministic engine | `src/retailpulse/incident.py`, generated demo report |
-| RP-AI-002 | Support a local language model | Ollama can receive run/alert context; failures fall back safely to deterministic analysis | Built | Ollama Compose service and `--ollama` path; model execution remains |
-| RP-INF-001 | Provision core Azure services as code | Terraform defines resource group, ADLS, opt-in Event Hubs, ADF, Databricks, Key Vault, and subscription budget | Built | Terraform validates with AzureRM 5.0.1; saved plan/apply remain |
+| RP-AI-002 | Support a local language model | Ollama can receive run/alert context; failures fall back safely to deterministic analysis | Verified | Model-backed and stopped-service fallback executions passed in Stage 1 |
+| RP-INF-001 | Provision core Azure services as code | Terraform defines resource group, ADLS, opt-in Event Hubs, ADF, Databricks, Key Vault, and subscription budget | Verified in Azure | Applied remote state is drift-free; Event Hubs remains disabled |
 | RP-CICD-001 | Automate quality gates | CI runs Python lint/tests, demo, dbt build/tests, SQL lint, and Terraform validation | Verified | Hosted push/PR Actions and required checks passed in Stage 2 |
-| RP-COST-001 | Bound paid cloud execution | Event Hubs defaults off; Databricks uses job compute, `AvailableNow`, a 30-minute maximum, and a small Azure profile | Built | `config/azure.yml`, Terraform toggle, streaming widgets; cloud enforcement remains |
+| RP-COST-001 | Bound paid cloud execution | Event Hubs defaults off; Databricks uses job compute, `AvailableNow`, a 30-minute maximum, and a small Azure profile | Verified in Azure | Exact four-resource enable plan, bounded unscheduled serverless runs, automatic secret removal, Event Hubs deletion, and final drift-free plan |
+| RP-SEC-001 | Use managed identities for lake access | ADF system identity and a Databricks Access Connector receive scoped data-plane roles | Verified in Azure | ADF write and Databricks Delta read/write passed; unauthorized operator access was denied |
+| RP-SEC-002 | Create governed ADLS zones | Six medallion/checkpoint/quarantine directories exist as Terraform resources | Verified in Azure | All six paths exist and the Delta proof created a transaction log beneath Silver |
+| RP-SEC-003 | Keep secrets out of code and state | Secret names are versioned, values enter Key Vault outside Terraform, and workload identities receive scoped secret roles | Verified boundary | Key Vault RBAC is applied; Event Hubs value is intentionally deferred while the service is disabled |
 | RP-DOC-001 | Make the platform reproducible | Architecture, requirements, contract, runbooks, status, and demo steps are versioned | Verified | `docs/` and root README |
 
 ## 4. Non-functional requirements
 
 | ID | Requirement | Current rule |
 |---|---|---|
-| RP-NFR-001 | Idempotency | Stable `event_id` is the Silver key; processed IDs and checkpoints survive restart. |
+| RP-NFR-001 | Idempotency | Stable `event_id` is the Silver primary key; source offsets/raw/classifications commit together, and abrupt-exit recovery is verified. |
 | RP-NFR-002 | Replayability | Bronze is append-only; quarantine records preserve raw payloads. |
 | RP-NFR-003 | Observability | Every processing run emits an audit row and a current metrics snapshot. |
 | RP-NFR-004 | Security | Secrets never enter source control; Azure integrations use Key Vault/managed identity where practical. |
@@ -74,6 +85,7 @@ Status meanings:
 | RP-NFR-006 | Portability | The core demo runs without Azure credentials; cloud jobs preserve the same event contract and layer boundaries. |
 | RP-NFR-007 | Compatibility | Application target is Python 3.11–3.13; CI and Docker use Python 3.11. |
 | RP-NFR-008 | Testability | Scenario generation is seedable and the core pipeline can use isolated temporary storage. |
+| RP-NFR-009 | Public dashboard safety | Public assets contain aggregated demo metrics only; refresh is attended and bounded; anonymous traffic cannot start paid warehouse compute. |
 
 ## 5. Explicit first-release boundaries
 

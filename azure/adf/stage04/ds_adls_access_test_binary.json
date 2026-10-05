@@ -1,0 +1,16 @@
+{
+  "type": "Binary",
+  "linkedServiceName": {
+    "referenceName": "ls_adls_managed_identity",
+    "type": "LinkedServiceReference"
+  },
+  "typeProperties": {
+    "location": {
+      "type": "AzureBlobFSLocation",
+      "fileName": "README.md",
+      "fileSystem": "retailpulse",
+      "folderPath": "landing/_access_tests/stage-04-adf"
+    }
+  },
+  "annotations": ["RetailPulse", "stage-04-access-test"]
+}

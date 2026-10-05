@@ -1,120 +1,87 @@
 # RetailPulse project status
 
-Status date: 2026-08-12
+Release review:2026-10-05 (IST); evidence timestamps use UTC. The local platform and public
+snapshot application are implemented and verified. Azure integration was exercised in August;
+a fresh end-to-end cloud demonstration is blocked by disabled services, as recorded below.
 
-## Executive summary
+## Current release verification
 
-The local vertical slice is built and verified. It generates events, performs incremental
-Bronze/Silver processing, handles duplicates/late/malformed inputs, builds Gold outputs, emits
-metrics and alerts, and generates an incident report.
-
-The Azure target is prepared as Terraform, ADF, and Databricks source assets. It has not been
-deployed into an Azure subscription, so cloud connectivity, permissions, job orchestration,
-performance, and screenshots remain deployment work rather than completed capabilities.
-
-The ordered implementation and verification backlog is maintained in the
-[stage-wise execution plan](execution-plan.md).
-
-## Built and verified
-
-- Strict event contract and topic routing.
-- All seven event types and five traffic/failure scenarios.
-- Local incremental ingestion with durable topic checkpoints.
-- Append-only Bronze output and idempotent Silver event storage.
-- Duplicate detection, 30-minute late-event handling, and malformed-record quarantine.
-- Pipeline audit table and JSONL audit history.
-- Gold order summary and local dashboard data.
-- dbt project with 10 models, one SCD2 snapshot, and 18 data tests.
-- Prometheus metrics generation and threshold alerts.
-- Deterministic incident analysis and report persistence.
-- UCI CSV normalization.
-- Python test suite, Ruff, SQLFluff, Docker Compose validation, and Terraform validation.
-- End-to-end demo on Python 3.11.
-- Redpanda broker health, three-topic Kafka publishing/consumption, and restart persistence.
-- Live Prometheus target scraping and degraded-run metric/alert changes.
-- Grafana health and five-panel dashboard provisioning through its API.
-- Streamlit populated and empty-state behavior through its application test runner.
-- Ollama-backed incident generation plus deterministic fallback during service unavailability.
-- Clean Linux/Python 3.11 CI-equivalent execution for Ruff, pytest, demo, dbt, and SQLFluff.
-- Hosted GitHub Actions execution with protected required checks.
-
-Validation evidence from the latest implementation pass:
-
-| Check | Result |
+| Component | Result and scope |
 |---|---|
-| Python tests | 16 passed |
-| Ruff | Passed, including local and Databricks Spark jobs |
-| SQLFluff | Passed |
-| dbt build | 29/29 nodes passed on initial and incremental reruns |
-| Docker Compose config | Valid |
-| Terraform | Formatted and valid against Terraform 1.15.8 / AzureRM 5.0.1 |
-| Failure demo | 31.7% duplicate rate detected and explained |
-| Stage 1 local services | Functional checks and Grafana visual QA passed; Streamlit refresh pending |
-| Stage 2 GitHub/CI | Passed locally and in hosted push/PR runs; protected main requires both jobs |
+| Python |168 passed,4 Spark-dependent skips on Python 3.13.15; those4 execute in the separate real Spark suite. CI target3.11. |
+| Contract parity | Exact shared model source runs in Python, isolated Spark workers, and bundled Databricks notebook; strict JSON/version/UUID/business/topic checks. |
+| Spark/Delta | 46 real tests passed in 23.04s, including worker TZ=Asia/Kolkata, raw quarantine, legacy price representation, intentional post-MERGE failure and checkpoint replay. |
+| Kafka/Redpanda | Actual local entrypoint:16 Bronze,1 Silver,14 quarantine; same-checkpoint resume preserved counts and Silver version0. |
+| Recovery | SQLite commits input offsets/raw/classifications together. Real process exits before/after commit preserve replay/audit and do not duplicate quarantine. Atomic exports are readable by Docker users. |
+| Complete local command | 295 Bronze=266 Silver+19 duplicates+10 quarantine;10 orders,57 units,£268.55. All 37 dbt nodes pass clean, incremental, and full refresh; marts reconcile and unchanged reruns stay unchanged. |
+| dbt correctness | Tied timestamps, item-only arrivals, empty/sparse input, SCD2 history, corrected order dates with empty/populated previous dates;7 behavioral integration cases. Cloud SQL/hooks run offline with Databricks credentials in DuckDB. |
+| Money | Exact price text in Silver; unit price rounded half up to2dp before Gold multiplication. SQLite/Streamlit/dbt agree for fractional prices. Unrepresentable Gold values fail while raw Silver is retained. |
+| Generator | Order/customer/country identities are stable across independently seeded batches; purchase/view ratio is explicitly an event ratio. |
+| BI frontend |15 Chromium tests passed:3 views at1440px/390px, keyboard tabs, no overflow/runtime errors, malformed/empty/retry/freshness/public-boundary cases. |
+| Streamlit | AppTest plus actual desktop/narrow browser tests and screenshots; local operational fixture after extra duplicate test:287 Silver,10 orders,£286.97. |
+| Local operations | Prometheus targets up; duplicate alert Fired then Resolved; Grafana health and provisioned Operations dashboard passed. |
+| Incident analysis | Actual cached local llama3.1 model returned a grounded4-section report; unavailable-model fallback retained deterministic guidance. |
+| Scale |50,000 file-backed events:3.423s generation,1.550s initial processing,0.670s no-op snapshot/hash scan;0.043s Gold rebuild. One bounded workstation observation, not a performance SLA. |
+| Static checks | Ruff, SQLFluff, TypeScript/ESLint/Vite, Docker Compose, shell syntax, notebook bundle compile, Terraform 1.15.8/AzureRM 5.0.1 offline fmt/validate pass. |
+| Cloud monitoring | Optional default-off ADF failure metric alert/storage archive;14 verifier fixtures pass. No deployment or notification delivery claimed. |
 
-## Built but requiring external integration
+See [local proof](evidence/local-e2e.json), [Spark/Kafka proof](evidence/local-spark-contract.md),
+[operations proof](evidence/local-monitoring.json), [scale observation](evidence/local-scale-benchmark.json),
+[BI evidence](evidence/stage-09-bi-dashboard.md), and [release checklist](release-checklist.md).
+Hosted CI and publication results are recorded separately when they complete.
 
-These components exist, but “complete” requires running them against their target services:
+## Refactor and reliability changes
 
-- Databricks batch notebook against ADLS Delta storage.
-- Databricks Structured Streaming consumer against Kafka or Event Hubs.
-- ADF historical ingestion against configured HTTP and ADLS datasets.
-- Streamlit refreshed desktop and narrow visual review; behavior and data sections are verified.
-- Terraform plan/apply against an authenticated Azure subscription.
-- Local PySpark/Delta Structured Streaming against Redpanda (implementation added; live run remains).
+- Removed duplicate dbt profile and unused wrapper/environment/dependency entries.
+- Centralized Gold Delta configuration and split optional dependencies by execution purpose.
+- Replaced the redundant event registry with Silver's primary key; legacy stored data is retained.
+- Migrated legacy exact prices/queries/raw history/checkpoints transactionally and tested retries.
+- Replaced independent file checkpoints/append-on-failure outputs with a transactional input ledger
+  and atomic derived files, including audit and failed-run metrics.
+- Bundled the exact shared contract into standalone cloud uploads; retained aware UTC values,
+  precise prices, and explicit late/representation quarantine rather than silent eviction/rounding.
+- Corrected Spark batch-session merge lookup and stale no-op Delta history audit metrics.
+- Fixed incremental timestamp ties/item-only changes/old daily dates and demonstrated SCD2 history.
+- Hardened public snapshot validation/reconciliation/error handling and separated export age from
+  historical business dates. Warehouse cleanup now verifies STOPPED with bounded retries.
+- Added reproducible browser/Spark/Databricks-fixture CI gates, monitored failure rules, and a
+  safe one-command isolated local demonstration.
 
-## Remaining for the full Azure demo
+## Historical Azure proofs
 
-### Required
+| Stage | Saved August result |
+|---|---|
+|3–4 | Infrastructure/lake zones/scoped identities; positive ADF/Databricks and negative operator access. |
+|5 | Two immutable ADF deliveries and normalized four-entity outputs. |
+|6 | Typed batch Delta, source/injected quarantine, zero-write Silver rerun. |
+|7 |460 Bronze,411 unique Silver,30 quarantine;40-event checkpoint replay inserted zero Bronze/Silver rows. |
+|8 |637 customers,199 products,4,518 items,£91,970.02 reconciled; no-op MERGEs and SCD2 proof. |
+|9 | Validated Azure Gold export passed5 reconciliation checks; saved public snapshot has its original export timestamp. |
 
-1. Approve provider registration and the remote-state bootstrap selected in Stage 3 readiness.
-2. Run `terraform plan` with Event Hubs disabled, review projected costs, and explicitly apply.
-3. Create the ADLS directory hierarchy and least-privilege role assignments.
-4. Add/import ADF linked services and datasets, then execute the historical ingestion pipeline.
-5. Upload the Databricks jobs, configure account paths/secrets, and create job compute.
-6. Temporarily enable Event Hubs, verify offsets/checkpoint recovery/watermarking/Delta MERGE on a
-   bounded job run, then disable Event Hubs.
-7. Configure dbt for the Databricks adapter and build Gold tables in the target catalog.
-8. Connect Databricks SQL or Power BI and validate dashboard queries.
-9. Configure Azure Monitor/log forwarding and verify alert delivery.
-10. Run the complete clean-state demonstration and capture screenshots/video.
+These results describe earlier code/deployments. The refactored cloud notebook, changed dbt
+models, monitoring, and cleanup require a fresh attended Azure run before their target-service
+verification can be claimed.
 
-### Recommended portfolio polish
+## Remaining external work and limits
 
-- Create milestone tags after the first Azure-backed release.
-- Add screenshots of ADF, Databricks, dbt lineage, dashboard, Grafana, AI analysis, and CI.
-- Record the planned 5–10 minute demo video.
-- Add representative cost estimates and teardown instructions after the first Azure deployment.
-- Add sample dashboard screenshots to the README.
+The current [Azure preflight](evidence/cloud-monitor-preflight.json) sees ADF `Disabled`, no
+monitor rule, and no Fired/Resolved cloud alert. Remote Terraform state access returns
+`403 AccountIsDisabled`. Account authentication and resource listing do not establish operational
+health. Restore the subscription/storage services, rerun preflight, review a bounded plan, then
+follow [Stage 10](runbooks/stage-10-cloud-monitoring.md). No apply, paid job, or notification send
+was attempted in this review. The August free-credit exception expired 2026-08-19; the USD 10
+budget notifies and does not cap spend.
 
-### Optional enhancements
-
-- RAG over runbooks, contracts, and dbt documentation.
-- Azure Monitor alerts and a notification connector.
-- Managed schema registry and contract compatibility checks.
-- Governed quarantine correction/replay workflow.
-- A `dim_promotion` source and model when promotion data becomes available.
-- Incremental dbt models for larger volumes.
-- Load/performance testing, autoscaling policy, and SLOs.
-- Unity Catalog permissions and data-lineage configuration.
-- Multi-environment Terraform modules and remote state.
-
-## Known limitations
-
-- The file-backed local adapter tests processing semantics but is not a Kafka consumer benchmark.
-- Normal checkpoint continuation is tested, but the local offset file and SQLite commit are not one
-  atomic transaction; abrupt process-loss fault injection remains before an exactly-once claim.
-- Local Spark/Delta can reproduce transaction and streaming logic but not Event Hubs, ADLS,
-  managed identity, or Azure performance.
-- The ADF JSON references datasets that must be configured for the target subscription.
-- Terraform intentionally omits Databricks compute and identity role assignments.
-- The dashboard has functional QA but not yet screenshot-based desktop/narrow visual QA.
-- Ollama model and fallback paths are verified; local CPU inference is slow and model quality still
-  depends on the selected model.
-- Python 3.14 is excluded because the pinned dbt 1.9 dependency stack is not compatible with it.
-
-## Definition of done for release 1
-
-Release 1 is done when all items under “Remaining for the full Azure demo — Required” have been
-completed, the CI workflow is green in GitHub, and the demo guide can be executed from a clean
-checkout without undocumented manual fixes.
+- The local adapter assumes one attended writer and completed append-only file deliveries.
+  Exports are eventual materializations, not a multi-file distributed transaction.
+- Lateness is event-time versus ingestion-time classification; no stateful watermark eviction
+  silently removes rejected records. New checkpoint namespaces avoid incompatible old Spark state.
+- Prefix hashing and snapshot export reread local history. Daily-sales comparison rereads current
+  Gold aggregates to repair moved dates. Scale beyond this bounded demo needs measured optimization.
+- Backdated ingestion before an incremental boundary needs explicit full refresh/replay. Deletes,
+  enterprise CDC, richer return/cancellation semantics, and production load certification are
+  outside this release.
+- The local language model is advisory; deterministic detection and retained telemetry are the
+  authority. No autonomous remediation is performed.
+- The workspace's old `.venv` uses unsupported Python 3.14. Use Python 3.11–3.13 and executable
+  overrides when running the cloud scripts from this machine.

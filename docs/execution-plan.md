@@ -1,6 +1,13 @@
 # RetailPulse external verification and Azure completion plan
 
-Last reviewed: 2026-08-12
+Last reviewed: 2026-08-13
+
+October 2026 release update: local contracts/recovery/Spark/dbt/browser/monitoring proofs are
+captured in the [release checklist](release-checklist.md) and [current status](project-status.md).
+Stages 3–9 retain August Azure evidence. Stage 10 implementation/preflight is complete, but live
+cloud verification and Stage 11's fresh Azure recording wait for disabled ADF/state storage to
+be restored. The recorded local portfolio walkthrough has its own scope; it does not satisfy
+an unperformed fresh Azure run. Review the expired free-credit exception before any new apply.
 
 ## 1. Objective
 
@@ -25,7 +32,7 @@ passed and the listed evidence has been saved.
 | 6 | Databricks batch produces Bronze and Silver Delta | Stage 5 | 4–6 hours |
 | 7 | Event Hubs streaming, recovery, and Delta MERGE verified | Stages 4 and 6 | 6–10 hours |
 | 8 | dbt builds and tests Azure Gold models | Stages 6 and 7 | 3–6 hours |
-| 9 | A live SQL/BI dashboard reads Gold | Stage 8 | 2–5 hours |
+| 9 | A lightweight web BI dashboard publishes a validated Azure Gold snapshot | Stage 8 | 3–6 hours |
 | 10 | Azure monitoring and alert delivery verified | Stages 5–9 | 3–6 hours |
 | 11 | Clean-state end-to-end demo and evidence captured | All prior stages | 4–6 hours |
 | 12 | Costs controlled and release closed | Stage 11 | 1–2 hours |
@@ -54,23 +61,27 @@ Remove choices that would otherwise interrupt deployment or cause accidental spe
 
 ### Tasks
 
-- [ ] Select the Azure tenant and subscription.
-- [ ] Confirm the deployment region after checking service availability and current pricing.
+- [x] Select the Azure tenant and subscription.
+- [x] Confirm the deployment region after checking service availability and current pricing.
   `centralindia` is the template default, not a binding decision.
-- [ ] Set a maximum monthly budget and warning thresholds appropriate to the subscription.
-- [ ] Choose the resource naming prefix and keep `environment=dev` for the first deployment.
-- [ ] Choose the Terraform state location. Prefer remote Azure Storage state before the first shared
+- [x] Set a maximum monthly budget and warning thresholds appropriate to the subscription.
+- [x] Choose the resource naming prefix and keep `environment=dev` for the first deployment.
+- [x] Choose the Terraform state location. Prefer remote Azure Storage state before the first shared
   deployment; local state is acceptable only for a private disposable experiment.
-- [ ] Select identities:
+- [x] Select identities:
   - human/operator identity for initial bootstrap;
   - managed identity or Databricks Access Connector for lake access;
   - ADF managed identity for landing writes;
   - GitHub Actions OIDC identity for future CI deployments.
-- [ ] Decide whether the first BI target is Databricks SQL or Power BI. Databricks SQL is the
-  recommended first target because it removes a desktop/gateway dependency.
-- [ ] Create an evidence directory outside generated `data/`, with filenames such as
+- [x] Select the first BI delivery path. RetailPulse BI Lite uses Databricks SQL as its query
+  engine, a React/TypeScript static dashboard, and GitHub Pages instead of Power BI or a persistent
+  BI server.
+- [x] Create an evidence directory outside generated `data/`, with filenames such as
   `stage-05-adf-success.png` and `stage-07-checkpoint-recovery.png`.
-- [ ] Record teardown expectations: retain, stop, or destroy resources after the demo.
+- [x] Record teardown expectations: retain, stop, or destroy resources after the demo.
+
+Current status: complete. See [the Azure deployment decision record](decisions/azure-deployment.md)
+and the versioned `docs/evidence/` directory.
 
 ### Exit gate
 
@@ -133,8 +144,9 @@ Evidence: one model-generated report and one fallback report for the same class 
 
 All four integrations have live evidence. Any failure is captured as a tracked issue before Stage 2.
 
-Current status: functionally passed and Grafana visual QA passed. Refreshed desktop and narrow
-Streamlit evidence remains open as `STG1-VIS-001`; see
+Current status: functionally passed and Grafana visual QA passed. Automated Streamlit checks cover
+populated state, empty state, all required sections, and the single-day revenue bar. Refreshed
+desktop and narrow Streamlit evidence remains open as `STG1-VIS-001`; see
 [Stage 1 evidence](evidence/stage-01-local-verification.md).
 
 ## Stage 2 — GitHub repository and hosted CI
@@ -154,8 +166,9 @@ Make the validated baseline reviewable and reproducible outside the development 
   validate locally in the same Python/Terraform versions as hosted CI.
 - [x] Verify both jobs pass in GitHub-hosted CI.
 - [x] Add a CI status badge only after the hosted workflow is green.
-- [ ] Configure GitHub OIDC for Azure later; do not store a long-lived Azure client secret if OIDC is
-  available for the selected account.
+- [x] Record GitHub OIDC as the required authentication method for a future Azure deployment
+  workflow; create the federated credential only when that workflow and its Azure scope are
+  reviewed. No long-lived Azure client secret is stored.
 
 Current status: complete. The public repository, hosted push and pull-request runs, required checks,
 branch protection, test pull request, and badge passed the exit gate. See
@@ -174,21 +187,32 @@ Create the minimum cloud boundary needed for later validation without starting s
 
 ### Tasks
 
-- [ ] Install `.[spark]` under Python 3.11 with a compatible Java runtime.
-- [ ] Start Redpanda, publish a small `dev` sample, and run the local Spark job with its default
+- [x] Install `.[spark]` under Python 3.11 with a compatible Java runtime.
+- [x] Start Redpanda, publish a small `dev` sample, and run the local Spark job with its default
   `AvailableNow` trigger.
-- [ ] Verify local Bronze, Silver, quarantine, checkpoints, and an idempotent second MERGE before
+- [x] Verify local Bronze, Silver, quarantine, checkpoints, and an idempotent second MERGE before
   paying for the equivalent Azure run.
-- [ ] Add the selected remote Terraform backend configuration if required by Stage 0.
-- [ ] Add and verify the subscription budget defined by Terraform.
-- [ ] Run formatting, initialization, validation, and a saved plan.
-- [ ] Review every create/change action, globally unique name, SKU, region, and estimated cost.
-- [ ] Apply only the reviewed plan.
-- [ ] Keep `enable_event_hubs=false` for the first apply.
-- [ ] Verify the resource group, ADLS-enabled storage, filesystem, ADF, Databricks workspace, and
-  Key Vault exist; verify that no Databricks compute, SQL warehouse, or Event Hubs namespace exists.
-- [ ] Capture Terraform outputs and resource overview without exposing keys.
-- [ ] Immediately check Azure Cost Management and resource health.
+- [x] Add the selected remote Terraform backend configuration if required by Stage 0.
+- [x] Add and verify the subscription budget defined by Terraform.
+- [x] Run formatting, initialization, validation, and a saved plan.
+- [x] Review every create/change action, globally unique name, SKU, region, and estimated cost.
+- [x] Apply only the reviewed plan.
+- [x] Keep `enable_event_hubs=false` for the first apply.
+- [x] Verify the resource group, ADLS-enabled storage, filesystem, ADF, Databricks workspace, and
+  Key Vault exist; verify that no classic cluster, running SQL warehouse, or Event Hubs namespace
+  exists. The platform-created starter warehouse exists but is stopped.
+- [x] Capture Terraform outputs and resource overview without exposing keys.
+- [x] Check resource health, budget coverage, and managed-resource cost implications immediately;
+  Cost Management actuals remain delayed/rate-limited and require a later portal refresh.
+
+Stage 3 is complete. The reproducible runner uses Python 3.11.13, OpenJDK 17, PySpark 4.0.4, and
+Delta 4.0.0. Its bounded Redpanda proof verified Bronze retention, malformed quarantine, all three
+checkpoints, a recorded incremental MERGE, and an all-matched replay that left Silver unchanged.
+See [Stage 3 local Spark evidence](evidence/stage-03-local-spark.md).
+
+Cloud infrastructure prerequisites for Stage 4 are complete and Terraform is drift-free. The
+workspace includes a stopped, platform-created serverless starter warehouse and managed NAT
+networking; neither was active Databricks compute at the gate.
 
 ### Exit gate
 
@@ -203,14 +227,19 @@ Establish least-privilege access before running data workloads.
 
 ### Tasks
 
-- [ ] Add a Databricks Access Connector or explicitly document the selected service principal path.
-- [ ] Grant ADF’s managed identity write access at the RetailPulse filesystem or landing scope.
-- [ ] Grant the Databricks access identity the minimum data-plane permissions required for the lake.
-- [ ] Create `landing`, `bronze`, `silver`, `gold`, `checkpoints`, and `quarantine` paths.
-- [ ] Create Key Vault secret names for any unavoidable Event Hubs SAS credentials.
-- [ ] Configure Databricks secret access or Unity Catalog storage credentials/external locations.
-- [ ] Prove ADF can write a harmless test file and Databricks can read/write a test Delta path.
-- [ ] Prove an unauthorized identity cannot access the same path.
+- [x] Add a system-assigned Databricks Access Connector to Terraform.
+- [x] Define ADF managed-identity write access at the RetailPulse filesystem scope.
+- [x] Define filesystem-scoped Databricks Access Connector data-plane access.
+- [x] Define `landing`, `bronze`, `silver`, `gold`, `checkpoints`, and `quarantine` paths.
+- [x] Define the Event Hubs Key Vault secret name without placing its value in Terraform state.
+- [x] Configure Databricks secret access or Unity Catalog storage credentials/external locations.
+- [x] Prove ADF can write a harmless test file and Databricks can read/write a test Delta path.
+- [x] Prove an unauthorized identity cannot access the same path.
+
+Current status: complete. Managed-identity roles are applied, the Unity Catalog credential and
+external location validate, ADF wrote its access-test file, Databricks created/read an external
+Delta table, and an operator without a storage data role was denied Azure AD data-plane access.
+Event Hubs remains disabled, so its secret value is correctly deferred to Stage 7.
 
 ### Exit gate
 
@@ -231,16 +260,22 @@ step rather than pretending the formats already align.
 
 ### Tasks
 
-- [ ] Create parameterized HTTP and ADLS linked services and datasets.
-- [ ] Import or deploy the pipeline template.
-- [ ] Parameterize source URL, target folder, and run/date partition.
-- [ ] Land the archive under a path such as `landing/uci/raw/<run_id>/`.
-- [ ] Add an integrity check for non-zero size and expected archive/file type.
-- [ ] Add a Databricks preprocessing task that extracts the workbook and writes the four normalized
+- [x] Create parameterized HTTP and ADLS linked services and datasets.
+- [x] Import or deploy the pipeline template.
+- [x] Parameterize source URL, target folder, and run partition.
+- [x] Land the archive under `landing/uci/raw/<run_id>/`.
+- [x] Add an integrity check for non-zero size and expected archive/file type.
+- [x] Add a Databricks preprocessing task that extracts the workbook and writes the four normalized
   JSONL datasets under `landing/uci/normalized/<run_id>/`.
-- [ ] Add success/failure logging with ADF pipeline run ID.
-- [ ] Trigger the pipeline manually and verify the raw object in ADLS.
-- [ ] Rerun once to confirm the naming/idempotency policy.
+- [x] Add success/failure logging with ADF pipeline run ID.
+- [x] Trigger the pipeline manually and verify the raw object in ADLS.
+- [x] Rerun once to confirm the naming/idempotency policy.
+
+Current status: complete. Two successful ADF runs landed the same SHA-256-pinned source into
+distinct run-ID paths. Two bounded Databricks serverless job runs produced matching customers,
+products, orders, and order-item counts in corresponding immutable normalized paths. The job is
+unscheduled, no run remains active, no classic cluster exists, and the starter SQL warehouse is
+stopped. See [Stage 5 evidence](evidence/stage-05-historical-ingestion.md).
 
 ### Exit gate
 
@@ -255,19 +290,27 @@ Run the historical dataset through typed Delta tables with audit and quarantine 
 
 ### Tasks
 
-- [ ] Upload the preprocessing and batch notebooks as a Databricks job.
-- [ ] Replace placeholder `ACCOUNT` paths with parameters or catalog/external-location references.
-- [ ] Use job/serverless-job compute; prohibit all-purpose compute unless a reviewed exception sets
+- [x] Upload the preprocessing and batch notebooks as Databricks jobs.
+- [x] Replace placeholder `ACCOUNT` paths with parameters and Unity Catalog/external-location
+  references.
+- [x] Use job/serverless-job compute; prohibit all-purpose compute unless a reviewed exception sets
   10-minute automatic termination.
-- [ ] Set a job timeout of no more than 30 minutes and process only the `azure` profile volume.
-- [ ] Pass ADF run ID/source path into the job.
-- [ ] Create named Bronze and Silver Delta tables, not only unmanaged paths, if Unity Catalog is used.
-- [ ] Verify `source_file`, `ingestion_timestamp`, and `pipeline_run_id` in Bronze.
-- [ ] Verify types, null handling, deduplication, and order-item business rules in Silver.
-- [ ] Inject at least one invalid historical row and confirm quarantine behavior.
-- [ ] Run a second incremental delivery and prove existing records are not rebuilt incorrectly.
-- [ ] Record counts read, written, and rejected in the cloud audit table.
-- [ ] Capture input/output bytes, shuffle bytes, duration, and Delta operation metrics.
+- [x] Set a job timeout of no more than 30 minutes and process only the `azure` profile volume.
+- [x] Pass ADF run ID/source path into the job.
+- [x] Create named Bronze and Silver Delta tables, not only unmanaged paths, if Unity Catalog is used.
+- [x] Verify `source_file`, `ingestion_timestamp`, and `pipeline_run_id` in Bronze.
+- [x] Verify types, null handling, deduplication, and order-item business rules in Silver.
+- [x] Inject at least one invalid historical row and confirm quarantine behavior.
+- [x] Run a second incremental delivery and prove existing records are not rebuilt incorrectly.
+- [x] Record counts read, written, and rejected in the cloud audit table.
+- [x] Capture input/output bytes, network/shuffle transfer, spill, duration, and Delta operation
+  metrics.
+
+Current status: complete. Two bounded, unscheduled `STANDARD` serverless runs consumed the two
+immutable Stage 5 deliveries. The first established the source-quality baseline of 56 rejected
+order items; the second rejected those same 56 plus exactly one injected invalid item. Silver
+totals were unchanged, every second-run Silver MERGE wrote zero rows, and the audit table contains
+one row per ADF run ID. See [Stage 6 evidence](evidence/stage-06-databricks-batch.md).
 
 ### Exit gate
 
@@ -290,23 +333,31 @@ Prove authenticated live events reach Delta, survive restart, and merge idempote
 
 ### Tasks
 
-- [ ] Add non-secret Event Hubs Kafka configuration fields to application settings.
-- [ ] Review and apply `enable_event_hubs=true` immediately before this stage.
-- [ ] Load credentials from environment/Key Vault and redact them from logs.
-- [ ] Configure the Databricks Kafka source with secret-backed authentication.
-- [ ] Use one checkpoint path per streaming query and environment.
-- [ ] Start the job and produce normal traffic.
-- [ ] Use `AvailableNow` for ingestion/reconciliation runs; use processing-time mode only for the
-  restart demonstration, with a hard 30-minute runtime.
-- [ ] Verify topic, partition, offset, Kafka timestamp, and ingestion timestamp in Bronze Delta.
-- [ ] Verify valid events appear once in Silver after `foreachBatch` MERGE.
-- [ ] Run duplicate, late-data, malformed, and traffic-spike scenarios separately.
-- [ ] Confirm duplicates do not multiply Silver rows and malformed input reaches quarantine.
-- [ ] Stop the streaming job during ingestion, restart it with the same checkpoint, and reconcile
+- [x] Add non-secret Event Hubs Kafka configuration fields to application settings.
+- [x] Review and apply `enable_event_hubs=true` immediately before this stage.
+- [x] Load credentials from environment/Key Vault and redact them from logs.
+- [x] Configure the Databricks Kafka source with secret-backed authentication.
+- [x] Use one checkpoint path per streaming query and environment.
+- [x] Start the job and produce normal traffic.
+- [x] Use `AvailableNow` for all serverless ingestion/reconciliation and restart-proof runs, with a
+  hard 30-minute runtime. Serverless jobs reject processing-time triggers, so simulate interruption
+  by failing after Delta commits but before Spark commits the checkpoint, then resume the same
+  `AvailableNow` checkpoint.
+- [x] Verify topic, partition, offset, Kafka timestamp, and ingestion timestamp in Bronze Delta.
+- [x] Verify valid events appear once in Silver after `foreachBatch` MERGE.
+- [x] Run duplicate, late-data, malformed, and traffic-spike scenarios separately.
+- [x] Confirm duplicates do not multiply Silver rows and malformed input reaches quarantine.
+- [x] Stop the streaming job during ingestion, restart it with the same checkpoint, and reconcile
   offsets/counts to prove recovery.
-- [ ] Inspect Delta history and confirm MERGE operations and no multi-match failure.
-- [ ] Record throughput, batch duration, processed rows/sec, and event-time latency.
-- [ ] Apply `enable_event_hubs=false` immediately after evidence capture and verify deletion.
+- [x] Inspect Delta history and confirm MERGE operations and no multi-match failure.
+- [x] Record throughput, batch duration, processed rows/sec, and event-time latency.
+- [x] Apply `enable_event_hubs=false` immediately after evidence capture and verify deletion.
+
+Current status: complete. An authenticated Event Hubs Kafka session processed all five scenarios,
+then deliberately failed after committing a 40-record recovery micro-batch but before checkpoint
+commit. Restarting the same `AvailableNow` checkpoint reread batch 1 and produced zero-row Bronze
+and Silver MERGEs. Event Hubs and temporary secrets were removed after evidence capture. See
+[Stage 7 evidence](evidence/stage-07-eventhubs-streaming.md).
 
 ### Exit gate
 
@@ -321,17 +372,24 @@ Build the tested analytical model from cloud Silver tables.
 
 ### Tasks
 
-- [ ] Add the `dbt-databricks` dependency and a secret-free example profile.
-- [ ] Parameterize catalog, schema, HTTP path, and environment.
-- [ ] Replace the local JSON staging source with declared Databricks Silver sources.
-- [ ] Preserve the local DuckDB target as a separate profile/target.
-- [ ] Preserve incremental materializations for order items, orders, and daily sales; prove a second
+- [x] Add the `dbt-databricks` dependency and a secret-free example profile.
+- [x] Parameterize catalog, schema, HTTP path, and environment.
+- [x] Replace the local JSON staging source with declared Databricks Silver sources.
+- [x] Preserve the local DuckDB target as a separate profile/target.
+- [x] Preserve incremental materializations for order items, orders, and daily sales; prove a second
   run processes changed keys/dates rather than rebuilding the full tables.
-- [ ] Run `dbt debug`, `dbt compile`, and `dbt build` against the dev catalog.
-- [ ] Verify all dimensions, facts, aggregates, and the product SCD2 snapshot.
-- [ ] Run a price change and prove a new SCD2 version is created.
-- [ ] Generate dbt documentation and capture the lineage graph.
-- [ ] Schedule the Gold build after batch/streaming freshness conditions are met.
+- [x] Run `dbt debug`, `dbt compile`, and `dbt build` against the dev catalog.
+- [x] Verify all dimensions, facts, aggregates, and the product SCD2 snapshot.
+- [x] Run a price change and prove a new SCD2 version is created.
+- [x] Generate dbt documentation and capture the lineage graph.
+- [x] Schedule the Gold build after batch/streaming freshness conditions are met.
+
+Current status: complete. Both the initial and no-change builds passed all 37 dbt nodes. Gold
+counts and revenue reconcile exactly to Silver, all three incremental models recorded zero-source
+Delta MERGEs on the second run, and product `10002` recorded a second SCD2 version before its
+source price was restored. A freshness-gated weekly job is deployed in `PAUSED` state. See
+[Stage 8 evidence](evidence/stage-08-dbt-gold.md). Its manually triggered hosted verification run
+passed the Silver gate and all 37 dbt nodes from the pushed Git commit.
 
 ### Exit gate
 
@@ -342,23 +400,41 @@ demonstrated with two versions of one product.
 
 ### Goal
 
-Show business value using live Azure Gold data.
+Show business value from Azure Gold through a public, polished dashboard without exposing
+credentials or keeping a BI server running.
 
-### Recommended first path: Databricks SQL
+### Selected path: RetailPulse BI Lite
 
-- [ ] Create or select a small SQL warehouse with auto-stop enabled.
-- [ ] Build queries for revenue, orders, AOV, top products/customers, country sales, conversion,
-  inventory health, and events per minute.
-- [ ] Add data freshness and last-successful-run indicators.
-- [ ] Validate dashboard totals directly against Gold SQL.
+- [x] Record the dashboard architecture and security/cost decision.
+- [x] Preserve the stopped serverless SQL warehouse with bounded auto-stop behavior.
+- [x] Build version-controlled SQL extraction for revenue, orders, AOV, top products/customers,
+  country sales, conversion, inventory health, and events per minute.
+- [x] Validate Silver/Gold counts and revenue before publishing any snapshot.
+- [x] Write a timestamped, non-sensitive JSON snapshot through an atomic export.
+- [x] Build the React/TypeScript dashboard with native SVG/CSS charts, responsive layouts, and
+  interactive Overview, Commerce, and Freshness views.
+- [x] Add data freshness, last-successful-run, source-window, and reconciliation indicators.
+- [x] Add a GitHub Pages build/deploy workflow that publishes only the checked-in snapshot.
+- [x] Run the extractor against Azure Gold, reconcile the known window, and save Stage 9 evidence.
+- [ ] Verify the deployed public URL and desktop/narrow layouts.
 
-If Power BI is selected, additionally configure the Databricks connector, use a non-personal
-authentication strategy where practical, and document refresh behavior.
+Refresh is deliberately push-based rather than page-load live. An attended command obtains a
+short-lived Azure Databricks token, queries Gold, validates the results, replaces the public JSON,
+and stops the warehouse. The public browser receives no Databricks hostname, token, or query
+capability. GitHub Pages serves the resulting static assets at no hosting cost for the public
+repository.
 
 ### Exit gate
 
-The dashboard uses Azure Gold—not local SQLite—and its displayed values reconcile to saved SQL
-queries for one known time window.
+The deployed dashboard displays a timestamped snapshot extracted from Azure Gold—not local
+SQLite—and its values reconcile to saved SQL for one known window. No secret is present in the
+built site, the SQL warehouse is stopped after refresh, and the public URL renders correctly at
+desktop and narrow widths.
+
+Current status: implementation and live Azure extraction are verified. The first snapshot passed
+all five reconciliation checks and the SQL warehouse returned to `STOPPED`. Hosted Pages
+deployment and responsive public visual evidence remain before the exit gate is complete. See
+[Stage 9 evidence](evidence/stage-09-bi-dashboard.md).
 
 ## Stage 10 — Azure Monitor and alerting
 
@@ -460,7 +536,7 @@ documented definition of done.
 | Deploy Databricks batch jobs and compute | 6 |
 | Connect Event Hubs, Structured Streaming, recovery, and MERGE | 7 |
 | Configure dbt with Databricks | 8 |
-| Connect Power BI or Databricks SQL | 9 |
+| Connect a BI dashboard to Databricks SQL | 9 |
 | Add Azure Monitor alerting | 10 |
 | Capture screenshots and record demo video | 11 |
 

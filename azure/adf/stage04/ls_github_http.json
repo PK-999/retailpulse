@@ -1,0 +1,9 @@
+{
+  "type": "HttpServer",
+  "typeProperties": {
+    "authenticationType": "Anonymous",
+    "enableServerCertificateValidation": true,
+    "url": "https://raw.githubusercontent.com/PK-999/retailpulse/main/"
+  },
+  "annotations": ["RetailPulse", "stage-04-access-test"]
+}

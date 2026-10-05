@@ -1,6 +1,6 @@
 .env*
 !.env.example
-.venv/
+.venv*/
 __pycache__/
 .pytest_cache/
 .ruff_cache/
@@ -9,9 +9,17 @@ __pycache__/
 *.pyc
 *.egg-info/
 data/
+!bi-dashboard/public/data/
+!bi-dashboard/public/data/dashboard.json
 logs/
 target/
 dbt_packages/
+dbt/.user.yml
+bi-dashboard/node_modules/
+bi-dashboard/dist/
+bi-dashboard/*.tsbuildinfo
+bi-dashboard/test-results/
+bi-dashboard/playwright-report/
 .streamlit/secrets.toml
 .databrickscfg
 .azure/

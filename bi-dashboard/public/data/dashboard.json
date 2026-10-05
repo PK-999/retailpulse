@@ -1,0 +1,2434 @@
+{
+  "schemaVersion": "1.0",
+  "metadata": {
+    "generatedAt": "2026-08-15T05:21:32.911506+00:00",
+    "source": "Azure Databricks Gold",
+    "catalog": "dbw_retailpulse_dev_rp999",
+    "schema": "retailpulse_gold",
+    "businessWindow": {
+      "start": "2010-12-01",
+      "end": "2011-12-09",
+      "label": "2010-12-01 \u2014 2011-12-09"
+    },
+    "goldUpdatedAt": "2026-08-12T11:38:58.176131+00:00",
+    "streamUpdatedAt": "2026-08-12T12:58:56.452000+00:00",
+    "lastSuccessfulRunAt": "2026-08-12T13:08:44.422915+00:00",
+    "queryVersion": "stage09-v1",
+    "status": "verified"
+  },
+  "kpis": {
+    "revenue": 91970.02,
+    "orders": 1796,
+    "units": 76487,
+    "averageOrderValue": 51.21,
+    "productViews": 112,
+    "purchases": 57,
+    "conversionRate": 0.5089
+  },
+  "dailySales": [
+    {
+      "date": "2010-12-01",
+      "orders": 6,
+      "units": 95,
+      "revenue": 260.05,
+      "averageOrderValue": 43.34
+    },
+    {
+      "date": "2010-12-02",
+      "orders": 4,
+      "units": 38,
+      "revenue": 51.5,
+      "averageOrderValue": 12.88
+    },
+    {
+      "date": "2010-12-03",
+      "orders": 9,
+      "units": 426,
+      "revenue": 919.1,
+      "averageOrderValue": 102.12
+    },
+    {
+      "date": "2010-12-05",
+      "orders": 12,
+      "units": 329,
+      "revenue": 505.95,
+      "averageOrderValue": 42.16
+    },
+    {
+      "date": "2010-12-06",
+      "orders": 6,
+      "units": 89,
+      "revenue": 100.4,
+      "averageOrderValue": 16.73
+    },
+    {
+      "date": "2010-12-07",
+      "orders": 8,
+      "units": 136,
+      "revenue": 343.29,
+      "averageOrderValue": 42.91
+    },
+    {
+      "date": "2010-12-08",
+      "orders": 9,
+      "units": 164,
+      "revenue": 158.82,
+      "averageOrderValue": 17.65
+    },
+    {
+      "date": "2010-12-09",
+      "orders": 9,
+      "units": 230,
+      "revenue": 425.66,
+      "averageOrderValue": 47.3
+    },
+    {
+      "date": "2010-12-10",
+      "orders": 8,
+      "units": 254,
+      "revenue": 384.76,
+      "averageOrderValue": 48.1
+    },
+    {
+      "date": "2010-12-12",
+      "orders": 1,
+      "units": 1728,
+      "revenue": 293.76,
+      "averageOrderValue": 293.76
+    },
+    {
+      "date": "2010-12-13",
+      "orders": 2,
+      "units": 64,
+      "revenue": 37.88,
+      "averageOrderValue": 18.94
+    },
+    {
+      "date": "2010-12-14",
+      "orders": 4,
+      "units": 160,
+      "revenue": 263.35,
+      "averageOrderValue": 65.84
+    },
+    {
+      "date": "2010-12-15",
+      "orders": 8,
+      "units": 157,
+      "revenue": 288.0,
+      "averageOrderValue": 36.0
+    },
+    {
+      "date": "2010-12-16",
+      "orders": 5,
+      "units": 249,
+      "revenue": 355.53,
+      "averageOrderValue": 71.11
+    },
+    {
+      "date": "2010-12-17",
+      "orders": 9,
+      "units": 178,
+      "revenue": 513.9,
+      "averageOrderValue": 57.1
+    },
+    {
+      "date": "2010-12-20",
+      "orders": 3,
+      "units": 84,
+      "revenue": 167.22,
+      "averageOrderValue": 55.74
+    },
+    {
+      "date": "2010-12-21",
+      "orders": 3,
+      "units": 31,
+      "revenue": 72.85,
+      "averageOrderValue": 24.28
+    },
+    {
+      "date": "2010-12-22",
+      "orders": 1,
+      "units": 100,
+      "revenue": 12.0,
+      "averageOrderValue": 12.0
+    },
+    {
+      "date": "2010-12-23",
+      "orders": 3,
+      "units": 265,
+      "revenue": 173.82,
+      "averageOrderValue": 57.94
+    },
+    {
+      "date": "2011-01-04",
+      "orders": 5,
+      "units": 171,
+      "revenue": 154.96,
+      "averageOrderValue": 30.99
+    },
+    {
+      "date": "2011-01-05",
+      "orders": 7,
+      "units": 859,
+      "revenue": 443.95,
+      "averageOrderValue": 63.42
+    },
+    {
+      "date": "2011-01-06",
+      "orders": 13,
+      "units": 1189,
+      "revenue": 1431.0,
+      "averageOrderValue": 110.08
+    },
+    {
+      "date": "2011-01-07",
+      "orders": 8,
+      "units": 321,
+      "revenue": 499.65,
+      "averageOrderValue": 62.46
+    },
+    {
+      "date": "2011-01-09",
+      "orders": 8,
+      "units": 262,
+      "revenue": 345.69,
+      "averageOrderValue": 43.21
+    },
+    {
+      "date": "2011-01-10",
+      "orders": 3,
+      "units": 178,
+      "revenue": 152.86,
+      "averageOrderValue": 50.95
+    },
+    {
+      "date": "2011-01-11",
+      "orders": 5,
+      "units": 136,
+      "revenue": 207.8,
+      "averageOrderValue": 41.56
+    },
+    {
+      "date": "2011-01-12",
+      "orders": 5,
+      "units": 83,
+      "revenue": 132.05,
+      "averageOrderValue": 26.41
+    },
+    {
+      "date": "2011-01-13",
+      "orders": 5,
+      "units": 207,
+      "revenue": 271.9,
+      "averageOrderValue": 54.38
+    },
+    {
+      "date": "2011-01-14",
+      "orders": 6,
+      "units": 143,
+      "revenue": 288.55,
+      "averageOrderValue": 48.09
+    },
+    {
+      "date": "2011-01-16",
+      "orders": 3,
+      "units": 61,
+      "revenue": 97.72,
+      "averageOrderValue": 32.57
+    },
+    {
+      "date": "2011-01-17",
+      "orders": 6,
+      "units": 144,
+      "revenue": 163.22,
+      "averageOrderValue": 27.2
+    },
+    {
+      "date": "2011-01-18",
+      "orders": 2,
+      "units": 124,
+      "revenue": 256.28,
+      "averageOrderValue": 128.14
+    },
+    {
+      "date": "2011-01-19",
+      "orders": 6,
+      "units": 411,
+      "revenue": 557.32,
+      "averageOrderValue": 92.89
+    },
+    {
+      "date": "2011-01-20",
+      "orders": 3,
+      "units": 66,
+      "revenue": 134.1,
+      "averageOrderValue": 44.7
+    },
+    {
+      "date": "2011-01-21",
+      "orders": 2,
+      "units": 41,
+      "revenue": 67.65,
+      "averageOrderValue": 33.83
+    },
+    {
+      "date": "2011-01-23",
+      "orders": 3,
+      "units": 24,
+      "revenue": 69.2,
+      "averageOrderValue": 23.07
+    },
+    {
+      "date": "2011-01-24",
+      "orders": 4,
+      "units": 49,
+      "revenue": 184.15,
+      "averageOrderValue": 46.04
+    },
+    {
+      "date": "2011-01-25",
+      "orders": 10,
+      "units": 266,
+      "revenue": 411.82,
+      "averageOrderValue": 41.18
+    },
+    {
+      "date": "2011-01-26",
+      "orders": 10,
+      "units": 249,
+      "revenue": 477.7,
+      "averageOrderValue": 47.77
+    },
+    {
+      "date": "2011-01-27",
+      "orders": 5,
+      "units": 163,
+      "revenue": 212.37,
+      "averageOrderValue": 42.47
+    },
+    {
+      "date": "2011-01-28",
+      "orders": 4,
+      "units": 74,
+      "revenue": 147.34,
+      "averageOrderValue": 36.84
+    },
+    {
+      "date": "2011-01-30",
+      "orders": 2,
+      "units": 50,
+      "revenue": 67.1,
+      "averageOrderValue": 33.55
+    },
+    {
+      "date": "2011-01-31",
+      "orders": 10,
+      "units": 1157,
+      "revenue": 837.82,
+      "averageOrderValue": 83.78
+    },
+    {
+      "date": "2011-02-01",
+      "orders": 6,
+      "units": 288,
+      "revenue": 586.4,
+      "averageOrderValue": 97.73
+    },
+    {
+      "date": "2011-02-02",
+      "orders": 9,
+      "units": 182,
+      "revenue": 419.55,
+      "averageOrderValue": 46.62
+    },
+    {
+      "date": "2011-02-03",
+      "orders": 7,
+      "units": 68,
+      "revenue": 182.35,
+      "averageOrderValue": 26.05
+    },
+    {
+      "date": "2011-02-04",
+      "orders": 8,
+      "units": 229,
+      "revenue": 303.65,
+      "averageOrderValue": 37.96
+    },
+    {
+      "date": "2011-02-06",
+      "orders": 1,
+      "units": 2,
+      "revenue": 1.7,
+      "averageOrderValue": 1.7
+    },
+    {
+      "date": "2011-02-07",
+      "orders": 1,
+      "units": 85,
+      "revenue": 141.2,
+      "averageOrderValue": 141.2
+    },
+    {
+      "date": "2011-02-08",
+      "orders": 3,
+      "units": 71,
+      "revenue": 71.0,
+      "averageOrderValue": 23.67
+    },
+    {
+      "date": "2011-02-09",
+      "orders": 6,
+      "units": 272,
+      "revenue": 491.4,
+      "averageOrderValue": 81.9
+    },
+    {
+      "date": "2011-02-10",
+      "orders": 2,
+      "units": 86,
+      "revenue": 28.1,
+      "averageOrderValue": 14.05
+    },
+    {
+      "date": "2011-02-11",
+      "orders": 1,
+      "units": 8,
+      "revenue": 20.4,
+      "averageOrderValue": 20.4
+    },
+    {
+      "date": "2011-02-13",
+      "orders": 1,
+      "units": 2,
+      "revenue": 2.5,
+      "averageOrderValue": 2.5
+    },
+    {
+      "date": "2011-02-14",
+      "orders": 5,
+      "units": 392,
+      "revenue": 419.7,
+      "averageOrderValue": 83.94
+    },
+    {
+      "date": "2011-02-15",
+      "orders": 4,
+      "units": 176,
+      "revenue": 283.6,
+      "averageOrderValue": 70.9
+    },
+    {
+      "date": "2011-02-16",
+      "orders": 7,
+      "units": 718,
+      "revenue": 646.7,
+      "averageOrderValue": 92.39
+    },
+    {
+      "date": "2011-02-17",
+      "orders": 8,
+      "units": 249,
+      "revenue": 406.5,
+      "averageOrderValue": 50.81
+    },
+    {
+      "date": "2011-02-18",
+      "orders": 4,
+      "units": 120,
+      "revenue": 258.0,
+      "averageOrderValue": 64.5
+    },
+    {
+      "date": "2011-02-20",
+      "orders": 3,
+      "units": 231,
+      "revenue": 210.6,
+      "averageOrderValue": 70.2
+    },
+    {
+      "date": "2011-02-21",
+      "orders": 3,
+      "units": 36,
+      "revenue": 84.2,
+      "averageOrderValue": 28.07
+    },
+    {
+      "date": "2011-02-22",
+      "orders": 6,
+      "units": 216,
+      "revenue": 153.6,
+      "averageOrderValue": 25.6
+    },
+    {
+      "date": "2011-02-23",
+      "orders": 4,
+      "units": 92,
+      "revenue": 72.1,
+      "averageOrderValue": 18.03
+    },
+    {
+      "date": "2011-02-24",
+      "orders": 7,
+      "units": 147,
+      "revenue": 230.83,
+      "averageOrderValue": 32.98
+    },
+    {
+      "date": "2011-02-25",
+      "orders": 9,
+      "units": 372,
+      "revenue": 466.9,
+      "averageOrderValue": 51.88
+    },
+    {
+      "date": "2011-02-27",
+      "orders": 4,
+      "units": 50,
+      "revenue": 82.1,
+      "averageOrderValue": 20.53
+    },
+    {
+      "date": "2011-02-28",
+      "orders": 8,
+      "units": 192,
+      "revenue": 297.8,
+      "averageOrderValue": 37.23
+    },
+    {
+      "date": "2011-03-01",
+      "orders": 8,
+      "units": 177,
+      "revenue": 367.05,
+      "averageOrderValue": 45.88
+    },
+    {
+      "date": "2011-03-02",
+      "orders": 3,
+      "units": 18,
+      "revenue": 52.19,
+      "averageOrderValue": 17.4
+    },
+    {
+      "date": "2011-03-03",
+      "orders": 1,
+      "units": 432,
+      "revenue": 457.92,
+      "averageOrderValue": 457.92
+    },
+    {
+      "date": "2011-03-04",
+      "orders": 3,
+      "units": 106,
+      "revenue": 62.4,
+      "averageOrderValue": 20.8
+    },
+    {
+      "date": "2011-03-06",
+      "orders": 1,
+      "units": 1,
+      "revenue": 5.95,
+      "averageOrderValue": 5.95
+    },
+    {
+      "date": "2011-03-07",
+      "orders": 5,
+      "units": 26,
+      "revenue": 76.0,
+      "averageOrderValue": 15.2
+    },
+    {
+      "date": "2011-03-08",
+      "orders": 6,
+      "units": 488,
+      "revenue": 1013.9,
+      "averageOrderValue": 168.98
+    },
+    {
+      "date": "2011-03-09",
+      "orders": 2,
+      "units": 98,
+      "revenue": 52.78,
+      "averageOrderValue": 26.39
+    },
+    {
+      "date": "2011-03-10",
+      "orders": 2,
+      "units": 62,
+      "revenue": 99.3,
+      "averageOrderValue": 49.65
+    },
+    {
+      "date": "2011-03-11",
+      "orders": 9,
+      "units": 402,
+      "revenue": 759.0,
+      "averageOrderValue": 84.33
+    },
+    {
+      "date": "2011-03-13",
+      "orders": 1,
+      "units": 6,
+      "revenue": 25.5,
+      "averageOrderValue": 25.5
+    },
+    {
+      "date": "2011-03-14",
+      "orders": 4,
+      "units": 39,
+      "revenue": 142.5,
+      "averageOrderValue": 35.63
+    },
+    {
+      "date": "2011-03-15",
+      "orders": 3,
+      "units": 67,
+      "revenue": 55.0,
+      "averageOrderValue": 18.33
+    },
+    {
+      "date": "2011-03-16",
+      "orders": 6,
+      "units": 110,
+      "revenue": 235.95,
+      "averageOrderValue": 39.33
+    },
+    {
+      "date": "2011-03-17",
+      "orders": 9,
+      "units": 304,
+      "revenue": 303.61,
+      "averageOrderValue": 33.73
+    },
+    {
+      "date": "2011-03-18",
+      "orders": 6,
+      "units": 89,
+      "revenue": 125.2,
+      "averageOrderValue": 20.87
+    },
+    {
+      "date": "2011-03-20",
+      "orders": 3,
+      "units": 83,
+      "revenue": 198.25,
+      "averageOrderValue": 66.08
+    },
+    {
+      "date": "2011-03-21",
+      "orders": 7,
+      "units": 285,
+      "revenue": 384.6,
+      "averageOrderValue": 54.94
+    },
+    {
+      "date": "2011-03-22",
+      "orders": 3,
+      "units": 106,
+      "revenue": 125.98,
+      "averageOrderValue": 41.99
+    },
+    {
+      "date": "2011-03-23",
+      "orders": 6,
+      "units": 244,
+      "revenue": 283.8,
+      "averageOrderValue": 47.3
+    },
+    {
+      "date": "2011-03-24",
+      "orders": 10,
+      "units": 151,
+      "revenue": 218.63,
+      "averageOrderValue": 21.86
+    },
+    {
+      "date": "2011-03-25",
+      "orders": 9,
+      "units": 176,
+      "revenue": 405.95,
+      "averageOrderValue": 45.11
+    },
+    {
+      "date": "2011-03-27",
+      "orders": 3,
+      "units": 73,
+      "revenue": 92.58,
+      "averageOrderValue": 30.86
+    },
+    {
+      "date": "2011-03-28",
+      "orders": 10,
+      "units": 461,
+      "revenue": 655.19,
+      "averageOrderValue": 65.52
+    },
+    {
+      "date": "2011-03-29",
+      "orders": 2,
+      "units": 94,
+      "revenue": 65.09,
+      "averageOrderValue": 32.55
+    },
+    {
+      "date": "2011-03-30",
+      "orders": 4,
+      "units": 822,
+      "revenue": 468.74,
+      "averageOrderValue": 117.19
+    },
+    {
+      "date": "2011-03-31",
+      "orders": 6,
+      "units": 311,
+      "revenue": 426.93,
+      "averageOrderValue": 71.16
+    },
+    {
+      "date": "2011-04-01",
+      "orders": 7,
+      "units": 235,
+      "revenue": 329.05,
+      "averageOrderValue": 47.01
+    },
+    {
+      "date": "2011-04-03",
+      "orders": 1,
+      "units": 10,
+      "revenue": 16.5,
+      "averageOrderValue": 16.5
+    },
+    {
+      "date": "2011-04-04",
+      "orders": 8,
+      "units": 340,
+      "revenue": 245.91,
+      "averageOrderValue": 30.74
+    },
+    {
+      "date": "2011-04-05",
+      "orders": 5,
+      "units": 209,
+      "revenue": 514.68,
+      "averageOrderValue": 102.94
+    },
+    {
+      "date": "2011-04-06",
+      "orders": 2,
+      "units": 201,
+      "revenue": 153.14,
+      "averageOrderValue": 76.57
+    },
+    {
+      "date": "2011-04-07",
+      "orders": 5,
+      "units": 125,
+      "revenue": 135.96,
+      "averageOrderValue": 27.19
+    },
+    {
+      "date": "2011-04-08",
+      "orders": 6,
+      "units": 346,
+      "revenue": 572.1,
+      "averageOrderValue": 95.35
+    },
+    {
+      "date": "2011-04-10",
+      "orders": 7,
+      "units": 49,
+      "revenue": 135.7,
+      "averageOrderValue": 19.39
+    },
+    {
+      "date": "2011-04-11",
+      "orders": 8,
+      "units": 109,
+      "revenue": 148.91,
+      "averageOrderValue": 18.61
+    },
+    {
+      "date": "2011-04-12",
+      "orders": 6,
+      "units": 113,
+      "revenue": 213.9,
+      "averageOrderValue": 35.65
+    },
+    {
+      "date": "2011-04-13",
+      "orders": 6,
+      "units": 159,
+      "revenue": 283.51,
+      "averageOrderValue": 47.25
+    },
+    {
+      "date": "2011-04-14",
+      "orders": 8,
+      "units": 206,
+      "revenue": 349.62,
+      "averageOrderValue": 43.7
+    },
+    {
+      "date": "2011-04-15",
+      "orders": 3,
+      "units": 106,
+      "revenue": 215.96,
+      "averageOrderValue": 71.99
+    },
+    {
+      "date": "2011-04-17",
+      "orders": 6,
+      "units": 108,
+      "revenue": 105.49,
+      "averageOrderValue": 17.58
+    },
+    {
+      "date": "2011-04-18",
+      "orders": 1,
+      "units": 19,
+      "revenue": 23.75,
+      "averageOrderValue": 23.75
+    },
+    {
+      "date": "2011-04-19",
+      "orders": 9,
+      "units": 289,
+      "revenue": 328.89,
+      "averageOrderValue": 36.54
+    },
+    {
+      "date": "2011-04-20",
+      "orders": 4,
+      "units": 132,
+      "revenue": 178.4,
+      "averageOrderValue": 44.6
+    },
+    {
+      "date": "2011-04-21",
+      "orders": 6,
+      "units": 101,
+      "revenue": 269.19,
+      "averageOrderValue": 44.87
+    },
+    {
+      "date": "2011-04-26",
+      "orders": 6,
+      "units": 277,
+      "revenue": 179.06,
+      "averageOrderValue": 29.84
+    },
+    {
+      "date": "2011-04-27",
+      "orders": 6,
+      "units": 204,
+      "revenue": 290.9,
+      "averageOrderValue": 48.48
+    },
+    {
+      "date": "2011-04-28",
+      "orders": 2,
+      "units": 48,
+      "revenue": 228.6,
+      "averageOrderValue": 114.3
+    },
+    {
+      "date": "2011-05-01",
+      "orders": 2,
+      "units": 44,
+      "revenue": 52.92,
+      "averageOrderValue": 26.46
+    },
+    {
+      "date": "2011-05-03",
+      "orders": 5,
+      "units": 292,
+      "revenue": 327.36,
+      "averageOrderValue": 65.47
+    },
+    {
+      "date": "2011-05-04",
+      "orders": 5,
+      "units": 128,
+      "revenue": 147.74,
+      "averageOrderValue": 29.55
+    },
+    {
+      "date": "2011-05-05",
+      "orders": 5,
+      "units": 294,
+      "revenue": 465.1,
+      "averageOrderValue": 93.02
+    },
+    {
+      "date": "2011-05-06",
+      "orders": 10,
+      "units": 735,
+      "revenue": 742.71,
+      "averageOrderValue": 74.27
+    },
+    {
+      "date": "2011-05-08",
+      "orders": 8,
+      "units": 114,
+      "revenue": 160.88,
+      "averageOrderValue": 20.11
+    },
+    {
+      "date": "2011-05-09",
+      "orders": 11,
+      "units": 358,
+      "revenue": 521.5,
+      "averageOrderValue": 47.41
+    },
+    {
+      "date": "2011-05-10",
+      "orders": 10,
+      "units": 411,
+      "revenue": 598.73,
+      "averageOrderValue": 59.87
+    },
+    {
+      "date": "2011-05-11",
+      "orders": 9,
+      "units": 421,
+      "revenue": 425.0,
+      "averageOrderValue": 47.22
+    },
+    {
+      "date": "2011-05-12",
+      "orders": 10,
+      "units": 2000,
+      "revenue": 3005.31,
+      "averageOrderValue": 300.53
+    },
+    {
+      "date": "2011-05-13",
+      "orders": 5,
+      "units": 188,
+      "revenue": 332.9,
+      "averageOrderValue": 66.58
+    },
+    {
+      "date": "2011-05-15",
+      "orders": 1,
+      "units": 12,
+      "revenue": 39.5,
+      "averageOrderValue": 39.5
+    },
+    {
+      "date": "2011-05-16",
+      "orders": 6,
+      "units": 145,
+      "revenue": 223.98,
+      "averageOrderValue": 37.33
+    },
+    {
+      "date": "2011-05-17",
+      "orders": 7,
+      "units": 786,
+      "revenue": 736.85,
+      "averageOrderValue": 105.26
+    },
+    {
+      "date": "2011-05-18",
+      "orders": 4,
+      "units": 98,
+      "revenue": 118.48,
+      "averageOrderValue": 29.62
+    },
+    {
+      "date": "2011-05-19",
+      "orders": 10,
+      "units": 322,
+      "revenue": 438.5,
+      "averageOrderValue": 43.85
+    },
+    {
+      "date": "2011-05-20",
+      "orders": 6,
+      "units": 251,
+      "revenue": 381.26,
+      "averageOrderValue": 63.54
+    },
+    {
+      "date": "2011-05-22",
+      "orders": 8,
+      "units": 224,
+      "revenue": 180.28,
+      "averageOrderValue": 22.54
+    },
+    {
+      "date": "2011-05-23",
+      "orders": 7,
+      "units": 113,
+      "revenue": 167.87,
+      "averageOrderValue": 23.98
+    },
+    {
+      "date": "2011-05-24",
+      "orders": 6,
+      "units": 95,
+      "revenue": 142.2,
+      "averageOrderValue": 23.7
+    },
+    {
+      "date": "2011-05-25",
+      "orders": 7,
+      "units": 383,
+      "revenue": 278.25,
+      "averageOrderValue": 39.75
+    },
+    {
+      "date": "2011-05-26",
+      "orders": 6,
+      "units": 73,
+      "revenue": 179.35,
+      "averageOrderValue": 29.89
+    },
+    {
+      "date": "2011-05-27",
+      "orders": 4,
+      "units": 113,
+      "revenue": 144.1,
+      "averageOrderValue": 36.03
+    },
+    {
+      "date": "2011-05-29",
+      "orders": 1,
+      "units": 31,
+      "revenue": 20.2,
+      "averageOrderValue": 20.2
+    },
+    {
+      "date": "2011-05-31",
+      "orders": 8,
+      "units": 210,
+      "revenue": 303.66,
+      "averageOrderValue": 37.96
+    },
+    {
+      "date": "2011-06-01",
+      "orders": 3,
+      "units": 17,
+      "revenue": 32.65,
+      "averageOrderValue": 10.88
+    },
+    {
+      "date": "2011-06-02",
+      "orders": 5,
+      "units": 128,
+      "revenue": 245.44,
+      "averageOrderValue": 49.09
+    },
+    {
+      "date": "2011-06-03",
+      "orders": 3,
+      "units": 226,
+      "revenue": 94.98,
+      "averageOrderValue": 31.66
+    },
+    {
+      "date": "2011-06-05",
+      "orders": 6,
+      "units": 144,
+      "revenue": 271.52,
+      "averageOrderValue": 45.25
+    },
+    {
+      "date": "2011-06-06",
+      "orders": 5,
+      "units": 114,
+      "revenue": 185.1,
+      "averageOrderValue": 37.02
+    },
+    {
+      "date": "2011-06-07",
+      "orders": 11,
+      "units": 422,
+      "revenue": 376.93,
+      "averageOrderValue": 34.27
+    },
+    {
+      "date": "2011-06-08",
+      "orders": 10,
+      "units": 324,
+      "revenue": 418.84,
+      "averageOrderValue": 41.88
+    },
+    {
+      "date": "2011-06-09",
+      "orders": 9,
+      "units": 361,
+      "revenue": 309.54,
+      "averageOrderValue": 34.39
+    },
+    {
+      "date": "2011-06-10",
+      "orders": 5,
+      "units": 701,
+      "revenue": 955.7,
+      "averageOrderValue": 191.14
+    },
+    {
+      "date": "2011-06-12",
+      "orders": 1,
+      "units": 80,
+      "revenue": 80.3,
+      "averageOrderValue": 80.3
+    },
+    {
+      "date": "2011-06-13",
+      "orders": 7,
+      "units": 210,
+      "revenue": 249.9,
+      "averageOrderValue": 35.7
+    },
+    {
+      "date": "2011-06-14",
+      "orders": 1,
+      "units": 30,
+      "revenue": 53.8,
+      "averageOrderValue": 53.8
+    },
+    {
+      "date": "2011-06-15",
+      "orders": 8,
+      "units": 760,
+      "revenue": 784.46,
+      "averageOrderValue": 98.06
+    },
+    {
+      "date": "2011-06-16",
+      "orders": 9,
+      "units": 1214,
+      "revenue": 1043.76,
+      "averageOrderValue": 115.97
+    },
+    {
+      "date": "2011-06-17",
+      "orders": 5,
+      "units": 130,
+      "revenue": 310.9,
+      "averageOrderValue": 62.18
+    },
+    {
+      "date": "2011-06-19",
+      "orders": 5,
+      "units": 50,
+      "revenue": 71.06,
+      "averageOrderValue": 14.21
+    },
+    {
+      "date": "2011-06-20",
+      "orders": 2,
+      "units": 36,
+      "revenue": 122.9,
+      "averageOrderValue": 61.45
+    },
+    {
+      "date": "2011-06-21",
+      "orders": 7,
+      "units": 519,
+      "revenue": 289.07,
+      "averageOrderValue": 41.3
+    },
+    {
+      "date": "2011-06-22",
+      "orders": 6,
+      "units": 207,
+      "revenue": 272.52,
+      "averageOrderValue": 45.42
+    },
+    {
+      "date": "2011-06-23",
+      "orders": 6,
+      "units": 112,
+      "revenue": 204.22,
+      "averageOrderValue": 34.04
+    },
+    {
+      "date": "2011-06-24",
+      "orders": 5,
+      "units": 95,
+      "revenue": 125.95,
+      "averageOrderValue": 25.19
+    },
+    {
+      "date": "2011-06-26",
+      "orders": 3,
+      "units": 102,
+      "revenue": 120.8,
+      "averageOrderValue": 40.27
+    },
+    {
+      "date": "2011-06-27",
+      "orders": 2,
+      "units": 90,
+      "revenue": 73.84,
+      "averageOrderValue": 36.92
+    },
+    {
+      "date": "2011-06-28",
+      "orders": 3,
+      "units": 104,
+      "revenue": 31.48,
+      "averageOrderValue": 10.49
+    },
+    {
+      "date": "2011-06-29",
+      "orders": 2,
+      "units": 215,
+      "revenue": 211.35,
+      "averageOrderValue": 105.68
+    },
+    {
+      "date": "2011-06-30",
+      "orders": 2,
+      "units": 50,
+      "revenue": 79.4,
+      "averageOrderValue": 39.7
+    },
+    {
+      "date": "2011-07-01",
+      "orders": 5,
+      "units": 236,
+      "revenue": 321.98,
+      "averageOrderValue": 64.4
+    },
+    {
+      "date": "2011-07-03",
+      "orders": 5,
+      "units": 54,
+      "revenue": 71.69,
+      "averageOrderValue": 14.34
+    },
+    {
+      "date": "2011-07-04",
+      "orders": 7,
+      "units": 560,
+      "revenue": 756.9,
+      "averageOrderValue": 108.13
+    },
+    {
+      "date": "2011-07-05",
+      "orders": 6,
+      "units": 1920,
+      "revenue": 1719.0,
+      "averageOrderValue": 286.5
+    },
+    {
+      "date": "2011-07-06",
+      "orders": 9,
+      "units": 379,
+      "revenue": 307.51,
+      "averageOrderValue": 34.17
+    },
+    {
+      "date": "2011-07-07",
+      "orders": 6,
+      "units": 131,
+      "revenue": 146.81,
+      "averageOrderValue": 24.47
+    },
+    {
+      "date": "2011-07-08",
+      "orders": 6,
+      "units": 97,
+      "revenue": 212.65,
+      "averageOrderValue": 35.44
+    },
+    {
+      "date": "2011-07-10",
+      "orders": 2,
+      "units": 115,
+      "revenue": 94.75,
+      "averageOrderValue": 47.38
+    },
+    {
+      "date": "2011-07-11",
+      "orders": 5,
+      "units": 539,
+      "revenue": 358.85,
+      "averageOrderValue": 71.77
+    },
+    {
+      "date": "2011-07-12",
+      "orders": 8,
+      "units": 271,
+      "revenue": 711.47,
+      "averageOrderValue": 88.93
+    },
+    {
+      "date": "2011-07-13",
+      "orders": 7,
+      "units": 147,
+      "revenue": 139.78,
+      "averageOrderValue": 19.97
+    },
+    {
+      "date": "2011-07-14",
+      "orders": 9,
+      "units": 148,
+      "revenue": 392.5,
+      "averageOrderValue": 43.61
+    },
+    {
+      "date": "2011-07-15",
+      "orders": 3,
+      "units": 150,
+      "revenue": 465.5,
+      "averageOrderValue": 155.17
+    },
+    {
+      "date": "2011-07-17",
+      "orders": 5,
+      "units": 420,
+      "revenue": 210.21,
+      "averageOrderValue": 42.04
+    },
+    {
+      "date": "2011-07-18",
+      "orders": 2,
+      "units": 204,
+      "revenue": 343.36,
+      "averageOrderValue": 171.68
+    },
+    {
+      "date": "2011-07-19",
+      "orders": 13,
+      "units": 1034,
+      "revenue": 843.46,
+      "averageOrderValue": 64.88
+    },
+    {
+      "date": "2011-07-20",
+      "orders": 3,
+      "units": 108,
+      "revenue": 200.1,
+      "averageOrderValue": 66.7
+    },
+    {
+      "date": "2011-07-21",
+      "orders": 5,
+      "units": 159,
+      "revenue": 298.36,
+      "averageOrderValue": 59.67
+    },
+    {
+      "date": "2011-07-22",
+      "orders": 2,
+      "units": 194,
+      "revenue": 221.34,
+      "averageOrderValue": 110.67
+    },
+    {
+      "date": "2011-07-24",
+      "orders": 8,
+      "units": 754,
+      "revenue": 639.55,
+      "averageOrderValue": 79.94
+    },
+    {
+      "date": "2011-07-25",
+      "orders": 5,
+      "units": 129,
+      "revenue": 97.63,
+      "averageOrderValue": 19.53
+    },
+    {
+      "date": "2011-07-26",
+      "orders": 3,
+      "units": 39,
+      "revenue": 58.8,
+      "averageOrderValue": 19.6
+    },
+    {
+      "date": "2011-07-27",
+      "orders": 2,
+      "units": 85,
+      "revenue": 105.66,
+      "averageOrderValue": 52.83
+    },
+    {
+      "date": "2011-07-28",
+      "orders": 8,
+      "units": 231,
+      "revenue": 267.6,
+      "averageOrderValue": 33.45
+    },
+    {
+      "date": "2011-07-29",
+      "orders": 8,
+      "units": 288,
+      "revenue": 420.9,
+      "averageOrderValue": 52.61
+    },
+    {
+      "date": "2011-07-31",
+      "orders": 4,
+      "units": 23,
+      "revenue": 24.05,
+      "averageOrderValue": 6.01
+    },
+    {
+      "date": "2011-08-01",
+      "orders": 4,
+      "units": 105,
+      "revenue": 155.66,
+      "averageOrderValue": 38.92
+    },
+    {
+      "date": "2011-08-02",
+      "orders": 8,
+      "units": 387,
+      "revenue": 579.1,
+      "averageOrderValue": 72.39
+    },
+    {
+      "date": "2011-08-03",
+      "orders": 7,
+      "units": 322,
+      "revenue": 795.12,
+      "averageOrderValue": 113.59
+    },
+    {
+      "date": "2011-08-04",
+      "orders": 12,
+      "units": 889,
+      "revenue": 1362.26,
+      "averageOrderValue": 113.52
+    },
+    {
+      "date": "2011-08-05",
+      "orders": 6,
+      "units": 202,
+      "revenue": 162.81,
+      "averageOrderValue": 27.14
+    },
+    {
+      "date": "2011-08-07",
+      "orders": 4,
+      "units": 173,
+      "revenue": 97.76,
+      "averageOrderValue": 24.44
+    },
+    {
+      "date": "2011-08-08",
+      "orders": 2,
+      "units": 44,
+      "revenue": 102.4,
+      "averageOrderValue": 51.2
+    },
+    {
+      "date": "2011-08-09",
+      "orders": 4,
+      "units": 139,
+      "revenue": 199.0,
+      "averageOrderValue": 49.75
+    },
+    {
+      "date": "2011-08-10",
+      "orders": 3,
+      "units": 92,
+      "revenue": 92.4,
+      "averageOrderValue": 30.8
+    },
+    {
+      "date": "2011-08-11",
+      "orders": 8,
+      "units": 373,
+      "revenue": 442.43,
+      "averageOrderValue": 55.3
+    },
+    {
+      "date": "2011-08-12",
+      "orders": 6,
+      "units": 131,
+      "revenue": 199.46,
+      "averageOrderValue": 33.24
+    },
+    {
+      "date": "2011-08-14",
+      "orders": 1,
+      "units": 20,
+      "revenue": 25.0,
+      "averageOrderValue": 25.0
+    },
+    {
+      "date": "2011-08-15",
+      "orders": 4,
+      "units": 396,
+      "revenue": 303.12,
+      "averageOrderValue": 75.78
+    },
+    {
+      "date": "2011-08-16",
+      "orders": 4,
+      "units": 239,
+      "revenue": 147.1,
+      "averageOrderValue": 36.78
+    },
+    {
+      "date": "2011-08-17",
+      "orders": 4,
+      "units": 58,
+      "revenue": 91.65,
+      "averageOrderValue": 22.91
+    },
+    {
+      "date": "2011-08-18",
+      "orders": 11,
+      "units": 1064,
+      "revenue": 1153.05,
+      "averageOrderValue": 104.82
+    },
+    {
+      "date": "2011-08-19",
+      "orders": 7,
+      "units": 232,
+      "revenue": 397.55,
+      "averageOrderValue": 56.79
+    },
+    {
+      "date": "2011-08-21",
+      "orders": 1,
+      "units": 96,
+      "revenue": 11.52,
+      "averageOrderValue": 11.52
+    },
+    {
+      "date": "2011-08-22",
+      "orders": 3,
+      "units": 85,
+      "revenue": 142.8,
+      "averageOrderValue": 47.6
+    },
+    {
+      "date": "2011-08-23",
+      "orders": 5,
+      "units": 67,
+      "revenue": 144.65,
+      "averageOrderValue": 28.93
+    },
+    {
+      "date": "2011-08-24",
+      "orders": 6,
+      "units": 356,
+      "revenue": 236.25,
+      "averageOrderValue": 39.38
+    },
+    {
+      "date": "2011-08-25",
+      "orders": 12,
+      "units": 405,
+      "revenue": 630.56,
+      "averageOrderValue": 52.55
+    },
+    {
+      "date": "2011-08-26",
+      "orders": 5,
+      "units": 221,
+      "revenue": 153.66,
+      "averageOrderValue": 30.73
+    },
+    {
+      "date": "2011-08-28",
+      "orders": 3,
+      "units": 53,
+      "revenue": 80.86,
+      "averageOrderValue": 26.95
+    },
+    {
+      "date": "2011-08-30",
+      "orders": 1,
+      "units": 18,
+      "revenue": 5.4,
+      "averageOrderValue": 5.4
+    },
+    {
+      "date": "2011-08-31",
+      "orders": 4,
+      "units": 164,
+      "revenue": 422.2,
+      "averageOrderValue": 105.55
+    },
+    {
+      "date": "2011-09-01",
+      "orders": 6,
+      "units": 252,
+      "revenue": 224.84,
+      "averageOrderValue": 37.47
+    },
+    {
+      "date": "2011-09-02",
+      "orders": 9,
+      "units": 226,
+      "revenue": 327.93,
+      "averageOrderValue": 36.44
+    },
+    {
+      "date": "2011-09-04",
+      "orders": 7,
+      "units": 264,
+      "revenue": 209.22,
+      "averageOrderValue": 29.89
+    },
+    {
+      "date": "2011-09-05",
+      "orders": 9,
+      "units": 195,
+      "revenue": 329.21,
+      "averageOrderValue": 36.58
+    },
+    {
+      "date": "2011-09-06",
+      "orders": 4,
+      "units": 132,
+      "revenue": 103.3,
+      "averageOrderValue": 25.83
+    },
+    {
+      "date": "2011-09-07",
+      "orders": 5,
+      "units": 114,
+      "revenue": 209.25,
+      "averageOrderValue": 41.85
+    },
+    {
+      "date": "2011-09-08",
+      "orders": 11,
+      "units": 543,
+      "revenue": 531.18,
+      "averageOrderValue": 48.29
+    },
+    {
+      "date": "2011-09-09",
+      "orders": 4,
+      "units": 325,
+      "revenue": 392.03,
+      "averageOrderValue": 98.01
+    },
+    {
+      "date": "2011-09-11",
+      "orders": 7,
+      "units": 208,
+      "revenue": 184.65,
+      "averageOrderValue": 26.38
+    },
+    {
+      "date": "2011-09-12",
+      "orders": 7,
+      "units": 154,
+      "revenue": 213.73,
+      "averageOrderValue": 30.53
+    },
+    {
+      "date": "2011-09-13",
+      "orders": 5,
+      "units": 65,
+      "revenue": 119.85,
+      "averageOrderValue": 23.97
+    },
+    {
+      "date": "2011-09-14",
+      "orders": 5,
+      "units": 177,
+      "revenue": 154.45,
+      "averageOrderValue": 30.89
+    },
+    {
+      "date": "2011-09-15",
+      "orders": 6,
+      "units": 136,
+      "revenue": 218.8,
+      "averageOrderValue": 36.47
+    },
+    {
+      "date": "2011-09-16",
+      "orders": 7,
+      "units": 127,
+      "revenue": 253.98,
+      "averageOrderValue": 36.28
+    },
+    {
+      "date": "2011-09-18",
+      "orders": 2,
+      "units": 30,
+      "revenue": 46.26,
+      "averageOrderValue": 23.13
+    },
+    {
+      "date": "2011-09-19",
+      "orders": 9,
+      "units": 275,
+      "revenue": 732.64,
+      "averageOrderValue": 81.4
+    },
+    {
+      "date": "2011-09-20",
+      "orders": 4,
+      "units": 136,
+      "revenue": 172.68,
+      "averageOrderValue": 43.17
+    },
+    {
+      "date": "2011-09-21",
+      "orders": 9,
+      "units": 521,
+      "revenue": 631.43,
+      "averageOrderValue": 70.16
+    },
+    {
+      "date": "2011-09-22",
+      "orders": 14,
+      "units": 930,
+      "revenue": 1136.39,
+      "averageOrderValue": 81.17
+    },
+    {
+      "date": "2011-09-23",
+      "orders": 5,
+      "units": 194,
+      "revenue": 350.8,
+      "averageOrderValue": 70.16
+    },
+    {
+      "date": "2011-09-25",
+      "orders": 2,
+      "units": 29,
+      "revenue": 42.3,
+      "averageOrderValue": 21.15
+    },
+    {
+      "date": "2011-09-26",
+      "orders": 4,
+      "units": 130,
+      "revenue": 94.65,
+      "averageOrderValue": 23.66
+    },
+    {
+      "date": "2011-09-27",
+      "orders": 3,
+      "units": 237,
+      "revenue": 325.4,
+      "averageOrderValue": 108.47
+    },
+    {
+      "date": "2011-09-28",
+      "orders": 7,
+      "units": 723,
+      "revenue": 581.58,
+      "averageOrderValue": 83.08
+    },
+    {
+      "date": "2011-09-29",
+      "orders": 13,
+      "units": 322,
+      "revenue": 511.25,
+      "averageOrderValue": 39.33
+    },
+    {
+      "date": "2011-09-30",
+      "orders": 7,
+      "units": 417,
+      "revenue": 438.17,
+      "averageOrderValue": 62.6
+    },
+    {
+      "date": "2011-10-02",
+      "orders": 2,
+      "units": 17,
+      "revenue": 20.61,
+      "averageOrderValue": 10.31
+    },
+    {
+      "date": "2011-10-03",
+      "orders": 4,
+      "units": 128,
+      "revenue": 119.77,
+      "averageOrderValue": 29.94
+    },
+    {
+      "date": "2011-10-04",
+      "orders": 4,
+      "units": 72,
+      "revenue": 233.05,
+      "averageOrderValue": 58.26
+    },
+    {
+      "date": "2011-10-05",
+      "orders": 7,
+      "units": 853,
+      "revenue": 771.86,
+      "averageOrderValue": 110.27
+    },
+    {
+      "date": "2011-10-06",
+      "orders": 13,
+      "units": 756,
+      "revenue": 931.51,
+      "averageOrderValue": 71.65
+    },
+    {
+      "date": "2011-10-07",
+      "orders": 11,
+      "units": 261,
+      "revenue": 286.02,
+      "averageOrderValue": 26.0
+    },
+    {
+      "date": "2011-10-09",
+      "orders": 4,
+      "units": 47,
+      "revenue": 79.1,
+      "averageOrderValue": 19.78
+    },
+    {
+      "date": "2011-10-10",
+      "orders": 5,
+      "units": 196,
+      "revenue": 230.49,
+      "averageOrderValue": 46.1
+    },
+    {
+      "date": "2011-10-11",
+      "orders": 10,
+      "units": 433,
+      "revenue": 551.8,
+      "averageOrderValue": 55.18
+    },
+    {
+      "date": "2011-10-12",
+      "orders": 8,
+      "units": 199,
+      "revenue": 238.4,
+      "averageOrderValue": 29.8
+    },
+    {
+      "date": "2011-10-13",
+      "orders": 7,
+      "units": 162,
+      "revenue": 203.8,
+      "averageOrderValue": 29.11
+    },
+    {
+      "date": "2011-10-14",
+      "orders": 7,
+      "units": 117,
+      "revenue": 302.65,
+      "averageOrderValue": 43.24
+    },
+    {
+      "date": "2011-10-16",
+      "orders": 1,
+      "units": 12,
+      "revenue": 25.2,
+      "averageOrderValue": 25.2
+    },
+    {
+      "date": "2011-10-17",
+      "orders": 11,
+      "units": 754,
+      "revenue": 509.27,
+      "averageOrderValue": 46.3
+    },
+    {
+      "date": "2011-10-18",
+      "orders": 8,
+      "units": 271,
+      "revenue": 392.3,
+      "averageOrderValue": 49.04
+    },
+    {
+      "date": "2011-10-19",
+      "orders": 7,
+      "units": 252,
+      "revenue": 223.2,
+      "averageOrderValue": 31.89
+    },
+    {
+      "date": "2011-10-20",
+      "orders": 4,
+      "units": 309,
+      "revenue": 48.3,
+      "averageOrderValue": 12.08
+    },
+    {
+      "date": "2011-10-21",
+      "orders": 4,
+      "units": 77,
+      "revenue": 154.02,
+      "averageOrderValue": 38.51
+    },
+    {
+      "date": "2011-10-23",
+      "orders": 2,
+      "units": 54,
+      "revenue": 105.0,
+      "averageOrderValue": 52.5
+    },
+    {
+      "date": "2011-10-24",
+      "orders": 4,
+      "units": 99,
+      "revenue": 87.47,
+      "averageOrderValue": 21.87
+    },
+    {
+      "date": "2011-10-25",
+      "orders": 9,
+      "units": 240,
+      "revenue": 331.51,
+      "averageOrderValue": 36.83
+    },
+    {
+      "date": "2011-10-26",
+      "orders": 4,
+      "units": 61,
+      "revenue": 157.25,
+      "averageOrderValue": 39.31
+    },
+    {
+      "date": "2011-10-27",
+      "orders": 8,
+      "units": 435,
+      "revenue": 334.78,
+      "averageOrderValue": 41.85
+    },
+    {
+      "date": "2011-10-28",
+      "orders": 5,
+      "units": 230,
+      "revenue": 287.1,
+      "averageOrderValue": 57.42
+    },
+    {
+      "date": "2011-10-30",
+      "orders": 4,
+      "units": 254,
+      "revenue": 233.34,
+      "averageOrderValue": 58.34
+    },
+    {
+      "date": "2011-10-31",
+      "orders": 7,
+      "units": 244,
+      "revenue": 105.33,
+      "averageOrderValue": 15.05
+    },
+    {
+      "date": "2011-11-01",
+      "orders": 7,
+      "units": 194,
+      "revenue": 216.26,
+      "averageOrderValue": 30.89
+    },
+    {
+      "date": "2011-11-02",
+      "orders": 6,
+      "units": 448,
+      "revenue": 115.92,
+      "averageOrderValue": 19.32
+    },
+    {
+      "date": "2011-11-03",
+      "orders": 4,
+      "units": 53,
+      "revenue": 101.43,
+      "averageOrderValue": 25.36
+    },
+    {
+      "date": "2011-11-04",
+      "orders": 12,
+      "units": 1049,
+      "revenue": 542.85,
+      "averageOrderValue": 45.24
+    },
+    {
+      "date": "2011-11-06",
+      "orders": 5,
+      "units": 172,
+      "revenue": 333.67,
+      "averageOrderValue": 66.73
+    },
+    {
+      "date": "2011-11-07",
+      "orders": 4,
+      "units": 40,
+      "revenue": 86.88,
+      "averageOrderValue": 21.72
+    },
+    {
+      "date": "2011-11-08",
+      "orders": 8,
+      "units": 216,
+      "revenue": 150.05,
+      "averageOrderValue": 18.76
+    },
+    {
+      "date": "2011-11-09",
+      "orders": 10,
+      "units": 309,
+      "revenue": 411.56,
+      "averageOrderValue": 41.16
+    },
+    {
+      "date": "2011-11-10",
+      "orders": 15,
+      "units": 290,
+      "revenue": 615.8,
+      "averageOrderValue": 41.05
+    },
+    {
+      "date": "2011-11-11",
+      "orders": 12,
+      "units": 368,
+      "revenue": 421.24,
+      "averageOrderValue": 35.1
+    },
+    {
+      "date": "2011-11-13",
+      "orders": 8,
+      "units": 137,
+      "revenue": 155.57,
+      "averageOrderValue": 19.45
+    },
+    {
+      "date": "2011-11-14",
+      "orders": 5,
+      "units": 149,
+      "revenue": 245.25,
+      "averageOrderValue": 49.05
+    },
+    {
+      "date": "2011-11-15",
+      "orders": 10,
+      "units": 401,
+      "revenue": 337.07,
+      "averageOrderValue": 33.71
+    },
+    {
+      "date": "2011-11-16",
+      "orders": 16,
+      "units": 357,
+      "revenue": 520.61,
+      "averageOrderValue": 32.54
+    },
+    {
+      "date": "2011-11-17",
+      "orders": 10,
+      "units": 466,
+      "revenue": 649.16,
+      "averageOrderValue": 64.92
+    },
+    {
+      "date": "2011-11-18",
+      "orders": 8,
+      "units": 222,
+      "revenue": 288.2,
+      "averageOrderValue": 36.03
+    },
+    {
+      "date": "2011-11-20",
+      "orders": 6,
+      "units": 100,
+      "revenue": 143.8,
+      "averageOrderValue": 23.97
+    },
+    {
+      "date": "2011-11-21",
+      "orders": 6,
+      "units": 219,
+      "revenue": 226.51,
+      "averageOrderValue": 37.75
+    },
+    {
+      "date": "2011-11-22",
+      "orders": 10,
+      "units": 341,
+      "revenue": 454.82,
+      "averageOrderValue": 45.48
+    },
+    {
+      "date": "2011-11-23",
+      "orders": 12,
+      "units": 591,
+      "revenue": 575.82,
+      "averageOrderValue": 47.99
+    },
+    {
+      "date": "2011-11-24",
+      "orders": 9,
+      "units": 171,
+      "revenue": 167.65,
+      "averageOrderValue": 18.63
+    },
+    {
+      "date": "2011-11-25",
+      "orders": 12,
+      "units": 206,
+      "revenue": 267.19,
+      "averageOrderValue": 22.27
+    },
+    {
+      "date": "2011-11-27",
+      "orders": 3,
+      "units": 48,
+      "revenue": 33.23,
+      "averageOrderValue": 11.08
+    },
+    {
+      "date": "2011-11-28",
+      "orders": 7,
+      "units": 291,
+      "revenue": 349.12,
+      "averageOrderValue": 49.87
+    },
+    {
+      "date": "2011-11-29",
+      "orders": 9,
+      "units": 216,
+      "revenue": 212.49,
+      "averageOrderValue": 23.61
+    },
+    {
+      "date": "2011-11-30",
+      "orders": 11,
+      "units": 614,
+      "revenue": 662.98,
+      "averageOrderValue": 60.27
+    },
+    {
+      "date": "2011-12-01",
+      "orders": 6,
+      "units": 127,
+      "revenue": 103.23,
+      "averageOrderValue": 17.21
+    },
+    {
+      "date": "2011-12-02",
+      "orders": 8,
+      "units": 224,
+      "revenue": 226.4,
+      "averageOrderValue": 28.3
+    },
+    {
+      "date": "2011-12-04",
+      "orders": 6,
+      "units": 186,
+      "revenue": 154.87,
+      "averageOrderValue": 25.81
+    },
+    {
+      "date": "2011-12-05",
+      "orders": 10,
+      "units": 294,
+      "revenue": 348.8,
+      "averageOrderValue": 34.88
+    },
+    {
+      "date": "2011-12-06",
+      "orders": 8,
+      "units": 137,
+      "revenue": 260.9,
+      "averageOrderValue": 32.61
+    },
+    {
+      "date": "2011-12-07",
+      "orders": 8,
+      "units": 492,
+      "revenue": 558.18,
+      "averageOrderValue": 69.77
+    },
+    {
+      "date": "2011-12-08",
+      "orders": 9,
+      "units": 430,
+      "revenue": 709.76,
+      "averageOrderValue": 78.86
+    },
+    {
+      "date": "2011-12-09",
+      "orders": 6,
+      "units": 400,
+      "revenue": 228.3,
+      "averageOrderValue": 38.05
+    }
+  ],
+  "countrySales": [
+    {
+      "country": "United Kingdom",
+      "orders": 1075,
+      "revenue": 44899.39
+    },
+    {
+      "country": "Germany",
+      "orders": 210,
+      "revenue": 13729.55
+    },
+    {
+      "country": "France",
+      "orders": 206,
+      "revenue": 11675.19
+    },
+    {
+      "country": "Switzerland",
+      "orders": 33,
+      "revenue": 3865.98
+    },
+    {
+      "country": "Australia",
+      "orders": 21,
+      "revenue": 3149.34
+    },
+    {
+      "country": "Spain",
+      "orders": 35,
+      "revenue": 2574.69
+    },
+    {
+      "country": "Belgium",
+      "orders": 57,
+      "revenue": 2217.95
+    },
+    {
+      "country": "Portugal",
+      "orders": 30,
+      "revenue": 1566.19
+    },
+    {
+      "country": "Austria",
+      "orders": 11,
+      "revenue": 1216.36
+    },
+    {
+      "country": "Japan",
+      "orders": 6,
+      "revenue": 1189.05
+    },
+    {
+      "country": "Norway",
+      "orders": 15,
+      "revenue": 1016.97
+    },
+    {
+      "country": "Italy",
+      "orders": 17,
+      "revenue": 821.98
+    }
+  ],
+  "topProducts": [
+    {
+      "productId": "20725",
+      "units": 5051,
+      "revenue": 8174.15
+    },
+    {
+      "productId": "15036",
+      "units": 8376,
+      "revenue": 6081.6
+    },
+    {
+      "productId": "20726",
+      "units": 3156,
+      "revenue": 5127.4
+    },
+    {
+      "productId": "20685",
+      "units": 685,
+      "revenue": 4977.15
+    },
+    {
+      "productId": "20750",
+      "units": 665,
+      "revenue": 4941.15
+    },
+    {
+      "productId": "20728",
+      "units": 2993,
+      "revenue": 4828.45
+    },
+    {
+      "productId": "20712",
+      "units": 2337,
+      "revenue": 4681.8
+    },
+    {
+      "productId": "20727",
+      "units": 2419,
+      "revenue": 3951.35
+    },
+    {
+      "productId": "15056N",
+      "units": 608,
+      "revenue": 3437.6
+    },
+    {
+      "productId": "15056BL",
+      "units": 526,
+      "revenue": 3009.7
+    }
+  ],
+  "topCustomers": [
+    {
+      "customerId": "12415",
+      "country": "Australia",
+      "orders": 9,
+      "lifetimeValue": 2460.89
+    },
+    {
+      "customerId": "12590",
+      "country": "Germany",
+      "orders": 1,
+      "lifetimeValue": 2219.0
+    },
+    {
+      "customerId": "12682",
+      "country": "France",
+      "orders": 20,
+      "lifetimeValue": 1984.25
+    },
+    {
+      "customerId": "13089",
+      "country": "United Kingdom",
+      "orders": 37,
+      "lifetimeValue": 1925.5
+    },
+    {
+      "customerId": "12731",
+      "country": "France",
+      "orders": 10,
+      "lifetimeValue": 1897.2
+    },
+    {
+      "customerId": "13081",
+      "country": "United Kingdom",
+      "orders": 8,
+      "lifetimeValue": 1668.59
+    },
+    {
+      "customerId": "13082",
+      "country": "United Kingdom",
+      "orders": 3,
+      "lifetimeValue": 1666.2
+    },
+    {
+      "customerId": "12939",
+      "country": "United Kingdom",
+      "orders": 6,
+      "lifetimeValue": 1611.92
+    },
+    {
+      "customerId": "13098",
+      "country": "United Kingdom",
+      "orders": 19,
+      "lifetimeValue": 1549.56
+    },
+    {
+      "customerId": "12557",
+      "country": "Spain",
+      "orders": 4,
+      "lifetimeValue": 1467.0
+    }
+  ],
+  "inventory": {
+    "healthy": 0,
+    "stale": 33,
+    "unknown": 146,
+    "products": [
+      {
+        "productId": "PROD-00000208",
+        "unitsUpdated": 4,
+        "lastUpdate": "2026-08-12T12:50:46.993586+00:00",
+        "freshnessMinutes": 1540,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000145",
+        "unitsUpdated": 1,
+        "lastUpdate": "2026-08-12T12:40:54.339935+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000189",
+        "unitsUpdated": 5,
+        "lastUpdate": "2026-08-12T12:40:54.339910+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000074",
+        "unitsUpdated": 6,
+        "lastUpdate": "2026-08-12T12:40:54.339750+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000024",
+        "unitsUpdated": 2,
+        "lastUpdate": "2026-08-12T12:40:54.339715+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000160",
+        "unitsUpdated": 3,
+        "lastUpdate": "2026-08-12T12:40:54.339341+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000008",
+        "unitsUpdated": 8,
+        "lastUpdate": "2026-08-12T12:40:54.339202+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000042",
+        "unitsUpdated": 4,
+        "lastUpdate": "2026-08-12T12:40:54.339122+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000207",
+        "unitsUpdated": 4,
+        "lastUpdate": "2026-08-12T12:40:54.339076+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      },
+      {
+        "productId": "PROD-00000118",
+        "unitsUpdated": 2,
+        "lastUpdate": "2026-08-12T12:40:54.339053+00:00",
+        "freshnessMinutes": 1549,
+        "status": "stale"
+      }
+    ]
+  },
+  "eventRate": [
+    {
+      "minute": "2026-08-12 12:49:00",
+      "events": 371
+    },
+    {
+      "minute": "2026-08-12 12:58:00",
+      "events": 40
+    }
+  ],
+  "reconciliation": {
+    "checksPassed": 5,
+    "checksTotal": 5,
+    "silverCustomers": 637,
+    "goldCustomers": 637,
+    "silverProducts": 199,
+    "goldProducts": 199,
+    "silverOrderItems": 4518,
+    "goldOrderItems": 4518,
+    "silverRevenue": 91970.02,
+    "goldRevenue": 91970.02,
+    "dailyRevenue": 91970.02
+  }
+}

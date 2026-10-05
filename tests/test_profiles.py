@@ -1,8 +1,9 @@
+import json
 from pathlib import Path
 
 import pytest
 
-from retailpulse.events import EventGenerator, payload_as_dict
+from retailpulse.events import EventGenerator
 from retailpulse.profiles import load_profile
 
 
@@ -26,7 +27,7 @@ def test_scaled_generator_uses_profile_identifier_domains() -> None:
         product_count=5,
         order_count=20,
     )
-    events = [payload_as_dict(message.payload) for message in generator.generate(50)]
+    events = [json.loads(message.payload) for message in generator.generate(50)]
     assert all(str(event["customer_id"]).startswith("CUST-") for event in events)
     assert all(
         event["product_id"] is None or str(event["product_id"]).startswith("PROD-")

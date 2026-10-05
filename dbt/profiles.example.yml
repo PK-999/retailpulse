@@ -1,7 +1,0 @@
-retailpulse:
-  target: local
-  outputs:
-    local:
-      type: duckdb
-      path: "{{ env_var('RETAILPULSE_DBT_PATH', 'data/retailpulse.duckdb') }}"
-      threads: 4

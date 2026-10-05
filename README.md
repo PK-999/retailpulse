@@ -2,203 +2,173 @@
 
 [![CI](https://github.com/PK-999/retailpulse/actions/workflows/ci.yml/badge.svg)](https://github.com/PK-999/retailpulse/actions/workflows/ci.yml)
 
-**A real-time Azure retail data platform for batch and streaming analytics, data quality,
-observability, and AI-assisted incident response.**
+A retail data engineering portfolio project covering batch ingestion, streaming, medallion
+storage, dimensional modeling, data quality, observability, and infrastructure as code.
 
-RetailPulse is deliberately scoped as a seven-day portfolio build. Its local path is fully
-runnable without cloud credentials; the same contracts, medallion boundaries, checkpoints,
-Delta MERGE pattern, dbt models, and operational controls are represented in the Azure assets.
+The local demo runs without Azure credentials. Azure integration results are recorded in
+[verification evidence](docs/evidence/); [project status](docs/project-status.md) distinguishes
+those historical proofs from checks performed on the current code.
 
-## Project reference
+[Portfolio dashboard](https://PK-999.github.io/retailpulse/) ·
+[Watch the walkthrough](docs/portfolio-walkthrough.md) ·
+[Reproduce the demo](docs/demo-guide.md) · [Release evidence](docs/evidence/local-e2e.json)
 
-- [Requirements and acceptance criteria](docs/requirements.md)
-- [Architecture and design decisions](docs/architecture.md)
-- [Key features](docs/key-features.md)
-- [Built vs. remaining status](docs/project-status.md)
-- [Stage-wise completion plan](docs/execution-plan.md)
-- [Cost and execution strategy](docs/cost-strategy.md)
-- [Repeatable demo guide](docs/demo-guide.md)
-- [Documentation index](docs/README.md)
+![RetailPulse portfolio dashboard](docs/assets/bi-dashboard/desktop-overview.png)
 
-## 1. Business problem
+## What the project demonstrates
 
-Retail teams need historical sales reporting and live behavioral/inventory signals in one
-trusted platform. The difficult part is not drawing a chart—it is handling replayed, late, or
-malformed events without silently corrupting metrics. RetailPulse preserves raw input, validates
-contracts, deduplicates by event ID, quarantines bad data, records every run, and explains
-detected incidents.
+| DE capability | Implementation |
+|---|---|
+| Historical ingestion | UCI CSV normalization, parameterized ADF deliveries, bounded Databricks batch jobs |
+| Streaming | Python simulator, Redpanda / Event Hubs, Spark Structured Streaming |
+| Lakehouse processing | Landing → Bronze → Silver → Gold, Delta MERGE, checkpoints, deduplication |
+| Contracts and data quality | Versioned events, business validation, quarantine, failure scenarios |
+| Analytics engineering | dbt dimensions/facts, incremental marts, relationships, SCD Type 2 snapshot |
+| Observability | Run audits, Prometheus metrics, provisioned Grafana dashboard, incident reports |
+| Platform engineering | Terraform, managed identities, cost controls, Docker, GitHub Actions |
+| Consumption | Local Streamlit dashboard and static React/TypeScript Azure Gold dashboard |
 
-## 2. Architecture
+## Architecture
 
 ```mermaid
 flowchart LR
   UCI[UCI Online Retail] --> ADF[Azure Data Factory]
-  SIM[Python simulator] --> K[Kafka / Event Hubs]
-  ADF --> L[(ADLS Gen2 Landing)]
-  K --> SS[Spark Structured Streaming]
-  L --> B[(Bronze Delta)]
-  SS --> B
-  B --> Q[(Quarantine)]
-  B --> S[(Silver Delta)]
-  S --> DBT[dbt]
-  DBT --> G[(Gold marts)]
-  G --> DASH[Dashboard]
-  S --> OBS[Metrics + DQ]
-  OBS --> PROM[Prometheus / Grafana]
-  OBS --> AI[Ollama incident analyst]
-  RUN[Runbooks + contracts] --> AI
+  SIM[Python simulator] --> BUS[Kafka / Event Hubs]
+  ADF --> LAND[(ADLS Landing)] --> BRONZE[(Bronze Delta)]
+  BUS --> SPARK[Spark Structured Streaming] --> BRONZE
+  BRONZE --> SILVER[(Silver Delta)]
+  BRONZE --> QUAR[(Quarantine)]
+  SILVER --> DBT[dbt] --> GOLD[(Gold marts)] --> BI[Dashboards]
+  SILVER --> OPS[Audits and DQ metrics] --> MON[Prometheus / Grafana]
+  OPS --> AI[Rules / optional Ollama]
 ```
 
-The local demo replaces ADLS/Delta with append-only JSONL and SQLite so it starts in seconds.
-The production jobs in [`databricks/`](databricks) use Spark, Delta, watermarks, checkpoints,
-Kafka offsets, quarantine, and `MERGE`.
+The fast local adapter uses JSONL and SQLite; dbt reads the committed Silver export into DuckDB.
+The separate [local Spark job](spark/local_stream_bronze_silver.py) and
+[Databricks jobs](databricks/) demonstrate Kafka, Delta, and checkpointed streaming.
+See [architecture](docs/architecture.md) for their boundaries and limitations.
 
-## 3. Technology stack
+## Quick start
 
-| Layer | Local | Azure |
-|---|---|---|
-| Ingestion | Python, file-backed stream | ADF, Event Hubs Kafka endpoint |
-| Stream broker | Redpanda (Kafka API) | Azure Event Hubs |
-| Processing | Python reference + local PySpark Structured Streaming | Databricks job compute |
-| Storage | JSONL + SQLite + DuckDB + local Delta | ADLS Gen2 + Delta Lake |
-| Transformation | dbt Core / DuckDB | dbt + Databricks SQL |
-| Monitoring | Prometheus + Grafana | Azure Monitor + audit Delta tables |
-| Incident analysis | Rules, optional Ollama | Ollama or an approved hosted model |
-| Infrastructure | Docker Compose | Terraform / AzureRM |
-
-## 4. Quick start
-
-Prerequisites: Python 3.11–3.13 (3.11 recommended) and, for Kafka/monitoring, Docker. dbt 1.9's
-serialization dependency does not yet support Python 3.14; the Docker and CI paths use 3.11.
+Use Python **3.11–3.13**; Python 3.11 is the CI/Docker target. Substitute `python3.12` or
+`python3.13` if needed. The dbt dependency stack excludes Python 3.14.
 
 ```bash
-python -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[dev,analytics]'
-cp .env.example .env
-python scripts/run_demo.py
+pip install -e '.[dev,analytics,dashboard]'
+python scripts/run_local_e2e.py --work-dir data/portfolio-demo
+RETAILPULSE_DATA_DIR=data/portfolio-demo streamlit run dashboard/app.py
 ```
 
-The demo generates healthy traffic, processes Bronze → Silver, builds local Gold marts, injects
-duplicates, emits a DQ alert, and writes an incident report. Generated artifacts live in `data/`.
+The complete demo generates healthy, duplicate, malformed, late, and spike traffic; proves
+295 raw inputs = 266 Silver + 19 duplicates + 10 quarantined; builds all 37 dbt nodes; checks
+unchanged incremental reruns against a full refresh; and writes metrics and incident analysis.
+It refuses an existing work directory. For a repeatable temporary run that leaves user data alone:
 
-For individual scenarios:
+```bash
+make e2e
+# Optional: use an already installed local model
+OLLAMA_MODEL=llama3.1:latest python scripts/run_local_e2e.py --ollama
+```
+
+Generated data lives under `data/`. Environment variables override settings;
+[.env.example](.env.example) lists them. Export values in your shell; the application does not
+automatically load `.env` files.
+
+Dependencies are separated by purpose: `dev` for checks, `analytics` for local dbt,
+`dashboard` for Streamlit, `kafka` for publishing, `spark` for local Delta, and `databricks`
+for cloud dbt/export. The dashboard Docker image installs only its dashboard dependencies.
+
+## Exercise the pipeline
 
 ```bash
 retailpulse init
 retailpulse produce --count 100 --scenario normal --seed 42
 retailpulse process
-retailpulse produce --count 60 --scenario duplicate --seed 7
-retailpulse process --ollama
+retailpulse produce --count 60 --scenario malformed --seed 7
+retailpulse process
 retailpulse status
 ```
 
-Other scenarios are `late-data`, `malformed`, and `traffic-spike`. File-backed streaming is the
-default. To publish to Kafka, install `.[kafka]`, start Redpanda, and set
-`KAFKA_ENABLED=true`. Kafka publishing enables idempotence.
+Other scenarios are `duplicate`, `late-data`, and `traffic-spike`. Inspect raw records in
+`data/bronze/`, rejected evidence in `data/quarantine/`, validated events in
+`data/silver/events.jsonl`, metrics in `data/metrics/latest.json`, and reports in `data/incidents/`.
 
-Validated execution/scale profiles live in `config/`. Inspect before generating a large dataset:
+The local processor validates required purchase fields and topic routing, deduplicates with
+Silver's primary key, and commits raw records, classifications, and input offsets together in
+SQLite. Bronze/Silver/quarantine, audit, and checkpoint files are atomic, repairable exports.
+Abrupt-exit tests cover both sides of the commit boundary. Committed input-prefix hashes detect
+source replacement/truncation. This attended local adapter assumes one writer and complete,
+append-only inbox deliveries. Prices retain exact Decimal text; Gold rounds unit prices to
+two decimals before multiplication, consistently across SQLite and dbt.
+
+Inspect a scale profile before generating larger input:
 
 ```bash
 python scripts/generate_data.py --scale dev --dry-run
 python scripts/generate_data.py --scale dev --yes
 ```
 
-For local Spark/Delta development, install `.[spark]`, start Redpanda, publish events, and run:
+## Batch, Spark, and dbt
 
-```bash
-python spark/local_stream_bronze_silver.py
-```
-
-## 5. Dataset and batch path
-
-Download the [UCI Online Retail dataset](https://archive.ics.uci.edu/dataset/352/online+retail),
-export the workbook as CSV, then normalize it:
+Export the [UCI Online Retail](https://archive.ics.uci.edu/dataset/352/online+retail) workbook
+to CSV, then normalize its historical entities:
 
 ```bash
 python scripts/prepare_uci.py Online_Retail.csv --output data/landing/uci
 ```
 
-This creates `customers`, `products`, `orders`, and `order_items` JSONL files. The ADF template
-in [`azure/adf/uci_to_adls.pipeline.json`](azure/adf/uci_to_adls.pipeline.json) lands the source;
-[`databricks/batch_bronze_silver.py`](databricks/batch_bronze_silver.py) performs typed Bronze and
-Silver processing. ADLS uses:
+This creates customers, products, orders, and order items for the Azure batch path. The
+[Stage 5](docs/runbooks/stage-05-historical-ingestion.md) and
+[Stage 6](docs/runbooks/stage-06-databricks-batch.md) runbooks cover ADF landing, source
+validation, typed Delta processing, quarantine, and replay verification.
 
-```text
-landing/  bronze/  silver/  gold/  checkpoints/  quarantine/
-```
+For local Kafka/Delta, install `.[kafka,spark]`, start Redpanda, publish with
+`KAFKA_ENABLED=true`, and run `python spark/local_stream_bronze_silver.py`.
+Docker provides the reproducible Python 3.11 / Java 17 Spark runner.
 
-## 6. Streaming and medallion behavior
+Python and Spark execute the same bundled v1 validator, including UUIDs, strict integer version/
+quantity, timezones, unknown fields, required purchase fields, topic routing, and late quarantine.
+The standalone Databricks notebook ships its validator source to workers. New Silver tables
+store price text; incompatible legacy decimal prices are explicitly quarantined.
 
-Three topics keep the first version understandable:
-
-- `customer-events`: product views, searches, cart additions
-- `order-events`: checkout, purchase, payment
-- `inventory-events`: inventory updates
-
-Every event has a UUID, event and ingestion timestamps, a strict schema version, and relevant
-business identifiers. Bronze is immutable and includes transport/audit metadata. Silver applies:
-
-- strict schema and business-rule validation;
-- `event_id` deduplication before Delta MERGE;
-- a 30-minute event-time watermark;
-- quarantine of malformed and late records;
-- checkpointed offsets for restart safety.
-
-The local processor persists a line offset per topic and a durable processed-event registry.
-Normal checkpoint continuation and idempotent reruns are tested. Because the offset file and
-SQLite commit are not one atomic transaction, abrupt process-loss fault injection remains before
-claiming exactly-once behavior for this local adapter; Delta checkpoints are the production path.
-
-## 7. dbt and Gold data model
-
-The dbt project follows `staging → intermediate → marts` and builds:
-
-- `dim_customer`, `dim_product`, and `dim_date`;
-- `fact_orders` and `fact_order_items`;
-- `daily_sales`, `customer_360`, and `inventory_health`;
-- an SCD Type 2 product snapshot based on price changes.
-
-Run it after the demo:
+The dbt project builds customer/product/date dimensions, order/item facts, daily sales,
+customer 360, inventory health, and a product price snapshot. Generate lineage documentation:
 
 ```bash
-dbt build --project-dir dbt --profiles-dir dbt
 dbt docs generate --project-dir dbt --profiles-dir dbt
 ```
 
-Tests cover unique and non-null keys, accepted event types, relationships, positive quantity,
-non-negative prices, and non-negative order totals.
+## Dashboards and monitoring
 
-## 8. Dashboard
+The BI dashboard can preview the committed Azure Gold snapshot without cloud access:
 
 ```bash
-streamlit run dashboard/app.py
-# or: docker compose --profile dashboard up dashboard
+make bi
+npm --prefix bi-dashboard run dev
 ```
 
-The dashboard shows revenue, orders, average order value, conversion rate, country sales,
-pipeline history, rejected/duplicate/late counts, and active alerts. It reads the local SQLite
-mart; Databricks SQL or Power BI can point at the equivalent Gold Delta tables in Azure.
+Overview, Commerce, and Freshness views show the source window, export time, and reconciliation
+results. For a new attended Azure refresh, install `.[databricks]` and follow the
+[BI runbook](docs/runbooks/stage-09-bi-dashboard.md). The exporter validates Silver/Gold totals;
+the runner stops the warehouse on exit. GitHub Pages serves static assets without credentials.
 
-## 9. Monitoring and failure simulation
-
-Each run records status, duration, counts read/written/rejected/duplicate/late, and calculated
-rates. Alerts fire when duplicate rate exceeds 5%, rejection rate exceeds 2%, or late-event rate
-exceeds 5%. Prometheus textfile metrics and a provisioned Grafana dashboard are included.
+For local monitoring:
 
 ```bash
-docker compose up -d prometheus node-exporter grafana
+make up
 # Grafana: http://localhost:3000 (admin / retailpulse)
 # Prometheus: http://localhost:9090
+make down
 ```
 
-The latest machine-readable state is `data/metrics/latest.json`; bad payloads and their reasons
-are in `data/quarantine/events.jsonl` and the SQLite `quarantine` table.
+`make up` includes the textfile node exporter required by Prometheus. Data-quality alerts fire
+above 5% duplicates, 2% rejected records, or 5% late events; failed runs fire a critical alert.
+Prometheus loads the versioned rules and Grafana loads its dashboard automatically. Azure's
+optional ADF failure alert and log archive are in the [monitoring runbook](docs/runbooks/stage-10-cloud-monitoring.md).
 
-## 10. AI DataOps assistant
-
-Incident generation always has a deterministic, evidence-only fallback. With Ollama enabled it
-sends only current run statistics and triggered alerts to the configured local model:
+Optional incident rewriting uses Ollama and falls back to deterministic rules:
 
 ```bash
 docker compose up -d ollama
@@ -206,80 +176,39 @@ docker compose exec ollama ollama pull llama3.2:3b
 retailpulse process --ollama
 ```
 
-Reports are written to `data/incidents/`. Runbooks in [`docs/runbooks/`](docs/runbooks) document
-operator checks for duplicates and malformed payloads. This keeps AI downstream of observable
-facts; it does not decide whether data is valid.
-
-## 11. Azure deployment
-
-Authenticate with Azure CLI, review names/region/costs, then:
-
-```bash
-cd terraform
-terraform init
-terraform plan -var-file=example.tfvars
-terraform apply -var-file=example.tfvars
-```
-
-Terraform provisions a resource group, hierarchical-namespace storage, Data Factory, Databricks,
-Key Vault, and a subscription budget. It creates no compute and defaults Event Hubs off. Enable
-Event Hubs only for the bounded streaming stage, then disable it immediately afterward. After the
-base deployment:
-
-1. Create ADLS directories and grant the ADF/Databricks managed identities least-privilege roles.
-2. Import the ADF pipeline and configure its HTTP and ADLS linked datasets.
-3. Upload the two Databricks jobs, replace the `ACCOUNT` widget default, and use Key Vault-backed
-   secrets for Event Hubs SAS or managed identity where supported.
-4. Set the streaming job checkpoint location once and never share it between queries.
-5. Point dbt's Databricks adapter at the Silver catalog and schedule Gold builds after Silver.
-
-Never commit `.tfvars`, connection strings, SAS keys, or Databricks tokens.
-
-## 12. CI/CD and validation
-
-GitHub Actions runs Ruff, pytest with coverage, the end-to-end demo, dbt build/tests, SQLFluff,
-Terraform formatting, and Terraform validation. Locally:
+## Validation and Azure execution
 
 ```bash
 make lint
 make test
+make dbt          # run the demo first
+make bi
 docker compose config -q
-terraform -chdir=terraform fmt -check
 ```
 
-The test suite verifies contracts, scenario volumes, duplicate handling, checkpoint idempotency,
-watermarking, quarantine, Gold materialization, metrics, and historical source normalization.
+CI checks Python (including offline Databricks SQL fixtures), dbt, SQL, Terraform, real Spark/
+Delta recovery, and desktop/mobile Playwright tests on pull requests. Spark's Docker build
+warms JVM dependencies so its tests execute without network access.
+Azure execution is documented in [the staged plan](docs/execution-plan.md),
+[deployment decisions](docs/decisions/azure-deployment.md), and
+[cost strategy](docs/cost-strategy.md). Terraform provisions the service boundary and identities;
+compute is bounded and Event Hubs defaults off. Review cloud plans before applying them.
 
-## 13. Repository map
+The current Azure preflight reports ADF `Disabled`; Terraform state storage returns
+`AccountIsDisabled`. August Azure proofs and the saved public snapshot remain historical.
+No new cloud deployment, compute run, or notification delivery is claimed for this release.
 
-```text
-src/retailpulse/       contracts, simulator, local medallion pipeline, DQ, incident assistant
-scripts/               clean demo and UCI normalization
-databricks/            batch and Structured Streaming Delta jobs
-dbt/                   staging, marts, snapshots, and tests
-dashboard/             Streamlit business/operations dashboard
-monitoring/            Prometheus and provisioned Grafana dashboard
-azure/adf/             historical ingestion pipeline template
-terraform/             core Azure infrastructure
-docs/                  data contract and operational runbooks
-tests/                 deterministic unit and end-to-end tests
-```
+## Repository map
 
-## 14. Demo script
+| Directory | Purpose |
+|---|---|
+| `src/retailpulse/` | Contracts, simulator, local processing, DQ, incidents, CLI |
+| `scripts/` | Local demo/data preparation and attended Azure stage runners |
+| `databricks/`, `spark/` | Cloud and local Spark/Delta jobs |
+| `dbt/` | Sources, staging, marts, reusable configuration, snapshots, tests |
+| `dashboard/`, `bi-dashboard/` | Local operations and public snapshot dashboards |
+| `monitoring/`, `terraform/`, `azure/adf/` | Monitoring and infrastructure/ingestion assets |
+| `tests/`, `docs/` | Automated checks, requirements, runbooks, decisions, evidence |
 
-For a 5–10 minute walkthrough:
-
-1. Show the architecture and strict v1 event contract.
-2. Run `python scripts/run_demo.py`; open Silver, the audit log, and Gold summary.
-3. Open the dashboard and show normal KPIs.
-4. Highlight the injected duplicate rate and Grafana alert.
-5. Open the generated incident report and trace its recommendation to the duplicate runbook.
-6. Show the Databricks `foreachBatch` MERGE and dbt lineage/tests.
-7. Finish with the green CI run and Terraform plan.
-
-## Scope decisions
-
-The first release intentionally has three topics, one event contract version, one SCD2 entity,
-and one operational dashboard. Authentication UI, a schema registry, multi-region recovery, and
-automatic quarantine replay are sensible later additions, but none is required to demonstrate
-the core data-engineering flow safely.
+Start with [project status and verification scope](docs/project-status.md), then the
+[demo guide](docs/demo-guide.md). The [documentation index](docs/README.md) links the full reference set.

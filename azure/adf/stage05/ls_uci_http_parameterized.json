@@ -1,0 +1,14 @@
+{
+  "parameters": {
+    "baseUrl": {
+      "type": "String"
+    }
+  },
+  "type": "HttpServer",
+  "typeProperties": {
+    "authenticationType": "Anonymous",
+    "enableServerCertificateValidation": true,
+    "url": "@{linkedService().baseUrl}"
+  },
+  "annotations": ["RetailPulse", "stage-05-historical-ingestion"]
+}

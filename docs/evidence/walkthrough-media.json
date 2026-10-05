@@ -1,0 +1,26 @@
+{
+  "verified_at": "2026-10-04T19:03:57.752031+00:00",
+  "scope": "recorded local release; archived Azure snapshot; no fresh cloud extraction",
+  "artifact": "docs/assets/retailpulse-walkthrough.mp4",
+  "duration_seconds": 311.5,
+  "size_bytes": 1842404,
+  "codec": "h264",
+  "width": 1280,
+  "height": 720,
+  "frame_rate": "8/1",
+  "audio": "silent with on-screen captions",
+  "phases": 11,
+  "ffmpeg_full_decode": "passed",
+  "browser_metadata": "readyState 4, 311.5 seconds, no media error",
+  "browser_playback": "play started; time advanced",
+  "chapter_frames_reviewed": [
+    "overview",
+    "commerce",
+    "freshness",
+    "current local metrics",
+    "operational tables",
+    "dbt evidence",
+    "local monitoring",
+    "cloud boundary"
+  ]
+}

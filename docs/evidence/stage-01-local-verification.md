@@ -4,10 +4,10 @@ Verification date: 2026-08-12
 
 ## Result
 
-Stage 1 is functionally verified. Redpanda/Kafka, Prometheus, Grafana provisioning, Streamlit
-behavior, and both Ollama execution paths passed. The stage exit gate remains open only for the
-rendered Grafana and Streamlit screenshots because no in-app browser was attached during this
-run.
+Stage 1 is functionally verified. Redpanda/Kafka, Prometheus, rendered Grafana QA, Streamlit
+behavior, and both Ollama execution paths passed. The stage exit gate remains open only for
+refreshed desktop and narrow-width Streamlit screenshots because no in-app browser was attached
+during the closure run.
 
 ## 1A — Redpanda/Kafka
 
@@ -78,9 +78,11 @@ Result: passed.
 ## Regression checks
 
 - Ruff: passed.
-- Pytest: 11 passed.
+- Pytest: 18 passed.
 - Streamlit populated-state test: zero exceptions.
 - Streamlit empty-state test: zero exceptions.
+- Single-day revenue visualization: Vega-Lite bar mark asserted.
+- Live Streamlit health endpoint: `ok`.
 
 ## Open evidence item
 

@@ -1,0 +1,45 @@
+FROM python:3.11.13-slim-bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PYSPARK_PYTHON=/usr/local/bin/python \
+    PYSPARK_DRIVER_PYTHON=/usr/local/bin/python \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends openjdk-17-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+# Keep JAVA_HOME stable across amd64 and arm64 Debian images.
+RUN if [ ! -x "${JAVA_HOME}/bin/java" ]; then \
+      ln -s "$(dirname "$(dirname "$(readlink -f /usr/bin/java)")")" "${JAVA_HOME}"; \
+    fi
+
+WORKDIR /work
+
+COPY pyproject.toml README.md ./
+COPY src ./src
+
+RUN python -m pip install --no-cache-dir -e '.[spark,kafka]' 'pytest>=8,<9'
+
+# Resolve all JVM dependencies during the build. Contract/Delta tests and the
+# normal local Kafka runner can then start with --network none and no Maven calls.
+RUN SPARK_LOCAL_IP=127.0.0.1 SPARK_LOCAL_HOSTNAME=localhost python - <<'PY'
+from delta import configure_spark_with_delta_pip
+from pyspark.sql import SparkSession
+
+builder = (
+    SparkSession.builder.master("local[1]")
+    .appName("RetailPulseDependencyCache")
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+)
+spark = configure_spark_with_delta_pip(
+    builder, extra_packages=["org.apache.spark:spark-sql-kafka-0-10_2.13:4.0.4"]
+).getOrCreate()
+spark.stop()
+PY
+
+CMD ["python", "spark/local_stream_bronze_silver.py", "--bootstrap-servers", "redpanda:9092"]

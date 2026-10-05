@@ -1,0 +1,41 @@
+{
+  "activities": [
+    {
+      "name": "CopyPublicReadmeWithManagedIdentity",
+      "type": "Copy",
+      "policy": {
+        "timeout": "0.00:10:00",
+        "retry": 1,
+        "retryIntervalInSeconds": 15
+      },
+      "typeProperties": {
+        "source": {
+          "type": "BinarySource",
+          "storeSettings": {
+            "type": "HttpReadSettings",
+            "requestMethod": "GET"
+          }
+        },
+        "sink": {
+          "type": "BinarySink",
+          "storeSettings": {
+            "type": "AzureBlobFSWriteSettings"
+          }
+        }
+      },
+      "inputs": [
+        {
+          "referenceName": "ds_github_readme_binary",
+          "type": "DatasetReference"
+        }
+      ],
+      "outputs": [
+        {
+          "referenceName": "ds_adls_access_test_binary",
+          "type": "DatasetReference"
+        }
+      ]
+    }
+  ],
+  "annotations": ["RetailPulse", "stage-04-access-test"]
+}

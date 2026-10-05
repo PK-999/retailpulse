@@ -42,7 +42,7 @@ variable "name_suffix" {
 variable "monthly_budget_amount" {
   description = "Subscription monthly cost budget in USD. This alerts but does not stop spend."
   type        = number
-  default     = 100
+  default     = 10
 
   validation {
     condition     = var.monthly_budget_amount >= 10
@@ -52,6 +52,12 @@ variable "monthly_budget_amount" {
 
 variable "enable_event_hubs" {
   description = "Create the billable Event Hubs namespace and topics only for bounded streaming tests."
+  type        = bool
+  default     = false
+}
+
+variable "enable_databricks_workspace" {
+  description = "Create the Databricks workspace and its billable managed networking only for bounded Azure demo sessions."
   type        = bool
   default     = false
 }
@@ -69,4 +75,28 @@ variable "teardown_after" {
 variable "tags" {
   type    = map(string)
   default = { project = "RetailPulse", managed_by = "Terraform" }
+}
+
+variable "enable_cloud_monitoring" {
+  description = "Opt in to one billable ADF failure metric alert for the bounded proof."
+  type        = bool
+  default     = false
+}
+
+variable "enable_adf_log_archive" {
+  description = "Archive ADF run logs to existing same-region lake storage; storage costs apply."
+  type        = bool
+  default     = false
+}
+
+variable "monitor_email_receivers" {
+  description = "Explicitly authorized recipients by label; empty means Azure alert state only."
+  type        = map(string)
+  default     = {}
+  sensitive   = true
+
+  validation {
+    condition     = alltrue([for address in values(var.monitor_email_receivers) : can(regex("^[^@ ]+@[^@ ]+\\.[^@ ]+$", address))])
+    error_message = "monitor_email_receivers must contain email addresses."
+  }
 }

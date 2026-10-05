@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: silver
+    description: Validated Azure Silver relations produced by Stages 6 and 7.
+    database: "{{ env_var('RETAILPULSE_DBT_SOURCE_CATALOG', 'dbw_retailpulse_dev_rp999') }}"
+    schema: "{{ env_var('RETAILPULSE_DBT_SOURCE_SCHEMA', 'retailpulse_silver') }}"
+    tables:
+      - name: customers
+      - name: products
+      - name: orders
+      - name: order_items
+      - name: streaming_events

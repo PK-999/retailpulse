@@ -1,6 +1,6 @@
 # RetailPulse architecture
 
-Last reviewed: 2026-08-12
+Last reviewed: 2026-10-04
 
 ## 1. System context
 
@@ -30,7 +30,7 @@ flowchart LR
 
     subgraph Consumption
         DBT[dbt]
-        BI[Streamlit / Databricks SQL / Power BI]
+        BI[RetailPulse BI Lite / Streamlit]
         OBS[Prometheus / Grafana]
         AI[Incident assistant]
     end
@@ -69,16 +69,24 @@ flowchart LR
     MET --> INC[Rules / Ollama incident report]
 ```
 
-The file-backed transport remains the fast deterministic test adapter with durable line-number
-checkpoints. Redpanda now also feeds a local PySpark/Delta path for development of watermarks,
+The file-backed transport remains the fast deterministic test adapter with transactional offsets
+and input-prefix hashes. Redpanda also feeds a local PySpark/Delta path for development of lateness,
 checkpointing, and MERGE behavior before a short Azure integration run.
+
+SQLite commits raw input, classifications, topic offsets, and the committed audit together.
+Its Silver event-ID primary key provides deduplication. JSONL and checkpoint files are atomic
+derived exports, repaired on a later run after process loss. Decimal price text and search
+queries survive legacy migrations; old raw history/checkpoints are imported once transactionally.
+dbt reads the committed Silver export, in an isolated DuckDB file during the complete demo.
 
 ### Azure target deployment
 
 ```mermaid
 flowchart TB
     UCI[UCI source archive] --> ADF[Azure Data Factory]
-    ADF --> ADLSL[ADLS Gen2 / landing]
+    ADF --> RAW[ADLS Landing / raw / ADF run ID]
+    RAW --> PRE[Bounded Databricks preprocessing]
+    PRE --> ADLSL[ADLS Landing / normalized / ADF run ID]
     GEN[Python simulator] --> EH[Event Hubs Kafka endpoint]
 
     ADLSL --> DBB[Databricks batch job]
@@ -89,7 +97,11 @@ flowchart TB
     BR --> QA[(Quarantine Delta)]
     SI --> DBT[dbt on Databricks]
     DBT --> GO[(Gold Delta)]
-    GO --> SQL[Databricks SQL / Power BI]
+    GO --> SQL[Databricks SQL warehouse]
+    SQL --> EXPORT[Validated snapshot exporter]
+    EXPORT --> JSON[Non-sensitive JSON snapshot]
+    JSON --> WEB[React + native SVG/CSS charts]
+    WEB --> PAGES[GitHub Pages]
     SI --> MON[Audit + streaming metrics]
     MON --> AZMON[Azure Monitor]
     MON --> ASSIST[Incident assistant]
@@ -98,8 +110,32 @@ flowchart TB
     KV -. secrets .-> DBS
 ```
 
-Terraform defines the Azure service boundary. It deliberately does not start billable clusters,
-apply role assignments without an identity decision, or deploy application jobs automatically.
+Terraform defines the Azure service boundary and scoped identity roles. It does not start
+billable clusters or deploy application jobs automatically.
+
+### BI publication boundary
+
+RetailPulse BI Lite is a static-first public dashboard. Its attended refresh process queries Azure
+Gold through a short-lived Azure Databricks token, validates Silver/Gold reconciliation, and
+atomically replaces a non-sensitive JSON snapshot. GitHub Pages serves the React application and
+snapshot; it never receives a Databricks credential and cannot issue arbitrary warehouse queries.
+
+```mermaid
+flowchart LR
+    GOLD[(Azure Gold Delta)] --> WH[Stopped-by-default SQL warehouse]
+    WH -->|attended bounded refresh| EX[Snapshot exporter]
+    SILVER[(Azure Silver Delta)] -->|reconciliation only| EX
+    EX -->|validated metrics| SNAP[dashboard.json]
+    SNAP --> APP[React + native SVG/CSS charts]
+    APP --> GH[GitHub Pages]
+    GH --> USER[Reviewer browser]
+    EX -. short-lived token .-> WH
+```
+
+The warehouse is stopped in cleanup even when export or validation fails. A public page view does
+not wake Databricks, so anonymous traffic cannot consume Azure credits. Snapshot metadata includes
+the source catalog/schema, business window, generation time, freshness, and reconciliation state,
+but excludes credentials and raw customer-level records.
 
 ## 3. Event flow
 
@@ -108,9 +144,9 @@ apply role assignments without an identity decision, or deploy application jobs 
 3. Bronze stores the raw payload and transport/ingestion metadata before validation.
 4. Parsing applies the explicit event schema and business rules.
 5. Malformed records enter quarantine with the raw payload and validation reason.
-6. Records older than the 30-minute watermark are treated as late and retained in quarantine.
+6. Records more than 30 minutes older than ingestion time are explicitly retained as late.
 7. Duplicate `event_id` values are removed before Silver insertion or Delta MERGE.
-8. Checkpoints advance only after the corresponding input range has been processed.
+8. SQLite source offsets commit with classifications; exported checkpoint files are backups.
 9. Audit and metric outputs describe the run without depending on business marts.
 10. dbt consumes Silver data and materializes tested dimensions, facts, and aggregates.
 
@@ -183,7 +219,7 @@ and `inventory_health` are consumer marts built on the core model.
 | Strict v1 JSON contract | Surfaces drift instead of silently ignoring fields | Producers must coordinate contract changes |
 | File-backed local adapter | Makes tests deterministic and removes cloud prerequisites | It validates pipeline semantics, not Kafka transport behavior |
 | Event ID as idempotency key | Stable across retries and simple to audit | Producers must reuse the ID when retrying the same event |
-| Thirty-minute watermark | Demonstrates bounded event-time state | Older events require a governed replay path |
+| Thirty-minute lateness policy | Makes late input observable without silent eviction | Older events require a governed replay path |
 | SQLite/JSONL reference plus local Delta | Fast tests and Spark semantics are both available without Azure | Neither reproduces Azure identity or cloud performance |
 | Local Delta development plus bounded Azure proof | Most Spark debugging is free while Azure evidence remains truthful | Local storage cannot prove Event Hubs, ADLS, identity, or Azure recovery |
 | Event Hubs opt-in | Its Standard namespace has an idle hourly charge | Enable only for Stage 7 and disable after evidence capture |
@@ -194,11 +230,22 @@ and `inventory_health` are consumer marts built on the core model.
 ## 8. Security and operational boundaries
 
 - `.env`, Terraform state/variables, tokens, keys, and connection strings are ignored by Git.
-- Key Vault exists as the target secret boundary, but role assignments require deployment-specific
-  principals and are not guessed by the template.
+- Key Vault is the target secret boundary; Terraform manages roles and names but never secret
+  values.
+- ADF uses its system identity; Databricks uses a dedicated Access Connector managed identity.
+  Both receive data access only at the RetailPulse filesystem scope.
+- The Access Connector additionally receives Storage Blob Delegator at the storage-account scope;
+  this permits Unity Catalog to request short-lived delegation keys without granting data access to
+  other containers.
+- Unity Catalog storage credentials and external locations govern Databricks access to ADLS.
 - The demo uses local generated retail behavior and does not require customer PII.
 - Automatic remediation is prohibited in the first release.
 - Generated local state under `data/` is disposable; Azure state is not touched by the reset CLI.
-- The local checkpoint file and SQLite transaction are separate durability mechanisms. The normal
-  restart path is tested, but abrupt process-loss fault injection is still required before claiming
-  atomic exactly-once behavior for the local adapter. Delta checkpoints are the production design.
+- Source progress and classification are one SQLite transaction; all files are replaceable
+  materializations. Subprocess exits before/after commit verify replay, audit recovery, and
+  quarantine without duplicates. The local deployment assumes one attended writer and completed
+  inbox deliveries; filesystem exports are not a distributed transaction.
+- Python/Spark contract parity is exercised on real isolated workers and Delta checkpoints,
+  including non-UTC executor OS timezone. Azure deployment/identity remains a separate proof.
+- Incremental dbt rereads tied boundary timestamps and excludes unchanged rows. Item-only changes
+  recompute order totals. Arrivals backdated before the ingestion boundary require full refresh.
