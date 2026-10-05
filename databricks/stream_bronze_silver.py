@@ -235,7 +235,11 @@ def process_batch(batch_df: DataFrame, batch_id: int) -> None:
         "target.event_id = source.event_id",
     )
 
-    duplicate_rows = accepted.count() - silver_source.count()
+    # Includes repeated IDs inside this batch and IDs already committed by a
+    # previous batch or an interrupted attempt. MERGE insertion metrics describe
+    # the records actually written, so every accepted input reconciles here.
+    written_rows = int(silver_history.get("numTargetRowsInserted", 0))
+    duplicate_rows = accepted.count() - written_rows
     latency = (
         accepted.select(
             (F.unix_millis("ingestion_timestamp") - F.unix_millis("event_timestamp")).alias(
@@ -255,7 +259,7 @@ def process_batch(batch_df: DataFrame, batch_id: int) -> None:
                 checkpoint_namespace,
                 batch_id,
                 input_rows,
-                int(silver_history.get("numTargetRowsInserted", 0)),
+                written_rows,
                 rejected.count(),
                 duplicate_rows,
                 duration_seconds,

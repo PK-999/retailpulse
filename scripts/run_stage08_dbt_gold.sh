@@ -250,11 +250,12 @@ job_settings="$(
         {
           task_key:"dbt_gold_build",
           depends_on:[{task_key:"silver_freshness_gate"}],
+          # Standard warehouse tasks generate a temporary managed profile.
+          # Keep the repository profile (whose default is local) out of this job.
           dbt_task:{
             project_directory:"dbt",
             commands:["dbt build"],
             warehouse_id:$warehouse_id,
-            profiles_directory:"dbt",
             catalog:$catalog,
             schema:$schema
           },

@@ -372,6 +372,13 @@ def test_real_cloud_checkpoint_replay_after_committed_merges(spark, tmp_path) ->
         with pytest.raises(StreamingQueryException, match="INTENTIONAL_FAILURE_AFTER_COMMITTED"):
             query.awaitTermination(120)
         assert not (checkpoint / "commits" / "0").exists()
+        first_audit = spark.table(namespace["audit_table"]).first()
+        assert (
+            first_audit.records_read,
+            first_audit.records_written,
+            first_audit.records_duplicate,
+            first_audit.records_rejected,
+        ) == (4, 1, 1, 2)
         namespace["fail_after_committed_batch"] = False
         query = start()
         assert query.awaitTermination(120)
@@ -391,6 +398,36 @@ def test_real_cloud_checkpoint_replay_after_committed_merges(spark, tmp_path) ->
         assert json.loads(audit[0].bronze_metrics_json)["numTargetRowsInserted"] == 0
         assert json.loads(audit[0].silver_metrics_json)["numTargetRowsInserted"] == 0
         assert json.loads(audit[0].quarantine_metrics_json)["numTargetRowsInserted"] == 0
+        assert audit[0].records_duplicate == 2
+        assert audit[0].records_read == (
+            audit[0].records_written + audit[0].records_duplicate + audit[0].records_rejected
+        )
+        # A normal subsequent microbatch also contains a target match together
+        # with a new ID. This is independent of interrupted checkpoint replay.
+        next_frame = (
+            raw_frame(
+                spark,
+                [
+                    (raw, "order-events"),
+                    (json.dumps({**BASE, "event_id": str(UUID(int=123))}), "order-events"),
+                ],
+            )
+            .withColumn("offset", F.col("offset") + 4)
+            .withColumn("scenario", F.lit("contract-fixture"))
+            .withColumn("stream_run_id", F.lit("fixture-run"))
+        )
+        (input_path / "next.json").write_text("\n".join(next_frame.toJSON().collect()) + "\n")
+        query = start()
+        assert query.awaitTermination(120)
+        next_audit = spark.table(namespace["audit_table"]).filter("batch_id = 1").first()
+        assert (
+            next_audit.records_read,
+            next_audit.records_written,
+            next_audit.records_duplicate,
+            next_audit.records_rejected,
+        ) == (2, 1, 1, 0)
+        assert spark.table(namespace["bronze_table"]).count() == 6
+        assert spark.table(namespace["silver_table"]).count() == 2
     finally:
         if query is not None and query.isActive:
             query.stop()

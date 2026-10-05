@@ -1,3 +1,6 @@
+import json
+import re
+import subprocess
 from pathlib import Path
 
 import yaml
@@ -52,5 +55,29 @@ def test_stage08_gate_and_runner_enforce_cost_and_quality_controls() -> None:
     assert "stop_warehouse" in runner
     assert "DATABRICKS_TOKEN" in runner
     assert "dbt build" in runner
-    assert 'commands:["dbt build"]' in runner
     assert '"${dbt_bin}" docs generate' in runner
+
+
+def test_paused_cloud_job_uses_the_managed_warehouse_profile() -> None:
+    runner = read("scripts/run_stage08_dbt_gold.sh")
+    definition = re.search(
+        r"job_settings=\"\$\(\s+jq -cn.*?\n\s*'(\{.*?\})'\s*\n\)\"", runner, re.DOTALL
+    )
+    assert definition is not None
+    arguments = ["jq", "-cn"]
+    for key in ("name", "git_url", "git_branch", "warehouse_id", "catalog", "schema"):
+        arguments.extend(["--arg", key, f"fixture_{key}"])
+    result = subprocess.run(
+        [*arguments, definition.group(1)], capture_output=True, text=True, check=True
+    )
+    job = json.loads(result.stdout)
+    assert job["schedule"]["pause_status"] == "PAUSED"
+    task = next(task for task in job["tasks"] if task["task_key"] == "dbt_gold_build")
+    settings = task["dbt_task"]
+    assert settings["warehouse_id"] == "fixture_warehouse_id"
+    assert settings["catalog"] == "fixture_catalog"
+    assert settings["schema"] == "fixture_schema"
+    assert "profiles_directory" not in settings, "Do not load the repository's local default"
+    # Standard warehouse tasks generate their own temporary profile/target. An
+    # explicit repository target would not exist in that managed profile.
+    assert settings["commands"] == ["dbt build"]
