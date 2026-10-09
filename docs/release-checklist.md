@@ -1,8 +1,12 @@
 # RetailPulse end-to-end release checklist
 
-Started: 2026-10-04. Objective: finish the existing portfolio platform, prove its full local
-flow, package reproducible cloud operations, and publish the static dashboard when access allows.
-The prior cleanup and uncommitted BI implementation are retained.
+Started: 2026-10-04. Objective: finish the portfolio platform, prove its full local flow,
+package reproducible cloud operations, and publish the static dashboard.
+
+Release scope selected on 2026-10-09: finish with **no additional Azure spending**, using fresh
+local proof, the existing published dashboard, and clearly dated historical Azure evidence.
+The [finish guide](zero-cost-finish.md) is the active route; pending cloud gates are deferred
+and remain unverified.
 
 ## Completion criteria
 
@@ -24,17 +28,25 @@ The prior cleanup and uncommitted BI implementation are retained.
 - [x] Final code review is addressed, runbooks/evidence are current, hosted CI and GitHub Pages
   are verified, or the exact external-access step is identified without claiming it passed.
 
-## Ownership and scope
+## Release scope
 
-Spark contract, dbt correctness, and dashboard verification are independent implementation tasks.
-The coordinator owns Python state/recovery, generator coherence, local orchestration, cloud
-monitoring/infrastructure, release integration, documentation, and final verification.
-
-Release 1 keeps one environment, three topics, v1 contract, SCD2 product history, static public BI,
-and attended bounded Azure runs. New product subsystems and continuous public cloud compute are
-outside this release. Saved August cloud proofs are historical; current runs need fresh evidence.
+Release 0.1.0 keeps one environment, three topics, v1 contract, SCD2 product history, and static
+public BI. Azure assets and saved August proofs are retained for reference; fresh attended Azure
+runs are optional future verification. New product subsystems and continuous public cloud compute
+are outside this release. Historical cloud proofs do not certify the refactored deployment.
 
 ## Progress and decisions
+
+- On 9 October, the zero-cost finish was selected. The isolated local flow was rerun successfully:
+  295 Bronze = 266 Silver + 19 duplicates + 10 quarantine; 10 orders, 57 units, £268.55;
+  all 37 dbt nodes passed in each clean/incremental/full-refresh build. See
+  [fresh local proof](evidence/zero-cost-local-e2e.json). No Azure workload was started.
+- Ten orchestration/recovery/dashboard tests and all 17 desktop/mobile BI/Streamlit browser tests
+  passed. The BI production build passed. The public JSON still matches the committed archived
+  export, with SHA-256 `0986183d63a1c691d63645cdd950083c07ebb82a17276ea05a89100e10ddaa3e`.
+- The refreshed Azure account listing reports `Disabled`. The user-supplied portal warning says
+  the expired trial will be deleted on 11 October. Current repository artifacts are independent
+  of Azure, but lake/state backup, target-service cleanup, and billing status are not verified.
 
 - Release [PR #4](https://github.com/PK-999/retailpulse/pull/4) is merged; all 4 hosted CI jobs
   passed. [GitHub Pages](https://pk-999.github.io/retailpulse/) build/deployment passed and actual

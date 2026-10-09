@@ -1,5 +1,7 @@
 # Verification evidence
 
+- [9 October zero-cost local finish proof](zero-cost-local-e2e.json)
+- [Selected portfolio release route](../zero-cost-finish.md)
 - [Current clean-checkout release verification](release-verification.json)
 - [Deployed GitHub Pages snapshot and browser verification](public-bi-dashboard.json)
 - [Complete local pipeline and dbt reconciliation](local-e2e.json)

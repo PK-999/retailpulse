@@ -9,6 +9,10 @@ The local demo runs without Azure credentials. Azure integration results are rec
 [verification evidence](docs/evidence/); [project status](docs/project-status.md) distinguishes
 those historical proofs from checks performed on the current code.
 
+The selected release route uses **no additional Azure spending**. Follow the
+[step-by-step finish guide](docs/zero-cost-finish.md) to reproduce the local flow and present the
+published dashboard. Fresh Azure verification is optional future work.
+
 [Portfolio dashboard](https://PK-999.github.io/retailpulse/) ·
 [Watch the walkthrough](docs/portfolio-walkthrough.md) ·
 [Reproduce the demo](docs/demo-guide.md) · [Release evidence](docs/evidence/local-e2e.json)
@@ -194,9 +198,11 @@ Azure execution is documented in [the staged plan](docs/execution-plan.md),
 [cost strategy](docs/cost-strategy.md). Terraform provisions the service boundary and identities;
 compute is bounded and Event Hubs defaults off. Review cloud plans before applying them.
 
-The current Azure preflight reports ADF `Disabled`; Terraform state storage returns
-`AccountIsDisabled`. August Azure proofs and the saved public snapshot remain historical.
-No new cloud deployment, compute run, or notification delivery is claimed for this release.
+The 9 October account check reports the Azure subscription `Disabled`; preflight sees ADF
+`Disabled`. The last remote state check returned `AccountIsDisabled`. August Azure proofs and
+the saved public snapshot remain historical. The local portfolio release does not require
+subscription restoration; no fresh cloud deployment, compute run, or notification delivery is
+claimed. See the [zero-cost finish guide](docs/zero-cost-finish.md) for the release boundary.
 
 ## Repository map
 

@@ -1,6 +1,13 @@
-# RetailPulse external verification and Azure completion plan
+# RetailPulse optional Azure verification plan
 
-Last reviewed: 2026-10-05
+Release scope reviewed: 2026-10-09
+
+The selected portfolio release uses **no additional Azure spending**. Its active path is the
+[zero-cost finish guide](zero-cost-finish.md), with fresh local proof, the published static
+dashboard, and the recorded walkthrough. The Azure stages below retain their evidence and
+unchecked gates for future work; selecting the local route does not mark those cloud gates as
+passed. A subscription upgrade, fresh Azure jobs, cloud alert delivery, Azure teardown verification,
+and a new cloud recording are outside the selected release scope.
 
 October 2026 release update: local contracts/recovery/Spark/dbt/browser/monitoring proofs are
 captured in the [release checklist](release-checklist.md) and [current status](project-status.md).
@@ -11,8 +18,8 @@ an unperformed fresh Azure run. Review the expired free-credit exception before 
 
 ## 1. Objective
 
-This plan moves RetailPulse from a locally verified reference implementation to a recorded,
-repeatable Azure demonstration. Stages are ordered by dependency and cost: validate free local
+This optional plan moves RetailPulse from a locally verified reference implementation to a
+recorded, repeatable Azure demonstration. Stages are ordered by dependency and cost: validate free local
 integrations first, establish source control and CI, then create Azure resources and progressively
 prove batch, streaming, analytics, monitoring, and the final demo.
 

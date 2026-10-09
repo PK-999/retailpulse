@@ -1,13 +1,14 @@
 # RetailPulse documentation
 
-Start with [project status](project-status.md) for current verification and prioritized portfolio
-improvements. This directory is the project’s reference set:
+Start with the [zero-cost finish guide](zero-cost-finish.md) for the selected portfolio release
+and [project status](project-status.md) for verification scope and limitations.
+This directory is the project’s reference set:
 
 1. [Requirements](requirements.md) — scope, acceptance criteria, and traceability.
 2. [Architecture](architecture.md) — system boundaries, flows, storage layers, and decisions.
 3. [Key features](key-features.md) — implemented capabilities and where their code lives.
 4. [Project status](project-status.md) — what is verified, what is only prepared, and what remains.
-5. [Execution plan](execution-plan.md) — staged path from local verification to the Azure demo.
+5. [Optional Azure plan](execution-plan.md) — deferred target-service verification and its gates.
 6. [Cost strategy](cost-strategy.md) — local-first profiles and paid-compute guardrails.
 7. [Event contract](data-contract.md) — version 1 event fields and topic routing.
 8. [Demo guide](demo-guide.md) — repeatable healthy and failure demonstrations.
@@ -16,12 +17,13 @@ improvements. This directory is the project’s reference set:
 11. [Decision records](decisions/) — reviewed deployment, identity, cost, and teardown choices.
 12. [Security access matrix](security/access-matrix.md) — Azure identities, roles, and scopes.
 13. [Portfolio walkthrough](portfolio-walkthrough.md) — recorded demo, chapters, and reproduction.
+14. [Zero-cost finish](zero-cost-finish.md) — active release route without additional Azure spending.
 
 The accepted BI delivery choice is recorded in
 [the RetailPulse BI Lite decision](decisions/bi-dashboard.md).
 
 For this release, start with the [completion checklist](release-checklist.md),
-[aggregate local proof](evidence/local-e2e.json), and
+[9 October local proof](evidence/zero-cost-local-e2e.json), and
 [cloud monitoring preflight](evidence/cloud-monitor-preflight.json).
 
 ## Document ownership

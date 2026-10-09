@@ -1,6 +1,11 @@
 # RetailPulse cost and execution strategy
 
-Last reviewed: 2026-08-12
+Release scope reviewed: 2026-10-09; original Azure cost estimates are dated below.
+
+The selected finish is the [zero-additional-cloud-cost local portfolio release](zero-cost-finish.md).
+Use the current local proof, published static snapshot, and recorded walkthrough. Subscription
+upgrade, Azure stage execution, cloud alert deployment, and a fresh cloud recording are deferred.
+The historical Azure exception and optional execution modes below do not authorize new spending.
 
 October 2026 operational update: the exception below expired 2026-08-19. A read-only review
 sees disabled ADF and `AccountIsDisabled` on Terraform state storage; it did not execute paid
@@ -11,13 +16,15 @@ archive and explicitly authorized receivers only when selected; see
 
 ## Decision
 
-Develop and rehearse the data logic locally. Use Databricks Free Edition only as an optional,
-non-commercial notebook practice environment. Use paid Azure Databricks solely for the bounded
-Event Hubs → Databricks → ADLS integration proof and final recording.
+Develop, verify, and present the data logic locally for this release. Databricks Free Edition
+remains an optional non-commercial notebook practice environment. A future paid Azure Databricks
+session would be limited to a separately authorized Event Hubs → Databricks → ADLS integration
+proof and recording.
 
 Free Edition is not Azure integration evidence: it is serverless-only, quota-limited, has no SLA,
 and does not support custom workspace storage locations. The portfolio claim therefore remains
-backed by a short run in the provisioned Azure workspace.
+backed by the saved August Azure run, with its historical scope made explicit. The refactored
+deployment has not been rerun on Azure.
 
 ## Environment boundaries
 
