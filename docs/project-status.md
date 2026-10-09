@@ -1,8 +1,25 @@
 # RetailPulse project status
 
-Release review: 2026-10-05 (IST); evidence timestamps use UTC. The local platform and public
+Release scope reviewed: 2026-10-09 (IST); evidence timestamps use UTC. The selected finish is
+the local portfolio release with no additional Azure spending. The local platform and public
 snapshot application are implemented and verified. Azure integration was exercised in August;
-a fresh end-to-end cloud demonstration is blocked by disabled services, as recorded below.
+fresh target-service verification is deferred, as recorded below. Follow the
+[step-by-step finish guide](zero-cost-finish.md).
+
+## Zero-cost release checkpoint
+
+The [9 October isolated local run](evidence/zero-cost-local-e2e.json) passed generation,
+classification, DQ alerts, deterministic incident analysis, and all three dbt builds. It produced
+295 Bronze, 266 Silver, 19 duplicates, 10 quarantine, 10 orders, 57 units, and £268.55. Each build
+passed 37 nodes; unchanged incremental results and full-refresh equivalence were verified.
+Ten local orchestration/recovery/dashboard tests passed. The production BI build and all 17
+desktop/mobile browser tests passed, including the running Streamlit app against that fresh data.
+The public snapshot was fetched successfully and matched the committed archive byte for byte.
+The broader verification results below retain their original October release evidence dates.
+
+The public dashboard and walkthrough remain available independently of Azure. The archived
+snapshot keeps its 15 August export timestamp. Current local proof and historical cloud proof
+have separate scopes; a fresh Azure session is not a completion requirement for this release.
 
 ## Current release verification
 
@@ -69,15 +86,18 @@ These results describe earlier code/deployments. The refactored cloud notebook, 
 models, monitoring, and cleanup require a fresh attended Azure run before their target-service
 verification can be claimed.
 
-## Remaining external work and limits
+## Deferred Azure verification and release limits
 
 The current [Azure preflight](evidence/cloud-monitor-preflight.json) sees ADF `Disabled`, no
 monitor rule, and no Fired/Resolved cloud alert. Remote Terraform state access returns
 `403 AccountIsDisabled`. Account authentication and resource listing do not establish operational
-health. Restore the subscription/storage services, rerun preflight, review a bounded plan, then
-follow [Stage 10](runbooks/stage-10-cloud-monitoring.md). No apply, paid job, or notification send
-was attempted in this review. The August free-credit exception expired 2026-08-19; the USD 10
-budget notifies and does not cap spend.
+health. The 9 October account refresh also reports the subscription `Disabled`; the supplied
+portal warning says the expired trial will be deleted on 11 October. The selected release uses
+no subscription upgrade, apply, paid job, or notification send. Repository artifacts are retained,
+but they are not a backup of the disabled lake or remote state, and Azure teardown is not claimed.
+The August free-credit exception expired 2026-08-19; the USD 10 budget notifies and does not cap
+spend. If a future cloud session is separately authorized, restore services, rerun preflight,
+review the bounded plan, and follow [Stage 10](runbooks/stage-10-cloud-monitoring.md).
 
 - The local adapter assumes one attended writer and completed append-only file deliveries.
   Exports are eventual materializations, not a multi-file distributed transaction.
@@ -90,5 +110,6 @@ budget notifies and does not cap spend.
   outside this release.
 - The local language model is advisory; deterministic detection and retained telemetry are the
   authority. No autonomous remediation is performed.
-- The workspace's old `.venv` uses unsupported Python 3.14. Use Python 3.11–3.13 and executable
-  overrides when running the cloud scripts from this machine.
+- The workspace's old `.venv` uses unsupported Python 3.14. The current local finish uses
+  `.venv313` with Python 3.13.15. Cloud scripts need interpreter review before future use;
+  Stage 7 currently selects `.venv` directly.

@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "verified_at": "2026-10-09T07:30:32.225481+00:00",
+  "scope": "isolated local files / SQLite / DuckDB; cloud and broker checked separately",
+  "python_version": "3.13.15",
+  "batches": [
+    {
+      "scenario": "normal",
+      "run_id": "d04da919-81be-4d9d-8854-dc14d8822482",
+      "pipeline_name": "local_bronze_silver",
+      "start_time": "2026-10-09T07:30:23.807390+00:00",
+      "end_time": "2026-10-09T07:30:23.815094+00:00",
+      "status": "SUCCESS",
+      "records_read": 100,
+      "records_written": 100,
+      "records_rejected": 0,
+      "records_duplicate": 0,
+      "records_late": 0,
+      "duration_seconds": 0.007708,
+      "alert_metrics": []
+    },
+    {
+      "scenario": "duplicate",
+      "run_id": "54b28352-7e5c-4e61-82fb-b8298aa26b64",
+      "pipeline_name": "local_bronze_silver",
+      "start_time": "2026-10-09T07:30:23.821603+00:00",
+      "end_time": "2026-10-09T07:30:23.829001+00:00",
+      "status": "SUCCESS",
+      "records_read": 60,
+      "records_written": 41,
+      "records_rejected": 0,
+      "records_duplicate": 19,
+      "records_late": 0,
+      "duration_seconds": 0.007402,
+      "alert_metrics": [
+        "duplicate_rate"
+      ]
+    },
+    {
+      "scenario": "malformed",
+      "run_id": "e78bf704-b54f-42a9-90cc-8de8d70a7016",
+      "pipeline_name": "local_bronze_silver",
+      "start_time": "2026-10-09T07:30:23.833413+00:00",
+      "end_time": "2026-10-09T07:30:23.840773+00:00",
+      "status": "SUCCESS",
+      "records_read": 20,
+      "records_written": 15,
+      "records_rejected": 5,
+      "records_duplicate": 0,
+      "records_late": 0,
+      "duration_seconds": 0.007363,
+      "alert_metrics": [
+        "rejection_rate"
+      ]
+    },
+    {
+      "scenario": "late-data",
+      "run_id": "f6b17958-7262-4827-beb7-5a57a4d2733c",
+      "pipeline_name": "local_bronze_silver",
+      "start_time": "2026-10-09T07:30:23.844665+00:00",
+      "end_time": "2026-10-09T07:30:23.852153+00:00",
+      "status": "SUCCESS",
+      "records_read": 15,
+      "records_written": 10,
+      "records_rejected": 0,
+      "records_duplicate": 0,
+      "records_late": 5,
+      "duration_seconds": 0.007491,
+      "alert_metrics": [
+        "late_event_rate"
+      ]
+    },
+    {
+      "scenario": "traffic-spike",
+      "run_id": "5cfc03eb-e3e8-4bec-965a-58734aa18760",
+      "pipeline_name": "local_bronze_silver",
+      "start_time": "2026-10-09T07:30:23.861544+00:00",
+      "end_time": "2026-10-09T07:30:23.872008+00:00",
+      "status": "SUCCESS",
+      "records_read": 100,
+      "records_written": 100,
+      "records_rejected": 0,
+      "records_duplicate": 0,
+      "records_late": 0,
+      "duration_seconds": 0.010473,
+      "alert_metrics": []
+    }
+  ],
+  "counts": {
+    "bronze_events": 295,
+    "silver_events": 266,
+    "quarantine": 10
+  },
+  "gold": {
+    "items": 18,
+    "orders": 10,
+    "units": 57,
+    "revenue": "268.55"
+  },
+  "dbt": {
+    "clean": {
+      "nodes_passed": 37,
+      "elapsed_seconds": 0.7807400226593018
+    },
+    "incremental": {
+      "nodes_passed": 37,
+      "elapsed_seconds": 0.9838602542877197
+    },
+    "full_refresh": {
+      "nodes_passed": 37,
+      "elapsed_seconds": 1.0244731903076172
+    },
+    "unchanged_rerun": true,
+    "full_refresh_equivalent": true
+  },
+  "incident": {
+    "source": "rules",
+    "report": "Incident: local_bronze_silver\n\nDetected anomalous data quality in run 54b28352-7e5c-4e61-82fb-b8298aa26b64: duplicate_rate=31.7%.\n\nLikely cause: events were likely replayed by a producer or consumer retry.\n\nRecommended action: verify producer idempotency and retain event_id deduplication before MERGE. Quarantined data remains available for replay."
+  },
+  "elapsed_seconds": 8.444
+}
