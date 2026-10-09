@@ -6,17 +6,27 @@ future work, rather than a gate for this portfolio release.
 
 ## 1. Use the local environment
 
-On the current workstation:
+Start at the root of your checkout. For a new checkout:
 
 ```bash
-cd /Users/apple/codes/de_for_retail
-source .venv313/bin/activate
+git clone https://github.com/PK-999/retailpulse.git
+cd retailpulse
+```
+
+Create a local environment with Python 3.11–3.13. Substitute `python3.12` or `python3.13`
+below if needed:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev,analytics,dashboard]'
 python --version
 ```
 
-Expected: Python 3.13.15. For a fresh checkout, follow the [README setup](../README.md#quick-start)
-with Python 3.11–3.13 and the `dev,analytics,dashboard` dependencies. The old `.venv` on this
-workstation uses unsupported Python 3.14.
+The checkpoint is an active Python 3.11–3.13 environment with those dependencies installed.
+An existing checkout can reuse a supported environment. On the original workstation, activate
+the installed Python 3.13.15 environment with `source .venv313/bin/activate`; its old `.venv`
+uses unsupported Python 3.14. The remaining commands run from the checkout root.
 
 This route uses local files, SQLite, DuckDB, and deterministic incident analysis. It needs
 neither Azure credentials nor a hosted model. Leave the expired trial unupgraded for this route;
