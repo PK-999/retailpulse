@@ -5,6 +5,8 @@ not establish that Azure services are operating today.
 
 ## Current local portfolio
 
+- [Portfolio refactor verification](portfolio-refactor.json): implementation revision, test counts,
+  browser checks, documentation checks, and cleanup scope.
 - [Complete demo and three dbt builds](local-e2e.json): latest isolated baseline, run IDs, totals,
   unchanged incremental results, full-refresh equivalence, and deterministic incident analysis.
 - [Monitoring](local-monitoring.json): selected data path, healthy targets/Grafana, alert firing

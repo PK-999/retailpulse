@@ -18,6 +18,8 @@ The [demo guide](demo-guide.md) is the single reproduction path.
 
 Evidence timestamps use UTC. The JSON records contain exact run IDs and timings. Additional
 monitoring scenarios change the live demo totals; the saved complete-flow proof is the baseline.
+The [refactor verification](evidence/portfolio-refactor.json) records the implementation revision
+and current checks.
 See the [evidence index](evidence/README.md) for older checks and historical results.
 
 ## What the cleanup changed
