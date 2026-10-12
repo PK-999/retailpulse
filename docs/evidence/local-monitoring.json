@@ -1,5 +1,7 @@
 {
-  "verified_at": "2026-10-04T18:46:14Z",
+  "verified_at": "2026-10-12T05:02:10.665024+00:00",
+  "scope": "local selected demo data; no Azure calls",
+  "data_dir": "data/portfolio-refactor-20261012",
   "targets": [
     {
       "job": "redpanda",
@@ -13,8 +15,11 @@
   "firing_alerts": [
     "RetailPulseDuplicateRate"
   ],
+  "alert_active_at": "2026-10-12T04:57:36.638447993Z",
+  "duplicate_run_id": "cfcfc743-7caa-4fb9-b4aa-f0435e906c5d",
+  "recovery_run_id": "efbd371b-c05f-4b00-8fa2-cbf0cc56372e",
   "grafana_health": "ok",
   "grafana_dashboard": "RetailPulse Operations",
   "resolved_after_recovery": true,
-  "resolved_at": "2026-10-04T18:49:40Z"
+  "resolved_at": "2026-10-12T05:02:10.665118+00:00"
 }

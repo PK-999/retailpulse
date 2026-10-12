@@ -1,41 +1,31 @@
-# RetailPulse documentation
+# Documentation
 
-Start with the [zero-cost finish guide](zero-cost-finish.md) for the selected portfolio release
-and [project status](project-status.md) for verification scope and limitations.
-This directory is the project’s reference set:
+Start with the [demo guide](demo-guide.md). Then read the [architecture](architecture.md)
+and [project status](project-status.md) to understand the implementation and its verification scope.
 
-1. [Requirements](requirements.md) — scope, acceptance criteria, and traceability.
-2. [Architecture](architecture.md) — system boundaries, flows, storage layers, and decisions.
-3. [Key features](key-features.md) — implemented capabilities and where their code lives.
-4. [Project status](project-status.md) — what is verified, what is only prepared, and what remains.
-5. [Optional Azure plan](execution-plan.md) — deferred target-service verification and its gates.
-6. [Cost strategy](cost-strategy.md) — local-first profiles and paid-compute guardrails.
-7. [Event contract](data-contract.md) — version 1 event fields and topic routing.
-8. [Demo guide](demo-guide.md) — repeatable healthy and failure demonstrations.
-9. [Runbooks](runbooks/) — operator response procedures.
-10. [Verification evidence](evidence/) — stage results, run identifiers, and saved reports.
-11. [Decision records](decisions/) — reviewed deployment, identity, cost, and teardown choices.
-12. [Security access matrix](security/access-matrix.md) — Azure identities, roles, and scopes.
-13. [Portfolio walkthrough](portfolio-walkthrough.md) — recorded demo, chapters, and reproduction.
-14. [Zero-cost finish](zero-cost-finish.md) — active release route without additional Azure spending.
+## For a portfolio reviewer
 
-The accepted BI delivery choice is recorded in
-[the RetailPulse BI Lite decision](decisions/bi-dashboard.md).
+| Document | Purpose |
+|---|---|
+| [Demo guide](demo-guide.md) | Reproduce and present the complete local flow |
+| [Architecture](architecture.md) | Execution paths, component responsibilities, invariants, tradeoffs |
+| [Project status](project-status.md) | Readiness, evidence, and remaining limits |
+| [Walkthrough](portfolio-walkthrough.md) | Recorded tour, chapters, and media verification |
+| [Evidence index](evidence/README.md) | Dated local proofs and historical Azure results |
 
-For this release, start with the [completion checklist](release-checklist.md),
-[9 October local proof](evidence/zero-cost-local-e2e.json), and
-[cloud monitoring preflight](evidence/cloud-monitor-preflight.json).
+## Implementation reference
 
-## Document ownership
+- [Event contract](data-contract.md): schema, topics, required fields, and validation.
+- [Requirements](requirements.md): acceptance criteria and traceability.
+- [Duplicate events](runbooks/duplicate-events.md), [malformed events](runbooks/malformed-events.md),
+  [pipeline failure](runbooks/pipeline-failure.md): operator response procedures.
 
-The requirements matrix is the source of truth for scope. A feature should not be described as
-complete unless its acceptance criteria pass and the project-status document records the level
-at which it was verified.
+## Optional Azure integration
 
-When changing the platform:
+- [Execution plan](execution-plan.md): prerequisites and stage runbooks, with fresh cloud gates deferred.
+- [Cost strategy](cost-strategy.md): bounded execution and historical cost assumptions.
+- [Deployment decision](decisions/azure-deployment.md), [BI decision](decisions/bi-dashboard.md),
+  [access matrix](security/access-matrix.md): identities, storage, publication, and cost boundaries.
 
-1. Update the requirement or add a new requirement ID.
-2. Update the architecture if the data flow, trust boundary, or storage contract changes.
-3. Add or update automated tests.
-4. Update project status with the new evidence and validation date.
-5. Update the demo guide if an operator-facing command changes.
+Maintain the current demo guide and status when changing behavior. Save dated, non-secret evidence
+for verification claims. Historical cloud results do not certify the current deployment.

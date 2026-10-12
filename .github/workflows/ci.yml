@@ -23,11 +23,10 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - run: pip install -e '.[dev,analytics,dashboard,databricks]'
+      - run: make install
       - run: ruff check src tests scripts dashboard databricks spark
       - run: python -m pytest --cov=retailpulse --cov-report=term-missing
-      - run: python scripts/run_demo.py
-      - run: dbt build --project-dir dbt --profiles-dir dbt
+      - run: make demo DEMO_DIR=data/ci-demo
       - run: sqlfluff lint dbt/models dbt/tests --templater jinja
 
   bi:

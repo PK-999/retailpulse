@@ -1,6 +1,6 @@
 # RetailPulse requirements
 
-Last reviewed: 2026-10-05
+Readiness scope reviewed: 2026-10-12
 
 ## 1. Product objective
 
@@ -49,7 +49,7 @@ read-only preflight reports ADF disabled and Terraform state storage unavailable
 | RP-EVT-003 | Publish to a Kafka-compatible broker | Producer can use file-backed local transport or idempotent Kafka publishing | Verified locally | Live Redpanda/Kafka-to-Delta fixture and checkpoint replay; `docs/evidence/local-spark-contract.md` |
 | RP-STR-001 | Consume Kafka events with Structured Streaming | Spark reads three topics with an explicit schema and retains topic/partition/offset | Verified in Azure | Authenticated Event Hubs Kafka session processed 460 events; `docs/evidence/stage-07-eventhubs-streaming.md` |
 | RP-STR-002 | Preserve immutable Bronze events | Every input is retained with raw payload and ingestion metadata | Verified in Azure | 460 coordinate-keyed Bronze rows with topic, partition, offset, Kafka timestamp, ingestion timestamp, scenario, and session lineage |
-| RP-STR-003 | Produce trustworthy Silver events | Validate schema/rules, deduplicate on event ID, apply a 30-minute watermark, and checkpoint progress | Verified in Azure | 411 unique Silver event IDs, 30 quarantined records, five reconciled scenarios, watermark and checkpoint recovery evidence |
+| RP-STR-003 | Produce trustworthy Silver events | Validate schema/rules, deduplicate on event ID, apply a 30-minute lateness policy, and checkpoint progress | Verified historically in Azure | 411 unique Silver event IDs, 30 quarantined records, five reconciled scenarios, and checkpoint recovery evidence |
 | RP-STR-004 | Perform an idempotent Delta merge | A micro-batch deduplicates source IDs before `MERGE` and inserts unseen events | Verified in Azure | Recovery batch reread 40 events; version-3 Bronze and Silver MERGEs each inserted 0 rows |
 | RP-STR-005 | Develop Spark/Delta locally before Azure | Redpanda can feed a bounded local Structured Streaming job that writes Delta and performs the same Silver MERGE pattern | Verified | Python 3.11/Java 17 runner; `AvailableNow`, checkpoints, quarantine, MERGE, and replay evidence passed |
 | RP-DQ-001 | Retain rejected evidence | Quarantine stores event ID when available, raw payload, type, message, and timestamp | Verified | `QuarantineRecord`, SQLite/JSONL quarantine tests |
@@ -65,7 +65,7 @@ read-only preflight reports ADF disabled and Terraform state storage unavailable
 | RP-OBS-002 | Provide an operations dashboard | Grafana is provisioned with core ingestion and DQ panels | Verified | Live degraded-data visual review passed in Stage 1 |
 | RP-AI-001 | Generate incident analysis from facts | Report identifies triggered metrics, likely cause, and next action without inventing telemetry | Verified for deterministic engine | `src/retailpulse/incident.py`, generated demo report |
 | RP-AI-002 | Support a local language model | Ollama can receive run/alert context; failures fall back safely to deterministic analysis | Verified | Model-backed and stopped-service fallback executions passed in Stage 1 |
-| RP-INF-001 | Provision core Azure services as code | Terraform defines resource group, ADLS, opt-in Event Hubs, ADF, Databricks, Key Vault, and subscription budget | Verified in Azure | Applied remote state is drift-free; Event Hubs remains disabled |
+| RP-INF-001 | Provision core Azure services as code | Terraform defines resource group, ADLS, opt-in Event Hubs, ADF, Databricks, Key Vault, and subscription budget | Verified historically in Azure | August deployment reached a drift-free plan with Event Hubs disabled; current resource health is unverified |
 | RP-CICD-001 | Automate quality gates | CI runs Python lint/tests, demo, dbt build/tests, SQL lint, and Terraform validation | Verified | Hosted push/PR Actions and required checks passed in Stage 2 |
 | RP-COST-001 | Bound paid cloud execution | Event Hubs defaults off; Databricks uses job compute, `AvailableNow`, a 30-minute maximum, and a small Azure profile | Verified in Azure | Exact four-resource enable plan, bounded unscheduled serverless runs, automatic secret removal, Event Hubs deletion, and final drift-free plan |
 | RP-SEC-001 | Use managed identities for lake access | ADF system identity and a Databricks Access Connector receive scoped data-plane roles | Verified in Azure | ADF write and Databricks Delta read/write passed; unauthorized operator access was denied |

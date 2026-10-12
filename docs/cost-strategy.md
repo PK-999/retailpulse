@@ -2,7 +2,7 @@
 
 Release scope reviewed: 2026-10-09; original Azure cost estimates are dated below.
 
-The selected finish is the [zero-additional-cloud-cost local portfolio release](zero-cost-finish.md).
+The selected finish is the [complete local portfolio demonstration](demo-guide.md).
 Use the current local proof, published static snapshot, and recorded walkthrough. Subscription
 upgrade, Azure stage execution, cloud alert deployment, and a fresh cloud recording are deferred.
 The historical Azure exception and optional execution modes below do not authorize new spending.
@@ -89,7 +89,7 @@ Databricks work, capture evidence, return the flag to `false`, review the destro
 plan, and apply it promptly. Never delete resources directly from the Databricks-managed resource
 group.
 
-### Current Stage 4 exception
+### Historical August Stage 4 exception
 
 On 2026-08-12 the operator elected to keep the workspace available through the tagged
 `2026-08-19` teardown date because the subscription has USD 200 of free credit. The August 2026
