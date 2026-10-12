@@ -1,146 +1,139 @@
-# RetailPulse demo guide
+# Run and present RetailPulse
 
-## 1. Local prerequisites
+This is the canonical demo guide. It reproduces the complete local platform without additional
+Azure spending. The public dashboard and recorded walkthrough use saved artifacts.
 
-- Python 3.11–3.13; Python 3.11 is recommended.
-- Docker Desktop for broker, monitoring, dashboard container, or Ollama demonstrations.
+## 1. Prepare a checkout
 
 ```bash
+git clone https://github.com/PK-999/retailpulse.git
+cd retailpulse
 python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[dev,analytics,dashboard]'
+make install
 ```
 
-## 2. Fast deterministic demonstration
+Python 3.11–3.13 is supported. Substitute `python3.12` or `python3.13` when creating the
+environment. An existing checkout can reuse a supported environment. On the original workstation,
+`source .venv313/bin/activate` selects Python 3.13.15; its old `.venv` uses unsupported Python 3.14.
+Environment variables are documented in [`.env.example`](../.env.example); the Python application
+does not automatically load `.env` files.
 
-For the complete, isolated release proof:
+## 2. Run the complete demonstration
 
 ```bash
-make e2e
-# Keep artifacts only in a NEW directory:
-python scripts/run_local_e2e.py --work-dir data/portfolio-demo --output /tmp/proof.json
+make demo
 ```
 
-Expected:295 Bronze,266 Silver,19 duplicates,10 quarantined,10 orders,57 units,£268.55;
-all 37 dbt nodes pass clean, incremental, and full-refresh builds. The runner checks unchanged
-reruns and Gold reconciliation. Default temporary runs leave existing data alone. Use
-`RETAILPULSE_DATA_DIR=data/portfolio-demo` for subsequent CLI/Streamlit commands.
+This runs the single [end-to-end runner](../scripts/run_local_e2e.py), retains artifacts under
+`data/portfolio-demo/`, and writes `proof.json` there. It generates normal, duplicate, malformed,
+late, and spike traffic, processes it, builds SQLite Gold, and runs dbt clean/incremental/full-refresh.
 
-For the shorter four-step example:
+| Checkpoint | Expected |
+|---|---|
+| Classification | 295 Bronze = 266 Silver + 19 duplicates + 10 quarantine |
+| Gold | 10 orders, 57 units, £268.55 |
+| dbt | 37 passing nodes per build; unchanged rerun and full-refresh equivalence |
+| Quality | Duplicate, rejection, and lateness alerts in the scenario evidence |
+| Incidents | Deterministic duplicate-incident report; no model dependency |
+
+An existing demo directory is preserved. Choose a new name to rerun:
 
 ```bash
-python scripts/run_demo.py
+make demo DEMO_DIR=data/another-demo
+make dashboard DEMO_DIR=data/another-demo
 ```
 
-Expected sequence:
+Use the same `DEMO_DIR` for all subsequent Make commands. `make e2e` performs the complete
+flow in temporary storage when retained dashboard data is unnecessary. `PYTHON=/path/to/python`
+selects an interpreter explicitly.
 
-1. 100 normal events reach Silver.
-2. Gold order and revenue values are materialized.
-3. Duplicate traffic pushes the duplicate rate above 5%.
-4. A DQ alert and incident report identify event replay/idempotency as the likely cause.
-
-Gold is refreshed after the duplicate batch too. A fresh run ends with 141 unique Silver events,
-10 orders, 32 units, and £145.18 revenue. The demo always uses file-backed transport.
-It appends to existing data; select a new `RETAILPULSE_DATA_DIR` for an isolated walkthrough.
-
-Inspect:
-
-```text
-data/bronze/
-data/silver/events.jsonl
-data/quarantine/events.jsonl
-data/gold/summary.json
-data/metrics/latest.json
-data/incidents/
-```
-
-## 3. Scenario-by-scenario demonstration
+## 3. Show the local dashboard
 
 ```bash
-retailpulse init
-retailpulse produce --count 100 --scenario normal --seed 42
+make dashboard
+```
+
+Open `http://localhost:8501`. Show commerce totals, dated local data, products/customers,
+inventory freshness, and pipeline audit rows. Stop the server with Ctrl+C when finished.
+Streamlit reads SQLite Gold; dbt independently builds and tests the corresponding DuckDB marts.
+
+Inspect the same demo directory:
+
+| Artifact | Meaning |
+|---|---|
+| `bronze/` | Original input retained for replay |
+| `silver/events.jsonl` | Validated, deduplicated event export |
+| `quarantine/events.jsonl` | Rejected/late payloads and reasons |
+| `retailpulse.db` | Transactional local data and audit ledger |
+| `gold/summary.json`, `gold/warehouse.duckdb` | SQLite summary and dbt analytics |
+| `metrics/`, `incidents/`, `proof.json` | Operational outputs and aggregate verification |
+
+## 4. Demonstrate a quality incident
+
+Select the demo data explicitly for CLI commands:
+
+```bash
+export RETAILPULSE_DATA_DIR="$PWD/data/portfolio-demo"
+export KAFKA_ENABLED=false
+retailpulse produce --count 60 --scenario duplicate --seed 7
 retailpulse process
 retailpulse status
 ```
 
-Then choose one failure:
+Processing preserves duplicate Bronze inputs, inserts only unique Silver IDs, updates Gold,
+records an audit, and emits a quality alert and incident report. This additional scenario changes
+the live dashboard totals; `proof.json` records the earlier baseline.
+
+For live monitoring, Docker Desktop is optional:
 
 ```bash
-retailpulse produce --count 60 --scenario duplicate --seed 7
-retailpulse produce --count 60 --scenario late-data --seed 7
-retailpulse produce --count 60 --scenario malformed --seed 7
-retailpulse produce --count 60 --scenario traffic-spike --seed 7
-retailpulse process
+make up
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000 (admin / retailpulse)
 ```
 
-Run only one scenario between processing commands when demonstrating its isolated effect.
+Monitoring mounts the selected `DEMO_DIR/metrics`, matching the demo and dashboard. Process
+another scenario after starting it to demonstrate alert firing. [Saved operations evidence](evidence/local-monitoring.json)
+also records firing and recovery. `make down` stops the local Compose services.
 
-## 4. Analytics and dashboard
+Ollama is optional: `retailpulse process --ollama` tries the configured local model and falls
+back to deterministic rules. An already installed model is sufficient; it is not required for
+this demonstration.
 
-For the Azure-backed portfolio view:
+## 5. Present the portfolio
+
+Open the [public dashboard](https://pk-999.github.io/retailpulse/) and
+[5-minute walkthrough](portfolio-walkthrough.md). Explain contracts, quarantine, replay recovery,
+incremental models, SCD2 history, monitoring, and CI using the [architecture](architecture.md)
+and [verification evidence](evidence/README.md).
+
+The public React application displays an Azure Gold export from **15 August 2026**, covering
+**2010–2011**, with **£91,970.02 / 1,796 orders**. These are archived historical figures,
+separate from the synthetic local demo. Page views use static assets and start no Azure compute.
+
+For a local static preview, Node.js 24 is required:
 
 ```bash
 make bi
-npm --prefix bi-dashboard run dev
+npm --prefix bi-dashboard run preview -- --host 127.0.0.1 --port 4173 --strictPort
 ```
 
-Show the archived Azure snapshot badge, business window and export time, revenue/orders/AOV/purchase-view ratio,
-daily and country sales, products/customers, inventory state, event pulse, and five-of-five
-reconciliation strip. This uses the committed snapshot and needs no Azure credentials.
-For an attended cloud refresh, install `.[databricks]` and follow the Stage 9 runbook.
-The refresh runner stops the SQL warehouse when it exits. For the public
-version, use the `Deploy BI Lite` GitHub Pages workflow after reviewing the committed snapshot.
+Suggested portfolio description:
 
-For the deterministic local view:
+> Built a retail data platform with batch and streaming ingestion, Bronze/Silver/Gold layers,
+> strict event contracts, quarantine and replay recovery, incremental dbt marts, SCD2 history,
+> and operational dashboards. Verified the current implementation locally; retained dated Azure
+> integration evidence and published a static Azure Gold dashboard.
 
-```bash
-dbt build --project-dir dbt --profiles-dir dbt
-streamlit run dashboard/app.py
-```
+## 6. Verify and close
 
-Show revenue, orders, average order value, purchase/view ratio, top countries/products/customers,
-event volume per minute, inventory freshness, pipeline runs, and active alerts.
+Run `make verify` after installing Playwright Chromium as shown in the README. Spark/Delta and
+Terraform have separate CI jobs; the [evidence index](evidence/README.md) records their scope.
+Stop local dashboard/preview terminals and use `make down` after monitoring. `make clean` deletes
+only the selected demo directory, so retain any proof you want first.
 
-## 5. Monitoring
-
-```bash
-docker compose up -d prometheus node-exporter grafana
-```
-
-- Grafana: `http://localhost:3000`
-- Prometheus: `http://localhost:9090`
-- Default Grafana credentials: `admin` / `retailpulse`
-
-Run another processing scenario after starting monitoring so the textfile metrics contain current
-run values.
-
-## 6. Optional Ollama analysis
-
-```bash
-docker compose up -d ollama
-docker compose exec ollama ollama pull llama3.2:3b
-retailpulse process --ollama
-```
-
-If Ollama is unavailable, the command retains a deterministic incident report and identifies the
-source as `rules-fallback`.
-
-## 7. Validation before recording
-
-```bash
-pip install -e '.[dev,analytics,dashboard,databricks]'
-ruff check src tests scripts dashboard spark databricks
-python -m pytest
-sqlfluff lint dbt/models dbt/tests --templater jinja
-docker compose config -q
-npm --prefix bi-dashboard ci
-npm --prefix bi-dashboard run lint
-npm --prefix bi-dashboard run build
-npx --prefix bi-dashboard playwright install chromium
-npm --prefix bi-dashboard test
-```
-
-For the Azure recording, also capture a reviewed Terraform plan, successful ADF run, Databricks
-job output, Delta table history, dbt lineage, live monitoring alert, and the final incident report.
-This sequence currently waits for Azure access restoration; the [read-only preflight](evidence/cloud-monitor-preflight.json)
-reports ADF disabled. Local checks and August cloud evidence have separate scopes.
+Fresh Azure deployment, cloud alert delivery, and target-service cleanup remain deferred.
+Use the [optional Azure plan](execution-plan.md) only for a separately authorized cloud session.
+Repository source, proof, screenshots, and the recording remain independent of the expired Azure
+trial; they are not a backup of its lake or remote Terraform state.

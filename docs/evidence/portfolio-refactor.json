@@ -1,0 +1,51 @@
+{
+  "verified_at": "2026-10-12T05:23:51+00:00",
+  "implementation_revision": "70b5a35554d21545e3aeb3dcf9d871e19fccee9e",
+  "scope": "Local portfolio refactor; historical Azure evidence retained; no fresh Azure execution",
+  "python": {
+    "version": "3.13.15",
+    "passed": 168,
+    "spark_dependent_skips": 4,
+    "coverage_percent_rounded": 92
+  },
+  "spark_delta": {
+    "passed": 46,
+    "network": "none",
+    "image": "retailpulse-spark-runner:contract-ci"
+  },
+  "dbt": {
+    "nodes_per_build": 37,
+    "builds": [
+      "clean",
+      "incremental",
+      "full_refresh"
+    ],
+    "unchanged_rerun": true,
+    "full_refresh_equivalence": true,
+    "make_dbt_after_additional_scenario": "37 passed",
+    "make_dbt_with_explicit_python_override": "37 passed"
+  },
+  "frontend": {
+    "build": "passed",
+    "lint": "passed",
+    "browser_tests_passed": 17,
+    "scope": "15 static BI cases and 2 real Streamlit desktop/mobile cases"
+  },
+  "local_demo": "local-e2e.json",
+  "monitoring": "local-monitoring.json",
+  "static": {
+    "ruff": "passed",
+    "sqlfluff": "passed",
+    "compose_selected_data_mounts": "passed",
+    "local_documentation_links_checked": 162,
+    "shell_examples_and_runners": "passed"
+  },
+  "cleanup": {
+    "owned_local_servers_and_services": "stopped",
+    "other_project_containers": "untouched"
+  },
+  "azure": {
+    "execution": "deferred",
+    "upgrade_apply_paid_job_notification_attempted": false
+  }
+}

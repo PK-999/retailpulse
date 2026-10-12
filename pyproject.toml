@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "retailpulse"
-version = "0.1.0"
-description = "Real-time Azure retail data platform with batch, streaming, observability and incident analysis"
+version = "0.1.1"
+description = "Retail data engineering portfolio with batch, streaming, analytics and observability"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 dependencies = [

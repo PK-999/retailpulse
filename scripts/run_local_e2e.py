@@ -187,7 +187,13 @@ def main() -> None:
     args = parser.parse_args()
     if args.work_dir:
         args.work_dir = args.work_dir.resolve()
-        args.work_dir.mkdir(parents=True, exist_ok=False)
+        try:
+            args.work_dir.mkdir(parents=True, exist_ok=False)
+        except FileExistsError:
+            parser.error(
+                f"Work directory already exists: {args.work_dir}. "
+                "Choose a new --work-dir to preserve existing data."
+            )
         report = verify_flow(args.work_dir, args.dbt_bin, args.ollama)
     else:
         with tempfile.TemporaryDirectory(prefix="retailpulse-e2e-") as temporary:

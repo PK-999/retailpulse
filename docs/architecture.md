@@ -1,251 +1,115 @@
-# RetailPulse architecture
+# Architecture
 
-Last reviewed: 2026-10-04
+RetailPulse has three execution paths. The default local path is a complete portfolio demo;
+the local Spark path proves Kafka/Delta semantics; the Azure path is an optional deployment
+with historical August evidence. They share contracts and analytical concepts, not a single
+always-running environment.
 
-## 1. System context
-
-RetailPulse combines a historical retail source with continuously generated customer, order, and
-inventory activity. The system converts both paths into governed Silver data, builds business
-marts, and exposes the same operational facts to monitoring and incident analysis.
-
-```mermaid
-flowchart LR
-    subgraph Sources
-        UCI[UCI Online Retail]
-        SIM[Python event simulator]
-    end
-
-    subgraph Ingestion
-        ADF[Azure Data Factory]
-        BUS[Kafka / Event Hubs]
-    end
-
-    subgraph Lakehouse
-        LAND[(Landing)]
-        BRONZE[(Bronze)]
-        SILVER[(Silver)]
-        QUAR[(Quarantine)]
-        GOLD[(Gold)]
-    end
-
-    subgraph Consumption
-        DBT[dbt]
-        BI[RetailPulse BI Lite / Streamlit]
-        OBS[Prometheus / Grafana]
-        AI[Incident assistant]
-    end
-
-    UCI --> ADF --> LAND --> BRONZE
-    SIM --> BUS --> BRONZE
-    BRONZE --> SILVER
-    BRONZE --> QUAR
-    SILVER --> DBT --> GOLD --> BI
-    SILVER --> OBS --> AI
-    QUAR --> AI
-```
-
-## 2. Deployment views
-
-### Local reference deployment
-
-The local path is optimized for reproducibility and fast failure demonstrations.
+## Complete local path
 
 ```mermaid
 flowchart LR
-    GEN[EventGenerator] --> SINK{Transport setting}
-    SINK -->|default| INBOX[data/inbox JSONL]
-    SINK -->|Kafka enabled| RP[Redpanda]
-    RP --> SPARK[Local PySpark Structured Streaming]
-    SPARK --> DELTA[(Local Bronze / Silver / Quarantine Delta)]
-    INBOX --> PROC[LocalMedallionPipeline]
-    PROC --> B[data/bronze JSONL]
-    PROC --> Q[data/quarantine JSONL + SQLite]
-    PROC --> S[data/silver JSONL + SQLite]
-    S --> SQLITE[(SQLite local marts)]
-    S --> DUCK[(DuckDB via dbt)]
-    SQLITE --> UI[Streamlit]
-    PROC --> MET[Prometheus textfile metrics]
-    MET --> GRAF[Grafana]
-    MET --> INC[Rules / Ollama incident report]
+  GEN[Seeded event generator] --> IN[JSONL inbox]
+  IN --> PIPE[Transactional local processor]
+  PIPE --> RAW[(Bronze raw records)]
+  PIPE --> QUAR[(Quarantine with reasons)]
+  PIPE --> SIL[(SQLite Silver + JSONL export)]
+  SIL --> SQL[SQLite Gold] --> UI[Streamlit]
+  SIL --> DBT[dbt local target] --> DUCK[(DuckDB Gold)]
+  PIPE --> AUD[Run audits and quality metrics]
+  AUD --> PROM[Prometheus / Grafana]
+  AUD --> INC[Rules / optional Ollama]
 ```
 
-The file-backed transport remains the fast deterministic test adapter with transactional offsets
-and input-prefix hashes. Redpanda also feeds a local PySpark/Delta path for development of lateness,
-checkpointing, and MERGE behavior before a short Azure integration run.
+The [single demo runner](../scripts/run_local_e2e.py) generates five scenarios and exercises this
+path. It forces file transport, uses a new isolated directory, and compares unchanged incremental
+marts with a full refresh. Streamlit and dbt have independently reconciled Gold representations.
 
-SQLite commits raw input, classifications, topic offsets, and the committed audit together.
-Its Silver event-ID primary key provides deduplication. JSONL and checkpoint files are atomic
-derived exports, repaired on a later run after process loss. Decimal price text and search
-queries survive legacy migrations; old raw history/checkpoints are imported once transactionally.
-dbt reads the committed Silver export, in an isolated DuckDB file during the complete demo.
+SQLite commits raw records, classifications, offsets, and audits in one transaction. Silver's
+primary key prevents duplicate event IDs. Bronze/Silver/quarantine JSONL, metrics, and checkpoint
+files are atomic derived exports, repaired after process loss. Exporting multiple files is not
+one distributed transaction.
 
-### Azure target deployment
+## Component responsibilities
 
-```mermaid
-flowchart TB
-    UCI[UCI source archive] --> ADF[Azure Data Factory]
-    ADF --> RAW[ADLS Landing / raw / ADF run ID]
-    RAW --> PRE[Bounded Databricks preprocessing]
-    PRE --> ADLSL[ADLS Landing / normalized / ADF run ID]
-    GEN[Python simulator] --> EH[Event Hubs Kafka endpoint]
+| Module or directory | Responsibility |
+|---|---|
+| [`contracts.py`](../src/retailpulse/contracts.py) | Versioned event schema, routing, exact prices, validation context |
+| [`events.py`](../src/retailpulse/events.py), [`producer.py`](../src/retailpulse/producer.py) | Seeded retail relationships, scenarios, file/Kafka transport |
+| [`pipeline.py`](../src/retailpulse/pipeline.py) | Input consumption, classification, replay handling, local Gold |
+| [`storage.py`](../src/retailpulse/storage.py) | Schema/migrations, transactional ledger, atomic exports |
+| [`monitoring.py`](../src/retailpulse/monitoring.py), [`incident.py`](../src/retailpulse/incident.py) | Quality rules, metrics, grounded incident analysis |
+| [`cli.py`](../src/retailpulse/cli.py) | Operator commands and guarded data reset |
+| [`batch.py`](../src/retailpulse/batch.py) | UCI CSV normalization into four historical entity datasets |
+| [`spark_contract.py`](../src/retailpulse/spark_contract.py) | Shared Python/Spark validation and standalone notebook bundling |
+| [`dbt/`](../dbt/) | Staging, dimensions/facts, incremental marts, SCD2 snapshot, tests |
+| [`dashboard/`](../dashboard/), [`bi-dashboard/`](../bi-dashboard/) | Local operational view and public archived snapshot view |
 
-    ADLSL --> DBB[Databricks batch job]
-    EH --> DBS[Databricks Structured Streaming]
-    DBB --> BR[(Bronze Delta)]
-    DBS --> BR
-    BR --> SI[(Silver Delta)]
-    BR --> QA[(Quarantine Delta)]
-    SI --> DBT[dbt on Databricks]
-    DBT --> GO[(Gold Delta)]
-    GO --> SQL[Databricks SQL warehouse]
-    SQL --> EXPORT[Validated snapshot exporter]
-    EXPORT --> JSON[Non-sensitive JSON snapshot]
-    JSON --> WEB[React + native SVG/CSS charts]
-    WEB --> PAGES[GitHub Pages]
-    SI --> MON[Audit + streaming metrics]
-    MON --> AZMON[Azure Monitor]
-    MON --> ASSIST[Incident assistant]
-    KV[Key Vault] -. secrets .-> ADF
-    KV -. secrets .-> DBB
-    KV -. secrets .-> DBS
-```
+## Kafka and Spark/Delta path
 
-Terraform defines the Azure service boundary and scoped identity roles. It does not start
-billable clusters or deploy application jobs automatically.
+The producer can publish to Redpanda's Kafka endpoint. The
+[local Spark job](../spark/local_stream_bronze_silver.py) retains raw Kafka coordinates in Bronze,
+validates events with the shared contract, retains rejected/late evidence, and uses Delta MERGE
+for Silver. Separate checkpoints support bounded `AvailableNow` runs and recovery tests.
 
-### BI publication boundary
+The standalone [Databricks notebook](../databricks/stream_bronze_silver.py) bundles the exact
+validator source. [Spark/Kafka evidence](evidence/local-spark-contract.md) covers real workers,
+post-MERGE failure, checkpoint replay, and target-side duplicate audit reconciliation. The local
+Delta tables are a separate fixture; the quick demo's DuckDB profile reads its JSONL Silver export.
 
-RetailPulse BI Lite is a static-first public dashboard. Its attended refresh process queries Azure
-Gold through a short-lived Azure Databricks token, validates Silver/Gold reconciliation, and
-atomically replaces a non-sensitive JSON snapshot. GitHub Pages serves the React application and
-snapshot; it never receives a Databricks credential and cannot issue arbitrary warehouse queries.
+## Optional Azure path
 
 ```mermaid
 flowchart LR
-    GOLD[(Azure Gold Delta)] --> WH[Stopped-by-default SQL warehouse]
-    WH -->|attended bounded refresh| EX[Snapshot exporter]
-    SILVER[(Azure Silver Delta)] -->|reconciliation only| EX
-    EX -->|validated metrics| SNAP[dashboard.json]
-    SNAP --> APP[React + native SVG/CSS charts]
-    APP --> GH[GitHub Pages]
-    GH --> USER[Reviewer browser]
-    EX -. short-lived token .-> WH
+  UCI[UCI archive] --> ADF[ADF delivery] --> LAND[(ADLS Landing)]
+  LAND --> BATCH[Databricks normalization and batch]
+  SIM[Event generator] --> EH[Event Hubs] --> STREAM[Databricks streaming]
+  BATCH --> DELTA[(Bronze / Silver / quarantine Delta)]
+  STREAM --> DELTA
+  DELTA --> DBT[dbt on Databricks] --> GOLD[(Gold Delta)]
+  GOLD --> EX[Attended validated export] --> WEB[Static React / GitHub Pages]
 ```
 
-The warehouse is stopped in cleanup even when export or validation fails. A public page view does
-not wake Databricks, so anonymous traffic cannot consume Azure credits. Snapshot metadata includes
-the source catalog/schema, business window, generation time, freshness, and reconciliation state,
-but excludes credentials and raw customer-level records.
+Terraform defines service boundaries, identities, access, and optional monitoring. Azure stage
+runners perform attended jobs and cleanup; Stage 7 temporarily enables Event Hubs. These scripts
+are optional cloud operations and are excluded from `make demo` and local CI execution.
+See the [Azure plan](execution-plan.md) and [cost strategy](cost-strategy.md).
 
-## 3. Event flow
+The public browser reads only the checked-in aggregate snapshot. It has no warehouse token or
+query capability, and page views start no Azure compute. A separately authorized refresh queries
+Azure Gold, reconciles Silver/Gold, atomically replaces the snapshot, and verifies warehouse stop.
+The saved export remains dated **15 August 2026**.
 
-1. The generator creates a strict version 1 event with a stable UUID and timezone-aware event time.
-2. Topic routing is determined only by event type.
-3. Bronze stores the raw payload and transport/ingestion metadata before validation.
-4. Parsing applies the explicit event schema and business rules.
-5. Malformed records enter quarantine with the raw payload and validation reason.
-6. Records more than 30 minutes older than ingestion time are explicitly retained as late.
-7. Duplicate `event_id` values are removed before Silver insertion or Delta MERGE.
-8. SQLite source offsets commit with classifications; exported checkpoint files are backups.
-9. Audit and metric outputs describe the run without depending on business marts.
-10. dbt consumes Silver data and materializes tested dimensions, facts, and aggregates.
-
-## 4. Medallion contracts
-
-| Layer | Purpose | Mutation policy | Primary metadata |
-|---|---|---|---|
-| Landing | Preserve delivered historical files | Append/new delivery | source path and delivery context |
-| Bronze | Replayable raw system of record | Append-only | raw payload, source topic/file, ingestion time, run ID, Kafka coordinates in cloud |
-| Silver | Validated, typed, deduplicated events/entities | Idempotent upsert by business/event key | event time, ingestion time, source, run ID |
-| Quarantine | Retain non-conforming or late input | Append-only until governed replay | raw payload, error type/message, event ID, timestamp |
-| Gold | Consumer-oriented dimensions, facts, and aggregates | Rebuild/incremental model policy | lineage from dbt manifest and tests |
-
-## 5. Gold model
+## Analytical model
 
 ```mermaid
 erDiagram
-    DIM_CUSTOMER ||--o{ FACT_ORDERS : places
-    DIM_DATE ||--o{ FACT_ORDERS : occurs_on
-    FACT_ORDERS ||--|{ FACT_ORDER_ITEMS : contains
-    DIM_PRODUCT ||--o{ FACT_ORDER_ITEMS : describes
-
-    DIM_CUSTOMER {
-        string customer_id PK
-        string country
-        timestamp first_seen_at
-        timestamp last_seen_at
-    }
-    DIM_PRODUCT {
-        string product_id PK
-        decimal average_price
-        timestamp first_seen_at
-        timestamp last_seen_at
-    }
-    FACT_ORDERS {
-        string order_id PK
-        string customer_id FK
-        timestamp order_timestamp
-        integer units
-        decimal order_total
-    }
-    FACT_ORDER_ITEMS {
-        string order_item_id PK
-        string order_id FK
-        string product_id FK
-        integer quantity
-        decimal unit_price
-    }
+  DIM_CUSTOMER ||--o{ FACT_ORDERS : places
+  DIM_DATE ||--o{ FACT_ORDERS : dates
+  FACT_ORDERS ||--|{ FACT_ORDER_ITEMS : contains
+  DIM_PRODUCT ||--o{ FACT_ORDER_ITEMS : describes
 ```
 
-The product snapshot supplies SCD Type 2 history for price changes. `daily_sales`, `customer_360`,
-and `inventory_health` are consumer marts built on the core model.
+`fact_order_items` has the order-item grain; `fact_orders` aggregates orders. `daily_sales`,
+`customer_360`, and `inventory_health` serve consumption. The product snapshot records SCD Type 2
+price history. Changed order dates repair both previous and new daily aggregates.
 
-## 6. Reliability invariants
+Silver retains exact price text. Gold rounds unit price half up to two decimals before multiplying
+quantity, consistently across SQLite and dbt. Purchase/view ratio uses independently sampled
+events; it is not customer conversion and can exceed 100%.
 
-- Bronze data is never silently discarded because Silver rejects it.
-- Silver contains at most one row per `event_id`.
-- A normal retry cannot create a second Silver database row for a previously processed event.
-- Event-time decisions use timezone-aware UTC values.
-- A checkpoint is unique to one query and one logical source.
-- A bad record is observable through quarantine and run metrics.
-- Incident reports are derived from recorded telemetry; model output is advisory.
-- Secrets and deployment-specific account names do not belong in committed source.
+## Reliability invariants and tradeoffs
 
-## 7. Architecture decisions
+- Raw input is retained even when validation fails; quarantine includes payload and reason.
+- Silver contains at most one row per event ID; replay does not create extra accepted records.
+- Event times are timezone-aware UTC. Lateness is measured against ingestion time, with rejection
+  retained rather than silently evicted by stateful watermark cleanup.
+- The local adapter assumes one attended writer and completed, append-only file deliveries.
+- Prefix hashing and exports rescan history. The bounded scale observation is not a production SLA.
+- Backdated ingestion before an incremental boundary needs explicit replay/full refresh.
+- Deletes, enterprise CDC, richer returns/cancellations, and production load certification are
+  outside this portfolio release.
+- Incident detection is deterministic. Model output is advisory and performs no remediation.
 
-| Decision | Reason | Consequence |
-|---|---|---|
-| Three topics only | Keeps the first streaming topology understandable | Event type, not topic count, carries most semantic detail |
-| Strict v1 JSON contract | Surfaces drift instead of silently ignoring fields | Producers must coordinate contract changes |
-| File-backed local adapter | Makes tests deterministic and removes cloud prerequisites | It validates pipeline semantics, not Kafka transport behavior |
-| Event ID as idempotency key | Stable across retries and simple to audit | Producers must reuse the ID when retrying the same event |
-| Thirty-minute lateness policy | Makes late input observable without silent eviction | Older events require a governed replay path |
-| SQLite/JSONL reference plus local Delta | Fast tests and Spark semantics are both available without Azure | Neither reproduces Azure identity or cloud performance |
-| Local Delta development plus bounded Azure proof | Most Spark debugging is free while Azure evidence remains truthful | Local storage cannot prove Event Hubs, ADLS, identity, or Azure recovery |
-| Event Hubs opt-in | Its Standard namespace has an idle hourly charge | Enable only for Stage 7 and disable after evidence capture |
-| `AvailableNow` default | Processes queued data and terminates compute | Continuous mode is reserved for a maximum 30-minute recovery demo |
-| Rules before LLM | Incident detection remains testable and available offline | AI enriches explanations but never defines data validity |
-| No automatic Terraform apply | Avoids accidental Azure spend and destructive changes | Deployment requires an explicit operator action |
-
-## 8. Security and operational boundaries
-
-- `.env`, Terraform state/variables, tokens, keys, and connection strings are ignored by Git.
-- Key Vault is the target secret boundary; Terraform manages roles and names but never secret
-  values.
-- ADF uses its system identity; Databricks uses a dedicated Access Connector managed identity.
-  Both receive data access only at the RetailPulse filesystem scope.
-- The Access Connector additionally receives Storage Blob Delegator at the storage-account scope;
-  this permits Unity Catalog to request short-lived delegation keys without granting data access to
-  other containers.
-- Unity Catalog storage credentials and external locations govern Databricks access to ADLS.
-- The demo uses local generated retail behavior and does not require customer PII.
-- Automatic remediation is prohibited in the first release.
-- Generated local state under `data/` is disposable; Azure state is not touched by the reset CLI.
-- Source progress and classification are one SQLite transaction; all files are replaceable
-  materializations. Subprocess exits before/after commit verify replay, audit recovery, and
-  quarantine without duplicates. The local deployment assumes one attended writer and completed
-  inbox deliveries; filesystem exports are not a distributed transaction.
-- Python/Spark contract parity is exercised on real isolated workers and Delta checkpoints,
-  including non-UTC executor OS timezone. Azure deployment/identity remains a separate proof.
-- Incremental dbt rereads tied boundary timestamps and excludes unchanged rows. Item-only changes
-  recompute order totals. Arrivals backdated before the ingestion boundary require full refresh.
+See [the contract](data-contract.md), [requirements](requirements.md), and
+[project status](project-status.md) for the exact acceptance and evidence boundaries.

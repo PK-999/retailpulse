@@ -4,7 +4,11 @@ set -euo pipefail
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 az_cli="${project_root}/scripts/azure_cli.sh"
 tf_cli="${project_root}/scripts/terraform_azure.sh"
-python_cli="${project_root}/.venv/bin/python"
+python_cli="${RETAILPULSE_PYTHON_BIN:-${project_root}/.venv/bin/python}"
+if [[ ! -x "${python_cli}" ]]; then
+  echo "Set RETAILPULSE_PYTHON_BIN to a Python 3.11–3.13 environment with the Kafka extra." >&2
+  exit 2
+fi
 databricks_resource="2ff814a6-3304-4ab8-85cb-cd0e6f879c1d"
 notebook_path="/Shared/retailpulse/stage07/stream_bronze_silver"
 job_name="retailpulse-stage07-eventhubs-streaming"
@@ -109,10 +113,6 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-if [[ ! -x "${python_cli}" ]]; then
-  echo "Create .venv and install the project Kafka extra before Stage 7." >&2
-  exit 2
-fi
 if [[ ! "${stream_run_id}" =~ ^[a-f0-9-]{36}$ ]]; then
   echo "Unable to create a safe Stage 7 stream run ID." >&2
   exit 2

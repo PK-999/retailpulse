@@ -25,7 +25,10 @@ services:
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
-      - ./data/metrics:/metrics:ro
+      - type: bind
+        source: ${RETAILPULSE_DATA_DIR:-./data}/metrics
+        target: /metrics
+        read_only: true
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.enable-lifecycle
@@ -35,7 +38,10 @@ services:
     image: prom/node-exporter:v1.8.1
     command: ["--collector.textfile.directory=/metrics"]
     volumes:
-      - ./data/metrics:/metrics:ro
+      - type: bind
+        source: ${RETAILPULSE_DATA_DIR:-./data}/metrics
+        target: /metrics
+        read_only: true
     ports: ["9100:9100"]
 
   grafana:
@@ -62,7 +68,9 @@ services:
     environment:
       RETAILPULSE_DATA_DIR: /app/data
     volumes:
-      - ./data:/app/data
+      - type: bind
+        source: ${RETAILPULSE_DATA_DIR:-./data}
+        target: /app/data
     ports: ["8501:8501"]
 
   spark-runner:

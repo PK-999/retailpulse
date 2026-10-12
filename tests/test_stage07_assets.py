@@ -1,3 +1,6 @@
+import os
+import shutil
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).parents[1]
@@ -5,6 +8,27 @@ NOTEBOOK = ROOT / "databricks" / "stream_bronze_silver.py"
 VERIFIER = ROOT / "databricks" / "verify_stage07.py"
 RUNNER = ROOT / "scripts" / "run_stage07_eventhubs_streaming.sh"
 TERRAFORM = ROOT / "terraform" / "main.tf"
+
+
+def test_stage07_rejects_unusable_python_override_before_cloud_or_secret_work(tmp_path) -> None:
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    runner = scripts / RUNNER.name
+    shutil.copyfile(RUNNER, runner)
+    default_python = tmp_path / ".venv" / "bin" / "python"
+    default_python.parent.mkdir(parents=True)
+    default_python.write_text("#!/bin/sh\nexit 0\n")
+    default_python.chmod(0o755)
+    result = subprocess.run(
+        ["bash", str(runner)],
+        env={**os.environ, "RETAILPULSE_PYTHON_BIN": str(tmp_path / "missing-python")},
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 2
+    assert "RETAILPULSE_PYTHON_BIN" in result.stderr
+    assert not (tmp_path / ".azure").exists()
 
 
 def test_stage07_notebook_uses_secret_backed_event_hubs_authentication() -> None:

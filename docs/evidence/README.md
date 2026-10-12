@@ -1,28 +1,47 @@
 # Verification evidence
 
-- [9 October zero-cost local finish proof](zero-cost-local-e2e.json)
-- [Selected portfolio release route](../zero-cost-finish.md)
-- [Current clean-checkout release verification](release-verification.json)
-- [Deployed GitHub Pages snapshot and browser verification](public-bi-dashboard.json)
-- [Complete local pipeline and dbt reconciliation](local-e2e.json)
-- [Current Spark/Delta/Kafka contract and recovery](local-spark-contract.md)
-- [Current Prometheus/Grafana alert and recovery](local-monitoring.json)
-- [Bounded 50,000-event observation](local-scale-benchmark.json)
-- [BI and Streamlit browser verification](stage-09-bi-dashboard.md)
-- [Walkthrough decode and playback verification](walkthrough-media.json)
-- [Stage 1 local external-service verification](stage-01-local-verification.md)
-- [Stage 1 Ollama-backed incident report](stage-01-ollama-report.md)
-- [Stage 1 rules-fallback incident report](stage-01-rules-fallback-report.md)
-- [Stage 2 GitHub and hosted-CI preflight](stage-02-ci-preflight.md)
-- [Stage 3 Azure deployment readiness](stage-03-readiness.md)
-- [Stage 3 local Spark/Delta verification](stage-03-local-spark.md)
-- [Stage 4 identity and storage readiness](stage-04-readiness.md)
-- [Stage 5 historical ingestion](stage-05-historical-ingestion.md)
-- [Stage 6 Databricks historical batch](stage-06-databricks-batch.md)
-- [Stage 7 Event Hubs streaming and checkpoint recovery](stage-07-eventhubs-streaming.md)
-- [Stage 8 dbt-on-Databricks Gold](stage-08-dbt-gold.md)
-- [Stage 10 cloud monitoring configuration and blocked live preflight](stage-10-cloud-monitoring.md)
-- [Stage 3/4 minimal-cost plan review](stage-03-04-plan-review.md)
+Records are dated and scoped. Start with current local proof; historical cloud evidence does
+not establish that Azure services are operating today.
 
-Add later stage evidence here using stable filenames and without secrets or generated cloud
-credentials.
+## Current local portfolio
+
+- [Portfolio refactor verification](portfolio-refactor.json): implementation revision, test counts,
+  browser checks, documentation checks, and cleanup scope.
+- [Complete demo and three dbt builds](local-e2e.json): latest isolated baseline, run IDs, totals,
+  unchanged incremental results, full-refresh equivalence, and deterministic incident analysis.
+- [Monitoring](local-monitoring.json): selected data path, healthy targets/Grafana, alert firing
+  and recovery.
+- [Spark/Delta/Kafka mechanics](local-spark-contract.md): October contract, worker, replay, and
+  target-side audit proof; the cleanup also reran all 46 real Spark/Delta tests.
+- [BI and Streamlit](stage-09-bi-dashboard.md): recorded browser QA and screenshots; the cleanup
+  reran all 17 browser tests against the current local demo and saved snapshot.
+
+## Release and presentation archive
+
+- [0.1.0 clean-checkout verification](release-verification.json): original October release checks.
+- [9 October zero-cost release proof](zero-cost-local-e2e.json): original checkpoint, retained unchanged.
+- [Public Pages verification](public-bi-dashboard.json): deployment, six view states, snapshot identity.
+- [Walkthrough media](walkthrough-media.json): original full decode and playback checks.
+- [50k-event observation](local-scale-benchmark.json): bounded workstation timing, not a scale SLA.
+- [Stage 1 local services](stage-01-local-verification.md), [Ollama report](stage-01-ollama-report.md),
+  [rules fallback](stage-01-rules-fallback-report.md): historical integration evidence.
+- [Stage 2 hosted CI](stage-02-ci-preflight.md), [Stage 3 local Spark](stage-03-local-spark.md):
+  original setup and execution evidence.
+
+## Historical August Azure results
+
+- [Core readiness](stage-03-readiness.md), [identity/storage](stage-04-readiness.md),
+  [reviewed plan](stage-03-04-plan-review.md).
+- [Historical ingestion](stage-05-historical-ingestion.md), [batch Delta](stage-06-databricks-batch.md).
+- [Event Hubs streaming/recovery](stage-07-eventhubs-streaming.md).
+- [dbt-on-Databricks Gold/SCD2](stage-08-dbt-gold.md).
+- [Azure Gold export and later browser checks](stage-09-bi-dashboard.md).
+
+## Deferred cloud verification
+
+[Saved preflight](cloud-monitor-preflight.json) and [monitoring evidence](stage-10-cloud-monitoring.md)
+record disabled services and absent live alert proof. Refer to the [current status](../project-status.md)
+and [optional Azure plan](../execution-plan.md) before interpreting these records.
+
+Preserve original artifact dates and avoid credentials, private keys, or raw sensitive records
+when adding evidence.
