@@ -41,7 +41,7 @@ verify: lint test
 
 dbt:
 	RETAILPULSE_DBT_DATA_DIR="$(DEMO_DIR)" RETAILPULSE_DBT_PATH="$(DEMO_DIR)/gold/warehouse.duckdb" \
-	  dbt build --project-dir dbt --profiles-dir dbt --target local
+	  $(PYTHON) -c 'from dbt.cli.main import cli; cli()' build --project-dir dbt --profiles-dir dbt --target local
 
 bi:
 	npm --prefix bi-dashboard ci
